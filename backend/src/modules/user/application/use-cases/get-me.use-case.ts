@@ -19,7 +19,7 @@ export class GetMeUseCase {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      return Result.fail('User not found');
+      return Result.fail('USER_NOT_FOUND', 'User not found');
     }
 
     return Result.ok(UserResponseDto.fromEntity(user));

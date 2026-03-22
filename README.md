@@ -1,63 +1,77 @@
 # SeboStockControl
 
-Sistema web de controle de estoque para loja de Sebo (livros, mangás, etc).
+Sistema corporativo de controle de estoque para lojas de Sebo (livros, mangás, colecionáveis). Desenvolvido com foco em **Clean Architecture**, **DDD** e **Atomic Design**.
 
-## Tech Stack
+## 🚀 Visão Geral
 
-- **Backend:** NestJS, Prisma, PostgreSQL, JWT
-- **Frontend:** Next.js (App Router), shadcn/ui, Tailwind CSS, TanStack Table
-- **Infra:** Docker Compose
+Este projeto é uma solução full-stack moderna que utiliza tecnologias de ponta para garantir escalabilidade, manutenibilidade e uma experiência de usuário premium.
 
-## Pré-requisitos
+### 🛠 Tech Stack
 
-- Node.js >= 20 ([download](https://nodejs.org))
-- Docker & Docker Compose ([download](https://docs.docker.com/get-docker/))
+- **Linguagem:** TypeScript (Strict Mode)
+- **Backend:** [NestJS](https://nestjs.com/) (Clean Architecture & CQRS)
+- **Frontend:** [Next.js 15+](https://nextjs.org/) (App Router & React Server Components)
+- **Persistência:** [Prisma ORM](https://www.prisma.io/) & PostgreSQL
+- **Estilização:** Tailwind CSS & shadcn/ui (Premium Aesthetics)
+- **Estado/Dados:** TanStack Query, Zustand, Zod (Schema Validation)
+- **Infra:** Docker & Docker Compose
 
-## Quick Start (automático)
+## 📖 Documentação de Engenharia
 
-O jeito mais fácil de rodar o projeto é usando o script de build.
-Ele faz tudo automaticamente: para containers antigos, sobe o banco,
-instala dependências, roda migrations, seed e inicia os servidores.
+Para entender profundamente as decisões arquiteturais e padrões de código, consulte:
 
-**Linux / macOS:**
+1. [**Arquitetura do Backend (Clean Arch & DDD)**](docs/architecture.md)
+2. [**Guia do Frontend (Atomic Design & State)**](docs/frontend-guidelines.md)
+3. [**Guia de Contribuição & Padrões**](CONTRIBUTING.md)
+
+## 🏁 Quick Start
+
+### Pré-requisitos
+- Node.js >= 20
+- Docker & Docker Compose
+
+### Instalação Automática (Recomendado)
+O script de build automatiza todo o processo de setup, banco de dados e inicialização.
 
 ```bash
+# Linux / macOS
+chmod +x build.sh
 ./build.sh
-```
 
-**Windows:**
-
-```bat
+# Windows
 build.bat
 ```
 
-## Quick Start (manual)
+### Instalação Manual
+Caso prefira o controle manual:
 
-```bash
-# 1. Subir o banco de dados
-docker compose up -d
+1. **Infraestrutura:** `docker compose up -d`
+2. **Backend:**
+   ```bash
+   cd backend
+   cp .env.example .env
+   npm install
+   npx prisma migrate dev
+   npx prisma db seed
+   npm run start:dev
+   ```
+3. **Frontend:**
+   ```bash
+   cd frontend
+   cp .env.example .env.local
+   npm install
+   npm run dev
+   ```
 
-# 2. Backend
-cd backend
-cp .env.example .env
-npm install
-npx prisma migrate dev
-npx prisma db seed
-npm run start:dev
+## 🔐 Acessos
 
-# 3. Frontend (novo terminal)
-cd frontend
-cp .env.example .env.local
-npm install
-npm run dev
-```
+- **Frontend:** [http://localhost:3000](http://localhost:3000)
+- **Backend (API):** [http://localhost:3001](http://localhost:3001)
+- **Swagger UI:** [http://localhost:3001/api/docs](http://localhost:3001/api/docs) (se ativado)
 
-## Acessos
+### Credenciais Admin
+- **Email:** `admin@admin.com`
+- **Senha:** `admin123`
 
-- **Frontend:** http://localhost:3000
-- **Backend:** http://localhost:3001
-
-### Credenciais padrão
-
-- **Email:** admin@admin.com
-- **Senha:** admin123
+---
+*Mantido com ❤️ pela equipe de engenharia do SeboStockControl.*

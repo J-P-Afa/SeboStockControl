@@ -2,13 +2,28 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PaginatedResult } from '../../../../common';
 import { PrismaService } from '../../../database';
-import { UserEntity } from '../../domain/entities/user.entity';
-import type { UserFilters } from '../../domain/repositories/user.repository.interface';
+import { ThemePreference, UserEntity } from '../../domain/entities/user.entity';
+import type { UserFilters, CreateUserParams, UpdateUserParams } from '../../domain/repositories/user.repository.interface';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  private mapToDomain(user: any): UserEntity {
+    return UserEntity.restore({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      isActive: user.isActive,
+      themePreference: user.themePreference as ThemePreference,
+      roleId: user.roleId,
+      roleName: user.role?.name,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+  }
 
   async findById(id: string): Promise<UserEntity | null> {
     const user = await this.prisma.user.findUnique({
@@ -17,8 +32,7 @@ export class PrismaUserRepository implements IUserRepository {
     });
 
     if (!user) return null;
-
-    return { ...user, roleName: user.role.name };
+    return this.mapToDomain(user);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -28,8 +42,7 @@ export class PrismaUserRepository implements IUserRepository {
     });
 
     if (!user) return null;
-
-    return { ...user, roleName: user.role.name };
+    return this.mapToDomain(user);
   }
 
   private buildWhereClause(filters?: UserFilters): Prisma.UserWhereInput {
@@ -80,7 +93,7 @@ export class PrismaUserRepository implements IUserRepository {
     ]);
 
     return {
-      items: users.map((u) => ({ ...u, roleName: u.role.name })),
+      items: users.map((u) => this.mapToDomain(u)),
       total,
       page,
       limit,
@@ -88,11 +101,7 @@ export class PrismaUserRepository implements IUserRepository {
     };
   }
 
-  async create(
-    data: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt' | 'roleName' | 'themePreference'> & {
-      themePreference?: UserEntity['themePreference'];
-    },
-  ): Promise<UserEntity> {
+  async create(data: CreateUserParams): Promise<UserEntity> {
     const user = await this.prisma.user.create({
       data: {
         name: data.name,
@@ -105,22 +114,17 @@ export class PrismaUserRepository implements IUserRepository {
       include: { role: true },
     });
 
-    return { ...user, roleName: user.role.name };
+    return this.mapToDomain(user);
   }
 
-  async update(
-    id: string,
-    data: Partial<
-      Pick<UserEntity, 'name' | 'email' | 'password' | 'isActive' | 'roleId' | 'themePreference'>
-    >,
-  ): Promise<UserEntity> {
+  async update(id: string, data: UpdateUserParams): Promise<UserEntity> {
     const user = await this.prisma.user.update({
       where: { id },
       data,
       include: { role: true },
     });
 
-    return { ...user, roleName: user.role.name };
+    return this.mapToDomain(user);
   }
 
   async delete(id: string): Promise<void> {

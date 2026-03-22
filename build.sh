@@ -30,6 +30,13 @@ ok()   { echo -e "${GREEN}  ✔ $1${NC}"; }
 warn() { echo -e "${YELLOW}  ⚠ $1${NC}"; }
 fail() { echo -e "${RED}  ✖ $1${NC}"; exit 1; }
 
+# ---- Impedir execução em shells incompatíveis (sh/dash) ----
+if [ -z "$BASH_VERSION" ]; then
+  echo "\033[0;31m  ✖ ERRO CRÍTICO: Este script DEVE ser executado em Bash.\033[0m"
+  echo "\033[0;33m  Uso correto: ./build.sh ou bash build.sh\033[0m"
+  exit 1
+fi
+
 # ---- Impedir execução com sudo (causa problemas com nvm) ----
 if [ "$(id -u)" -eq 0 ]; then
   echo -e "${RED}╔══════════════════════════════════════════════════════╗${NC}"
