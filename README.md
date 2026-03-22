@@ -72,6 +72,3 @@ Caso prefira o controle manual:
 ### Credenciais Admin
 - **Email:** `admin@admin.com`
 - **Senha:** `admin123`
-
----
-*Mantido com ❤️ pela equipe de engenharia do SeboStockControl.*
