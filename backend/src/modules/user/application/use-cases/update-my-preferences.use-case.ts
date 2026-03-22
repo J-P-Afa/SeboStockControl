@@ -22,7 +22,7 @@ export class UpdateMyPreferencesUseCase {
     const existingUser = await this.userRepository.findById(userId);
 
     if (!existingUser) {
-      return Result.fail('User not found');
+      return Result.fail('USER_NOT_FOUND', 'User not found');
     }
 
     const updatedUser = await this.userRepository.update(userId, {
