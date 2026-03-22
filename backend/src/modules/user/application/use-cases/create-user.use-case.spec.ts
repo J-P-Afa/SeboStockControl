@@ -1,19 +1,19 @@
 import { mockDeep, MockProxy } from 'jest-mock-extended';
-import * as bcrypt from 'bcrypt';
 import { CreateUserUseCase } from './create-user.use-case';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
+import { IHashProvider } from '../../application/providers/hash.provider.interface';
 import { CreateUserDto } from '../dtos';
 import { UserEntity } from '../../domain/entities/user.entity';
-
-jest.mock('bcrypt');
 
 describe('CreateUserUseCase', () => {
     let useCase: CreateUserUseCase;
     let userRepository: MockProxy<IUserRepository>;
+    let hashProvider: MockProxy<IHashProvider>;
 
     beforeEach(() => {
         userRepository = mockDeep<IUserRepository>();
-        useCase = new CreateUserUseCase(userRepository);
+        hashProvider = mockDeep<IHashProvider>();
+        useCase = new CreateUserUseCase(userRepository, hashProvider);
         jest.clearAllMocks();
     });
 
@@ -25,7 +25,7 @@ describe('CreateUserUseCase', () => {
         isActive: true,
     };
 
-    const mockUser: UserEntity = {
+    const mockUser: UserEntity = UserEntity.restore({
         id: 'user-id',
         name: 'Test User',
         email: 'test@example.com',
@@ -35,12 +35,12 @@ describe('CreateUserUseCase', () => {
         themePreference: 'SYSTEM',
         createdAt: new Date(),
         updatedAt: new Date(),
-    };
+    });
 
     it('should create a user successfully', async () => {
         // Arrange
         userRepository.findByEmail.mockResolvedValue(null);
-        (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
+        hashProvider.hash.mockResolvedValue('hashed-password');
         userRepository.create.mockResolvedValue(mockUser);
 
         // Act
@@ -51,7 +51,7 @@ describe('CreateUserUseCase', () => {
         expect(result.data).toBeDefined();
         expect(result.data?.email).toBe(mockDto.email);
         expect(userRepository.findByEmail).toHaveBeenCalledWith(mockDto.email);
-        expect(bcrypt.hash).toHaveBeenCalledWith(mockDto.password, 10);
+        expect(hashProvider.hash).toHaveBeenCalledWith(mockDto.password);
         expect(userRepository.create).toHaveBeenCalledWith({
             name: mockDto.name,
             email: mockDto.email,
