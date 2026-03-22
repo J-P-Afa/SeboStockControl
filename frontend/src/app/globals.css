@@ -132,6 +132,8 @@
   --sidebar-ring: var(--ring);
 }
 
+:root[data-accessibility="high-contrast"],
+.dark[data-accessibility="high-contrast"],
 [data-accessibility="high-contrast"] {
   /* Level 0 - Pure Black Base */
   --background: oklch(0 0 0);
