@@ -7,8 +7,7 @@ import { BookRepository } from '../domain/book.repository';
 export class PrismaBookRepository implements BookRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Aqui removemos id, createdAt e updatedAt
-  async create(data: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>): Promise<Book> {
+  async create(data: Omit<Book, 'id'>): Promise<Book> {
     return this.prisma.book.create({ data });
   }
 
@@ -16,7 +15,20 @@ export class PrismaBookRepository implements BookRepository {
     return this.prisma.book.findUnique({ where: { id } });
   }
 
-  async update(id: number, data: Partial<Omit<Book, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Book> {
+  async update(id: number, data: Partial<Omit<Book, 'id' >>): Promise<Book> {
     return this.prisma.book.update({ where: { id }, data });
+  }
+
+    async findAll() {
+    return this.prisma.book.findMany();
+  }
+
+  async delete(id: number) {
+    try {
+      await this.prisma.book.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

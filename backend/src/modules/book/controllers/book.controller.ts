@@ -1,32 +1,40 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { AddBookUseCase } from '../application/use-cases/add-book.use-case';
 import { PrismaBookRepository } from '../infrastructure/prisma-book.repository';
-import { Result } from '../../../common/interfaces/result.interface';
+import { CreateBookDto } from '../dto/create-book.dto';
 
 @Controller('books')
 export class BookController {
-  private bookRepo = new PrismaBookRepository();
-  private addBook = new AddBookUseCase(this.bookRepo);
+  private addBookUseCase: AddBookUseCase;
 
-  @Post()
-  async create(@Body() data: { title: string; author: string; stock: number }) {
-    const result = await this.addBook.execute(data);
-    if (result.isFailure) return { success: false, error: result.error };
-    return { success: true, book: result.getValue() };
+  constructor(private readonly bookRepo: PrismaBookRepository) {
+    this.addBookUseCase = new AddBookUseCase(this.bookRepo);
   }
 
-  // GET /books
+  @Post()
+  async create(@Body() data: CreateBookDto) {
+    const result = await this.addBookUseCase.execute(data);
+
+    return {
+      success: true,
+      book: result.data,
+    };
+  }
+
   @Get()
   async findAll() {
     const books = await this.bookRepo.findAll();
     return { success: true, books };
   }
 
-  // DELETE /books/:id
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const result = await this.bookRepo.delete(Number(id));
-    if (!result) return { success: false, error: 'Livro não encontrado' };
+    const deleted = await this.bookRepo.delete(Number(id));
+
+    if (!deleted) {
+      return { success: false, error: 'Livro não encontrado' };
+    }
+
     return { success: true };
   }
 }
