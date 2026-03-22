@@ -55,4 +55,4 @@ Cada módulo do sistema (ex: `user`, `auth`) é subdividido nas seguintes camada
 - **Integração (E2E):** Focam nos fluxos completos via API (`.e2e-spec.ts`).
 
 ---
-*Para dúvidas sobre implementação, consulte o `CONTRIBUTING.md`.*
+*Para dúvidas sobre implementação, consulte `CONTRIBUTING.md`.*
