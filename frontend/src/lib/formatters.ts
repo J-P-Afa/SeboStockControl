@@ -34,3 +34,15 @@ export function truncateUuid(id: string): string {
 export function registrosLabel(total: number): string {
   return `${total} registro${total !== 1 ? 's' : ''} no total`;
 }
+
+/**
+ * Formata um valor numérico como moeda brasileira (R$).
+ * @param value - Valor numérico a ser formatado.
+ * @returns Valor formatado como moeda.
+ */
+export function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+}

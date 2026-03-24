@@ -14,3 +14,9 @@ export {
   listRoles,
 } from './users.api';
 export { rolesApi } from './roles.api';
+export {
+  listBooks,
+  createBook,
+  updateBook,
+  deleteBook,
+} from './books.api';
