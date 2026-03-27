@@ -15,6 +15,52 @@
 
 ---
 
+## TABELAS DE SEGURANÇA E ACESSO
+
+### `permissao`
+| Campo       | Tipo         | Constraints         | Descrição               |
+|-------------|--------------|---------------------|-------------------------|
+| id          | UUID         | PK, NOT NULL        |                         |
+| acao        | VARCHAR(100) | NOT NULL, UNIQUE    | Ex: "user:create"       |
+| descricao   | TEXT         | NULLABLE            |                         |
+| created_at  | TIMESTAMP    | NOT NULL, DEFAULT NOW() |                    |
+| updated_at  | TIMESTAMP    | NOT NULL, DEFAULT NOW() |                    |
+
+---
+
+### `regra` (Role)
+| Campo       | Tipo         | Constraints         | Descrição |
+|-------------|--------------|---------------------|-----------|
+| id          | UUID         | PK, NOT NULL        |           |
+| nome        | VARCHAR(100) | NOT NULL, UNIQUE    | Ex: "ADMIN", "ESTOQUISTA" |
+| created_at  | TIMESTAMP    | NOT NULL, DEFAULT NOW() |           |
+| updated_at  | TIMESTAMP    | NOT NULL, DEFAULT NOW() |           |
+
+---
+
+### `regra_permissao`
+| Campo         | Tipo | Constraints                                  | Descrição |
+|---------------|------|----------------------------------------------|-----------|
+| id_regra      | UUID | PK, FK → regra.id, NOT NULL                  |           |
+| id_permissao  | UUID | PK, FK → permissao.id, NOT NULL              |           |
+
+---
+
+### `usuario`
+| Campo            | Tipo        | Constraints             | Descrição                                                        |
+|------------------|-------------|-------------------------|------------------------------------------------------------------|
+| id               | UUID        | PK, NOT NULL            |                                                                  |
+| id_regra         | UUID        | FK → regra.id, NOT NULL |                                                                  |
+| nome             | VARCHAR(255)| NOT NULL                |                                                                  |
+| email            | VARCHAR(255)| NOT NULL, UNIQUE        |                                                                  |
+| senha            | VARCHAR(255)| NOT NULL                | Hash BCrypt/Argon2                                               |
+| ativo            | BOOLEAN     | NOT NULL, DEFAULT TRUE  |                                                                  |
+| preferencia_tema | VARCHAR(20) | NOT NULL, DEFAULT 'SYSTEM'| SYSTEM, LIGHT, DARK                                           |
+| created_at       | TIMESTAMP   | NOT NULL, DEFAULT NOW() |                                                                  |
+| updated_at       | TIMESTAMP   | NOT NULL, DEFAULT NOW() |                                                                  |
+
+---
+
 ## TABELAS DE DOMÍNIO (lookup tables)
 
 ### `classificacao`
@@ -108,6 +154,7 @@
 | estado          | VARCHAR(10)  | NOT NULL, CHECK (estado IN ('novo', 'usado'))   |                                                        |
 | colecao         | VARCHAR(20)  | NOT NULL, CHECK (colecao IN ('completa', 'em_lancamento')) |                                              |
 | peso_gramas     | DECIMAL(8,2) | NULLABLE, CHECK (peso_gramas > 0.0)             | Peso em gramas |
+| preco_tabelado  | DECIMAL(12,2)| NULLABLE                                        | Preço unitário tabelado/sugerido |
 | ativo           | BOOLEAN      | NOT NULL, DEFAULT TRUE                          | Soft delete    |
 | created_at      | TIMESTAMP    | NOT NULL, DEFAULT NOW()                         |                |
 | updated_at      | TIMESTAMP    | NOT NULL, DEFAULT NOW()                         |                |
@@ -165,6 +212,7 @@ END IF
 |----------------|--------------|---------------------------------------------------|----------------------------------------|
 | id             | INT          | PK, NOT NULL                                      |                                        |
 | id_livro       | INT          | FK → livro.id, NOT NULL                           |                                        |
+| id_usuario     | UUID         | FK → usuario.id, NOT NULL                         | Usuário que registrou a entrada        |
 | data           | DATE         | NOT NULL, CHECK (data <= CURRENT_DATE)            |                                        |
 | quantidade     | INT          | NOT NULL, CHECK (quantidade > 0)                  |                                        |
 | valor_unitario | DECIMAL(12,4)| NOT NULL, CHECK (valor_unitario >= 0)             | Custo unitário desta entrada. = 0 para doações recebidas |
@@ -183,6 +231,7 @@ END IF
 |------------------------------|--------------|-----------------------------------------------------------------------------|---------------------------------------------------------------------------|
 | id                           | INT          | PK, NOT NULL                                                                |                                                                           |
 | id_livro                     | INT          | FK → livro.id, NOT NULL                                                     |                                                                           |
+| id_usuario                   | UUID         | FK → usuario.id, NOT NULL                                                   | Usuário que registrou a saída                                             |
 | id_tipo_saida                | INT          | FK → tipo_saida.id, NOT NULL, DEFAULT (SELECT id FROM tipo_saida WHERE is_venda = TRUE LIMIT 1) | Default = registro "Venda". Ver RULE TPS-01      |
 | id_canal_venda               | INT          | FK → canal_venda.id, NULLABLE                                               | Obrigatório se `tipo_saida.is_venda = TRUE`                               |
 | id_forma_pagamento           | INT          | FK → forma_pagamento.id, NULLABLE                                           | Obrigatório se `tipo_saida.is_venda = TRUE`                               |
@@ -192,6 +241,7 @@ END IF
 | valor_total                  | DECIMAL(14,4)| GENERATED: (quantidade * valor_unitario)                                    | Computed column                                                           |
 | snapshot_custo_unitario      | DECIMAL(12,4)| NOT NULL, TRIGGER-MANAGED                                                   | Copiado de `estoque.custo_unitario_medio` no momento da saída             |
 | snapshot_custo_total         | DECIMAL(14,4)| GENERATED: (quantidade * snapshot_custo_unitario)                           | Computed column                                                           |
+| snapshot_preco_tabelado      | DECIMAL(12,2)| NULLABLE, TRIGGER-MANAGED                                                   | Copiado de `livro.preco_tabelado` no momento da saída             |
 | snapshot_comissao_plataforma | DECIMAL(5,4) | NOT NULL, DEFAULT 0.0, TRIGGER-MANAGED                                      | Copiado de `canal_venda.comissao`; = 0 se não for venda                  |
 | valor_comissao_plataforma    | DECIMAL(14,4)| GENERATED: (valor_total * snapshot_comissao_plataforma)                     | Computed column                                                           |
 | snapshot_taxa_pagamento      | DECIMAL(5,4) | NOT NULL, DEFAULT 0.0, TRIGGER-MANAGED                                      | Copiado de `forma_pagamento.taxa`; = 0 se não for venda                  |
@@ -207,21 +257,28 @@ END IF
 > `RULE [SAI-02]`: Se `tipo_saida.is_venda = TRUE`: `id_canal_venda` NOT NULL, `id_forma_pagamento` NOT NULL, `valor_unitario > 0`.  
 > `RULE [SAI-03]`: Se `tipo_saida.is_venda = FALSE`: `valor_unitario = 0`, `id_canal_venda = NULL`, `id_forma_pagamento = NULL`.  
 > `RULE [SAI-04]`: AFTER INSERT, decrementar `estoque.quantidade`. Toda a operação em transação única — ROLLBACK em caso de falha.  
-> `RULE [SAI-05]`: Os campos `snapshot_*` devem ser preenchidos por trigger BEFORE INSERT, copiando os valores atuais das tabelas de referência. Isso garante imutabilidade histórica. Se `is_venda = FALSE`, `snapshot_comissao_plataforma = 0` e `snapshot_taxa_pagamento = 0`.
+> `RULE [SAI-05]`: Os campos `snapshot_*` devem ser preenchidos por trigger BEFORE INSERT, copiando os valores atuais das tabelas de referência (`livro`, `estoque`, `canal_venda`, `forma_pagamento`). Isso garante imutabilidade histórica. Se `is_venda = FALSE`, `snapshot_comissao_plataforma = 0` e `snapshot_taxa_pagamento = 0`.
 
 ---
 
 ## DIAGRAMA DE DEPENDÊNCIAS (resumido)
 
 ```
-classificacao ─┐
-editora        ├──► livro ──► estoque
-idioma         ┘       │
-                       ├──► entrada
-                       │
-                       └──► saida ──► canal_venda
-                                  └──► forma_pagamento
-                                  └──► tipo_saida
+permissao ──┐
+            ├──► regra ──┐
+          regra_permissao│
+                         └──► usuario ──┐
+                                        │
+classificacao ─┐                        │
+editora        ├──► livro ──► estoque   │
+idioma         ┘       │                │
+                       ├──► entrada ◄───┤
+                       │                │
+                       └──► saida ◄─────┘
+                               │
+                               ├──► canal_venda
+                               ├──► forma_pagamento
+                               └──► tipo_saida
 ```
 
 ---
