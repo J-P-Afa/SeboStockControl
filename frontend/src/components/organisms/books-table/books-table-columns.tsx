@@ -11,16 +11,13 @@ import { MoreHorizontal } from 'lucide-react';
 import { SortableHeader } from '@/components/molecules/data-table';
 import { formatCurrency } from '@/lib/formatters';
 import type { Book } from '@/types';
+import { Badge } from '@/components/atoms/badge';
 
 interface GetBooksTableColumnsParams {
   onEdit: (book: Book) => void;
   onDelete: (book: Book) => void;
 }
 
-/**
- * Define as colunas da tabela de livros para uso com `DataTable<Book>`.
- * Separado do componente de renderização para seguir o princípio de responsabilidade única.
- */
 export function getBooksTableColumns({
   onEdit,
   onDelete,
@@ -31,40 +28,56 @@ export function getBooksTableColumns({
       header: ({ column }) => (
         <SortableHeader column={column}>Título</SortableHeader>
       ),
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{row.original.title}</span>
+          {row.original.subtitle && (
+            <span className="text-xs text-muted-foreground">{row.original.subtitle}</span>
+          )}
+        </div>
+      )
     },
     {
       accessorKey: 'author',
+      header: ({ column }) => (        <SortableHeader column={column}>Autor</SortableHeader>
+      ),
+      cell: ({ row }) => row.original.author || '-',
+    },
+    {
+      accessorKey: 'isbn13',
       header: ({ column }) => (
-        <SortableHeader column={column}>Autor</SortableHeader>
+        <SortableHeader column={column}>ISBN-13</SortableHeader>
+      ),
+      cell: ({ row }) => row.original.isbn13 || '-',
+    },
+    {
+      accessorKey: 'condition',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Estado</SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <Badge variant={row.original.condition === 'novo' ? 'default' : 'outline'}>
+          {row.original.condition === 'novo' ? 'Novo' : 'Usado'}
+        </Badge>
       ),
     },
     {
-      accessorKey: 'stock',
+      accessorKey: 'listPrice',
       header: ({ column }) => (
-        <SortableHeader column={column}>Estoque</SortableHeader>
+        <SortableHeader column={column}>Preço Base</SortableHeader>
       ),
-      cell: ({ row }) => row.original.stock.toString(),
+      cell: ({ row }) => row.original.listPrice ? formatCurrency(Number(row.original.listPrice)) : '-',
     },
     {
-      accessorKey: 'price',
+      accessorKey: 'status',
       header: ({ column }) => (
-        <SortableHeader column={column}>Preço</SortableHeader>
+        <SortableHeader column={column}>Status</SortableHeader>
       ),
-      cell: ({ row }) => formatCurrency(row.original.price),
-    },
-    {
-      accessorKey: 'publisher',
-      header: ({ column }) => (
-        <SortableHeader column={column}>Editora</SortableHeader>
+      cell: ({ row }) => (
+        <span className="text-xs capitalize">
+          {row.original.status.replace('_', ' ')}
+        </span>
       ),
-      cell: ({ row }) => row.original.publisher || '-',
-    },
-    {
-      accessorKey: 'edition',
-      header: ({ column }) => (
-        <SortableHeader column={column}>Edição</SortableHeader>
-      ),
-      cell: ({ row }) => row.original.edition || '-',
     },
     {
       id: 'actions',
