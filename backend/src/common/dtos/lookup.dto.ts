@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength, IsNumber, Min } from 'class-validator';
 
 export class CreateLookupDto {
   @IsString()
@@ -8,7 +8,13 @@ export class CreateLookupDto {
 
   @IsOptional()
   @IsBoolean()
-  ativo?: boolean;
+  isActive?: boolean;
+
+  /** Opcional para a maioria, mas obrigatório para Classificacao no repositório */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  margemAlvo?: number;
 }
 
 export class UpdateLookupDto {
@@ -19,19 +25,30 @@ export class UpdateLookupDto {
 
   @IsOptional()
   @IsBoolean()
-  ativo?: boolean;
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  margemAlvo?: number;
 }
 
 export class LookupResponseDto {
   id: number;
   descricao: string;
-  ativo: boolean;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  margemAlvo?: number;
 
-  static from(entity: { id: number; descricao: string; ativo: boolean; createdAt: Date; updatedAt: Date }): LookupResponseDto {
+  static from(entity: any): LookupResponseDto {
     const dto = new LookupResponseDto();
-    Object.assign(dto, entity);
+    dto.id = entity.id;
+    dto.descricao = entity.descricao || entity.description;
+    dto.isActive = entity.isActive;
+    dto.createdAt = entity.createdAt;
+    dto.updatedAt = entity.updatedAt;
+    dto.margemAlvo = entity.margemAlvo ? Number(entity.margemAlvo) : undefined;
     return dto;
   }
 }

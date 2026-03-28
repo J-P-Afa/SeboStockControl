@@ -14,7 +14,7 @@ export interface Result<T> {
 }
 
 export const Result = {
-  ok<T>(data: T): Result<T> {
+  ok<T = void>(data?: T): Result<T> {
     return { success: true, data };
   },
 
