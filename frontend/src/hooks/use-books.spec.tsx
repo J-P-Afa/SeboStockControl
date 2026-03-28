@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/lib/api/mocks/server';
 import { toast } from 'sonner';
+import type { CreateBookPayload } from '@/types';
+import { EditionType, Condition, Status } from '@/types';
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -60,7 +62,18 @@ describe('useBooks hook', () => {
   });
 
   it('should create a book successfully', async () => {
-    const newBook = { title: 'New Book', author: 'New Author', isbn: '789' };
+    const newBook: CreateBookPayload = { 
+      title: 'New Book', 
+      author: 'New Author', 
+      isbn13: '1234567890123',
+      editionType: EditionType.NORMAL,
+      condition: Condition.NOVO,
+      status: Status.COMPLETO,
+      weight: 100,
+      publisherId: 1,
+      languageId: 1,
+      genreId: 1
+    };
     
     server.use(
       http.post(`${API_URL}/books`, () => {
@@ -70,7 +83,7 @@ describe('useBooks hook', () => {
 
     const { result } = renderHook(() => useCreateBook(), { wrapper });
 
-    result.current.mutate(newBook as any);
+    result.current.mutate(newBook);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(toast.success).toHaveBeenCalledWith('Livro criado com sucesso');
@@ -85,7 +98,7 @@ describe('useBooks hook', () => {
 
     const { result } = renderHook(() => useCreateBook(), { wrapper });
 
-    result.current.mutate({ title: 'Error' } as any);
+    result.current.mutate({ title: 'Error' } as CreateBookPayload);
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toast.error).toHaveBeenCalled();

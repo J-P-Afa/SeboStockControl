@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/lib/api/mocks/server';
 import { toast } from 'sonner';
+import type { CreateUserPayload } from '@/types';
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -76,10 +77,10 @@ describe('useUsers hook', () => {
   });
 
   it('should create a user successfully', async () => {
-    const newUser = { name: 'New User', email: 'new@example.com', role: 'USER', password: 'password' };
+    const newUser: CreateUserPayload = { name: 'New User', email: 'new@example.com', role: 'USER', password: 'password' };
     
     server.use(
-      http.post(`${API_URL}/users`, async ({ request }) => {
+      http.post(`${API_URL}/users`, async () => {
         return HttpResponse.json({
           success: true,
           data: { id: '3', ...newUser }
@@ -89,7 +90,7 @@ describe('useUsers hook', () => {
 
     const { result } = renderHook(() => useCreateUser(), { wrapper });
 
-    result.current.mutate(newUser as any);
+    result.current.mutate(newUser);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(toast.success).toHaveBeenCalledWith('Usuário criado com sucesso');
@@ -104,7 +105,7 @@ describe('useUsers hook', () => {
 
     const { result } = renderHook(() => useCreateUser(), { wrapper });
 
-    result.current.mutate({ name: 'Error', email: 'error@example.com', role: 'USER', password: 'password' } as any);
+    result.current.mutate({ name: 'Error', email: 'error@example.com', role: 'USER', password: 'password' } as CreateUserPayload);
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toast.error).toHaveBeenCalled();

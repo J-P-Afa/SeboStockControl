@@ -2,7 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { RoleMultiSelect } from './role-multi-select';
 import { useRoles } from '@/hooks/use-users';
 import { vi, describe, it, expect } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, type UseQueryResult } from '@tanstack/react-query';
+import type { Role } from '@/types';
 
 vi.mock('@/hooks/use-users', () => ({
   useRoles: vi.fn(),
@@ -16,8 +17,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('RoleMultiSelect', () => {
   it('should not crash when roles is not an array', () => {
-    // @ts-ignore
-    vi.mocked(useRoles).mockReturnValue({ data: { success: true, data: [] } as any });
+    // @ts-expect-error - Testing resilience to bad API response
+    vi.mocked(useRoles).mockReturnValue({ data: { success: true, data: [] } as unknown as Role[] } as unknown as UseQueryResult<Role[], Error>);
 
     expect(() => {
       render(<RoleMultiSelect selectedIds={[]} onRoleIdsChange={() => {}} />, { wrapper });
@@ -30,7 +31,7 @@ describe('RoleMultiSelect', () => {
         { id: '1', name: 'Admin', permissions: [] },
         { id: '2', name: 'User', permissions: [] },
       ],
-    } as any);
+    } as unknown as UseQueryResult<Role[], Error>);
 
     render(<RoleMultiSelect selectedIds={[]} onRoleIdsChange={() => {}} />, { wrapper });
     

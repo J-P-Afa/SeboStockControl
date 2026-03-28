@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   PackageMinus, 
   Trash2, 
@@ -12,7 +12,6 @@ import {
   Info,
   Save,
   Eraser,
-  ShoppingCart,
   CreditCard,
   Store
 } from 'lucide-react';
@@ -22,7 +21,6 @@ import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/atoms/card';
-import { Separator } from '@/components/atoms/separator';
 import { 
   Table, 
   TableBody, 
@@ -49,7 +47,7 @@ import { useTiposSaida } from '@/hooks/use-tipos-saida';
 import { useCanaisVenda } from '@/hooks/use-canais-venda';
 import { useFormasPagamento } from '@/hooks/use-formas-pagamento';
 import { formatCurrency } from '@/lib/formatters';
-import { Condition, type Book, type TipoSaida, type CanalVenda, type FormaPagamento } from '@/types';
+import { Condition, type Book, type CreateBookPayload } from '@/types';
 import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api/client';
 
@@ -135,7 +133,7 @@ export default function RegistrarSaidaPage() {
         setReaderIsbn(isbn);
         setBookFormOpen(true);
       }
-    } catch (error) {
+    } catch {
       toast.error('Livro não encontrado. Cadastre um novo.');
       setReaderIsbn(isbn);
       setBookFormOpen(true);
@@ -156,8 +154,8 @@ export default function RegistrarSaidaPage() {
     try {
       const stock = await getBookStock(book.id);
       setEstoqueAtual(stock);
-    } catch (error) {
-      console.error('Failed to fetch stock', error);
+    } catch {
+      console.error('Failed to fetch stock');
       setEstoqueAtual(0);
     }
   };
@@ -262,7 +260,7 @@ export default function RegistrarSaidaPage() {
 
       toast.success('Saída processada com sucesso!');
       resetForm();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao processar saída');
     }
   };
@@ -280,12 +278,12 @@ export default function RegistrarSaidaPage() {
         publisherId: Number(formData.publisherId),
         languageId: Number(formData.languageId),
         genreId: Number(formData.genreId),
-      } as any);
+      } as CreateBookPayload);
       
       setBookFormOpen(false);
       handleBookSelect(book);
       toast.success('Livro cadastrado e selecionado');
-    } catch (error) {
+    } catch {
       toast.error('Erro ao cadastrar livro');
     }
   };
@@ -642,7 +640,7 @@ export default function RegistrarSaidaPage() {
         open={bookFormOpen}
         onOpenChange={setBookFormOpen}
         onSubmit={handleNewBookSubmit}
-        book={readerIsbn ? { isbn13: readerIsbn.length === 13 ? readerIsbn : null, isbn10: readerIsbn.length === 10 ? readerIsbn : null } as any : null}
+        book={readerIsbn ? { isbn13: readerIsbn.length === 13 ? readerIsbn : null, isbn10: readerIsbn.length === 10 ? readerIsbn : null } as Partial<Book> as Book : null}
       />
     </div>
   );

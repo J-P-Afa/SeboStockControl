@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import LoginPage from './page';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -29,8 +29,8 @@ describe('LoginPage Organism', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRouter as any).mockReturnValue({ push: mockPush });
-    (useAuth as any).mockReturnValue({ login: mockLogin });
+    (useRouter as Mock).mockReturnValue({ push: mockPush });
+    (useAuth as Mock).mockReturnValue({ login: mockLogin });
   });
 
   it('should have no accessibility violations', async () => {
@@ -96,8 +96,8 @@ describe('LoginPage Organism', () => {
   it('should show loading spinner while logging in', async () => {
     const user = userEvent.setup();
     // Use a promise that doesn't resolve immediately to check loading state
-    let resolveLogin: (value: any) => void;
-    const loginPromise = new Promise((resolve) => {
+    let resolveLogin: (value: void | PromiseLike<void>) => void;
+    const loginPromise = new Promise<void>((resolve) => {
       resolveLogin = resolve;
     });
     mockLogin.mockReturnValueOnce(loginPromise);

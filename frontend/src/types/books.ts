@@ -69,7 +69,7 @@ export interface CreateBookPayload {
   classificacaoId?: number | null;
 }
 
-export interface UpdateBookPayload extends Partial<CreateBookPayload> {}
+export type UpdateBookPayload = Partial<CreateBookPayload>;
 
 export interface ListBooksFilters {
   search?: string;

@@ -1,7 +1,6 @@
 'use client';
 
 import { useToggleSet } from '@/hooks/use-toggle-set';
-import { useCallback } from 'react';
 import { Filter } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import { Checkbox } from '@/components/atoms/checkbox';

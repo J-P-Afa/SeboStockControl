@@ -21,8 +21,8 @@ export interface BulkCreateEntradaPayload {
   items: Omit<CreateEntradaPayload, 'usuarioId' | 'dataEntrada'>[];
 }
 
-export async function bulkCreateEntrada(payload: BulkCreateEntradaPayload): Promise<any> {
-  const { data } = await apiClient.post<ApiResponse<any>>('/entradas/bulk', payload);
+export async function bulkCreateEntrada(payload: BulkCreateEntradaPayload): Promise<void> {
+  const { data } = await apiClient.post<ApiResponse<void>>('/entradas/bulk', payload);
   return data.data;
 }
 

@@ -95,7 +95,7 @@ describe('AuthProvider & useAuth', () => {
     
     // Mock window.location using vi.stubGlobal
     const locationStub = { href: '' };
-    vi.stubGlobal('location', locationStub as any);
+    vi.stubGlobal('location', locationStub as unknown as Location);
 
     render(
       <AuthProvider>

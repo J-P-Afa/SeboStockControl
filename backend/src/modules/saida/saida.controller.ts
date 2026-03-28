@@ -12,6 +12,7 @@ import { CreateSaidaBulkUseCase } from './create-saida-bulk.use-case';
 import { CreateSaidaDto } from './create-saida.dto';
 import { CreateSaidaBulkDto } from './create-saida-bulk.dto';
 import { PrismaService } from '../database/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Controller('saidas')
 export class SaidaController {
@@ -40,7 +41,7 @@ export class SaidaController {
     @Query('bookId') bookId?: string,
     @Query('tipoSaidaId') tipoSaidaId?: string,
   ) {
-    const where: any = {};
+    const where: Prisma.SaidaWhereInput = {};
     if (bookId) where.bookId = Number(bookId);
     if (tipoSaidaId) where.tipoSaidaId = Number(tipoSaidaId);
 

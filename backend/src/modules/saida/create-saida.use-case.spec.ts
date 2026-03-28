@@ -1,25 +1,34 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CreateSaidaUseCase } from './create-saida.use-case';
 import { PrismaService } from '../database';
 import { BookBuilder } from '../../test-utils/builders/book.builder';
 import { EstoqueBuilder } from '../../test-utils/builders/estoque.builder';
-import { Prisma } from '@prisma/client';
+import {
+  Prisma,
+  TipoSaida,
+  CanalVenda,
+  FormaPagamento,
+  Saida,
+} from '@prisma/client';
+import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 describe('CreateSaidaUseCase', () => {
   let useCase: CreateSaidaUseCase;
-
-  const mockPrisma = {
-    book: { findUnique: jest.fn() },
-    tipoSaida: { findUnique: jest.fn() },
-    estoque: { findUnique: jest.fn() },
-    canalVenda: { findUnique: jest.fn() },
-    formaPagamento: { findUnique: jest.fn() },
-    $transaction: jest.fn(),
-  };
+  let prismaMock: DeepMockProxy<PrismaService>;
 
   const mockBookAtivo = BookBuilder.aBook().withPrecoTabelado('89.90').build();
   const mockBookInisActive = BookBuilder.aBook().inactive().build();
-  const mockTipoVenda = { id: 1, descricao: 'Venda', isVenda: true };
-  const mockTipoNaoVenda = { id: 2, descricao: 'Perda', isVenda: false };
+  const mockTipoVenda = {
+    id: 1,
+    descricao: 'Venda',
+    isVenda: true,
+  } as TipoSaida;
+  const mockTipoNaoVenda = {
+    id: 2,
+    descricao: 'Perda',
+    isVenda: false,
+  } as TipoSaida;
   const mockEstoque = EstoqueBuilder.anEstoque()
     .withQuantidade(10)
     .withCustoUnitarioMedio(20)
@@ -28,8 +37,13 @@ describe('CreateSaidaUseCase', () => {
     id: 1,
     comissaoVariavel: new Prisma.Decimal('0.2000'),
     comissaoFixa: new Prisma.Decimal(0),
-  };
-  const mockForma = { id: 1, taxa: new Prisma.Decimal('0.0360') };
+    isActive: true,
+  } as CanalVenda;
+  const mockForma = {
+    id: 1,
+    taxa: new Prisma.Decimal('0.0360'),
+    isActive: true,
+  } as FormaPagamento;
 
   const baseSaidaVenda = {
     bookId: 1,
@@ -52,28 +66,29 @@ describe('CreateSaidaUseCase', () => {
   };
 
   beforeEach(() => {
-    useCase = new CreateSaidaUseCase(mockPrisma as unknown as PrismaService);
+    prismaMock = mockDeep<PrismaService>();
+    useCase = new CreateSaidaUseCase(prismaMock);
     jest.clearAllMocks();
   });
 
   it('should reject if book is not found', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(null);
+    prismaMock.book.findUnique.mockResolvedValue(null);
     const result = await useCase.execute(baseSaidaVenda);
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('LIVRO_NOT_FOUND');
   });
 
   it('should reject if book is inactive (RULE LIV-03)', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookInisActive);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    prismaMock.book.findUnique.mockResolvedValue(mockBookInisActive);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
     const result = await useCase.execute({ ...baseSaidaVenda, bookId: 2 });
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('LIVRO_INATIVO');
   });
 
   it('should reject sale without canalVendaId (RULE SAI-02)', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
     const result = await useCase.execute({
       ...baseSaidaVenda,
       canalVendaId: undefined,
@@ -83,8 +98,8 @@ describe('CreateSaidaUseCase', () => {
   });
 
   it('should reject sale with valorUnitario = 0 (RULE SAI-02)', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
     // canalVendaId present but valorUnitario = 0 → SAIDA_VALOR_REQUIRED
     const result = await useCase.execute({
       ...baseSaidaVenda,
@@ -95,8 +110,8 @@ describe('CreateSaidaUseCase', () => {
   });
 
   it('should reject non-sale with valorUnitario > 0 (RULE SAI-03)', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
     const result = await useCase.execute({
       ...baseSaidaNaoVenda,
       valorUnitario: 10,
@@ -106,17 +121,18 @@ describe('CreateSaidaUseCase', () => {
   });
 
   it('should reject when stock is insufficient (RULE SAI-01)', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
-    const txMock = {
-      estoque: {
-        findUnique: jest
-          .fn()
-          .mockResolvedValue({ ...mockEstoque, quantidade: 1 }),
-      },
-    };
-    mockPrisma.$transaction.mockImplementation(
-      (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
+
+    const txMock = mockDeep<PrismaService>();
+    txMock.estoque.findUnique.mockResolvedValue({
+      ...mockEstoque,
+      quantidade: 1,
+    });
+
+    prismaMock.$transaction.mockImplementation(
+      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
+        cb(txMock),
     );
 
     const result = await useCase.execute({
@@ -128,23 +144,21 @@ describe('CreateSaidaUseCase', () => {
   });
 
   it('should create a sale with correct snapshots (RULE SAI-05)', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
-    mockPrisma.estoque.findUnique.mockResolvedValue(mockEstoque);
-    mockPrisma.canalVenda.findUnique.mockResolvedValue(mockCanal);
-    mockPrisma.formaPagamento.findUnique.mockResolvedValue(mockForma);
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    prismaMock.estoque.findUnique.mockResolvedValue(mockEstoque);
+    prismaMock.canalVenda.findUnique.mockResolvedValue(mockCanal);
+    prismaMock.formaPagamento.findUnique.mockResolvedValue(mockForma);
 
-    const txMock = {
-      estoque: {
-        findUnique: jest.fn().mockResolvedValue(mockEstoque),
-        update: jest.fn(),
-      },
-      canalVenda: { findUnique: jest.fn().mockResolvedValue(mockCanal) },
-      formaPagamento: { findUnique: jest.fn().mockResolvedValue(mockForma) },
-      saida: { create: jest.fn().mockResolvedValue({ id: 1 }) },
-    };
-    mockPrisma.$transaction.mockImplementation(
-      (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+    const txMock = mockDeep<PrismaService>();
+    txMock.estoque.findUnique.mockResolvedValue(mockEstoque);
+    txMock.canalVenda.findUnique.mockResolvedValue(mockCanal);
+    txMock.formaPagamento.findUnique.mockResolvedValue(mockForma);
+    txMock.saida.create.mockResolvedValue({ id: 1 } as Saida);
+
+    prismaMock.$transaction.mockImplementation(
+      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
+        cb(txMock),
     );
 
     const result = await useCase.execute(baseSaidaVenda);
@@ -179,19 +193,17 @@ describe('CreateSaidaUseCase', () => {
   });
 
   it('should create a non-sale exit with zero comissao/taxa', async () => {
-    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda); // fixed!
-    mockPrisma.estoque.findUnique.mockResolvedValue(mockEstoque);
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
+    prismaMock.estoque.findUnique.mockResolvedValue(mockEstoque);
 
-    const txMock = {
-      estoque: {
-        findUnique: jest.fn().mockResolvedValue(mockEstoque),
-        update: jest.fn(),
-      },
-      saida: { create: jest.fn().mockResolvedValue({ id: 2 }) },
-    };
-    mockPrisma.$transaction.mockImplementation(
-      (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+    const txMock = mockDeep<PrismaService>();
+    txMock.estoque.findUnique.mockResolvedValue(mockEstoque);
+    txMock.saida.create.mockResolvedValue({ id: 2 } as Saida);
+
+    prismaMock.$transaction.mockImplementation(
+      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
+        cb(txMock),
     );
 
     const result = await useCase.execute(baseSaidaNaoVenda);

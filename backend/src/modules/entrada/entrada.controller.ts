@@ -5,7 +5,6 @@ import {
   Body,
   Param,
   ParseIntPipe,
-  Inject,
   Query,
 } from '@nestjs/common';
 import { CreateEntradaUseCase } from './create-entrada.use-case';

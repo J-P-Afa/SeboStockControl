@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   PackagePlus, 
   Trash2, 
@@ -12,7 +12,6 @@ import {
   Info,
   Save,
   Eraser,
-  BookOpen,
   Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,7 +20,6 @@ import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/atoms/card';
-import { Separator } from '@/components/atoms/separator';
 import { 
   Table, 
   TableBody, 
@@ -41,8 +39,8 @@ import { BookSearchAutocomplete } from '@/components/molecules/book-search-autoc
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
 import { bulkCreateEntrada, getLastCost, getBookStock, createBook } from '@/lib/api';
 import { lookupExternalBook } from '@/lib/api/books.api';
-import { formatCurrency, formatDate } from '@/lib/formatters';
-import { Condition, type Book, type ExternalBook } from '@/types';
+import { formatCurrency } from '@/lib/formatters';
+import { Condition, type Book, type ExternalBook, type CreateBookPayload } from '@/types';
 import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api/client';
 
@@ -106,7 +104,7 @@ export default function EntradasPage() {
         // Not found in local DB, try external
         await handleExternalLookup(isbn);
       }
-    } catch (error: any) {
+    } catch {
       // 404 or other error, try external
       await handleExternalLookup(isbn);
     }
@@ -125,7 +123,7 @@ export default function EntradasPage() {
         setExternalBookData(null);
         toast.warning('Livro não encontrado na Open Library. Preencha manualmente.');
       }
-    } catch (error) {
+    } catch {
       setExternalBookData(null);
       toast.error('Erro ao consultar Open Library. Preencha manualmente.');
     } finally {
@@ -152,8 +150,8 @@ export default function EntradasPage() {
       } else {
         setCustoUnitario(cost || 0);
       }
-    } catch (error) {
-      console.error('Failed to fetch book details', error);
+    } catch {
+      console.error('Failed to fetch book details');
     }
   };
 
@@ -239,7 +237,7 @@ export default function EntradasPage() {
 
       toast.success('Entrada processada com sucesso!');
       resetForm();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao processar entrada');
     }
   };
@@ -259,12 +257,12 @@ export default function EntradasPage() {
         publisherId: Number(formData.publisherId),
         languageId: Number(formData.languageId),
         genreId: Number(formData.genreId),
-      } as any);
+      } as CreateBookPayload);
       
       setBookFormOpen(false);
       handleBookSelect(book);
       toast.success('Livro cadastrado e selecionado');
-    } catch (error) {
+    } catch {
       toast.error('Erro ao cadastrar livro');
     }
   };
@@ -595,7 +593,7 @@ export default function EntradasPage() {
         onOpenChange={setBookFormOpen}
         onSubmit={handleNewBookSubmit}
         externalBook={externalBookData}
-        book={readerIsbn && !externalBookData ? { isbn13: readerIsbn.length === 13 ? readerIsbn : null, isbn10: readerIsbn.length === 10 ? readerIsbn : null } as any : null}
+        book={readerIsbn && !externalBookData ? { isbn13: readerIsbn.length === 13 ? readerIsbn : null, isbn10: readerIsbn.length === 10 ? readerIsbn : null } as Partial<Book> as Book : null}
       />
     </div>
   );

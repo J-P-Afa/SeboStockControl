@@ -3,13 +3,13 @@ import { PrismaService } from '../database/prisma.service';
 import { Result } from '../../common';
 import { CreateEntradaDto } from './create-entrada.dto';
 import { EstoqueEntity } from '../stock/domain/entities/estoque.entity';
-import { Prisma } from '@prisma/client';
+import { Prisma, Entrada } from '@prisma/client';
 
 @Injectable()
 export class CreateEntradaUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(dto: CreateEntradaDto): Promise<Result<any>> {
+  async execute(dto: CreateEntradaDto): Promise<Result<Entrada>> {
     const book = await this.prisma.book.findUnique({
       where: { id: dto.bookId },
     });

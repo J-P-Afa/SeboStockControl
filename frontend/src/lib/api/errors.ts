@@ -40,7 +40,7 @@ export function getErrorMessage(error: unknown, fallback: string): string {
   }
 
   // 2. Resilience: check nested code/message if backend nests them (NestJS anomaly)
-  const nested = data as any;
+  const nested = data as Record<string, { code?: string; message?: string } | undefined>;
   const nestedCode = nested.message?.code || nested.error?.code;
   const nestedMessage = nested.message?.message || nested.error?.message;
 
