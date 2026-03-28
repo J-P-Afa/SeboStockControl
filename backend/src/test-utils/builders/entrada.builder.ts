@@ -4,11 +4,11 @@ import { Decimal } from '../decimal';
 export class EntradaBuilder {
   private props: Partial<Entrada> = {
     id: 1,
-    livroId: 1,
+    bookId: 1,
     usuarioId: 'user-uuid',
-    data: new Date(),
+    dataEntrada: new Date(),
     quantidade: 5,
-    valorUnitario: new Decimal('30.0000'),
+    custoUnitario: new Decimal('30.0000'),
     valorTotal: new Decimal('150.0000'),
   };
 
@@ -16,8 +16,8 @@ export class EntradaBuilder {
     return new EntradaBuilder();
   }
 
-  withLivroId(livroId: number): this {
-    this.props.livroId = livroId;
+  withBookId(bookId: number): this {
+    this.props.bookId = bookId;
     return this;
   }
 
@@ -27,15 +27,15 @@ export class EntradaBuilder {
     return this;
   }
 
-  withValorUnitario(valor: string | number): this {
-    this.props.valorUnitario = new Decimal(valor);
+  withCustoUnitario(valor: string | number): this {
+    this.props.custoUnitario = new Decimal(valor);
     this.calculateTotal();
     return this;
   }
 
   private calculateTotal() {
-    if (this.props.quantidade !== undefined && this.props.valorUnitario) {
-      this.props.valorTotal = this.props.valorUnitario.mul(this.props.quantidade);
+    if (this.props.quantidade !== undefined && this.props.custoUnitario) {
+      this.props.valorTotal = this.props.custoUnitario.mul(this.props.quantidade);
     }
   }
 

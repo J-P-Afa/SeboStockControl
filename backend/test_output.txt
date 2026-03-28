@@ -1,0 +1,344 @@
+
+> backend@0.0.1 test
+> jest src/modules/entrada/create-entrada.use-case.spec.ts src/modules/book/application/use-cases/create-book.use-case.spec.ts src/modules/saida/create-saida.use-case.spec.ts
+
+FAIL src/modules/book/application/use-cases/create-book.use-case.spec.ts
+  ● Console
+
+    console.error
+      TypeError: Cannot read properties of undefined (reading 'id')
+          at Function.fromEntity (/home/jp/projects/SeboStockControl/backend/src/modules/book/application/dtos/book-response.dto.ts:32:21)
+          at CreateBookUseCase.execute (/home/jp/projects/SeboStockControl/backend/src/modules/book/application/use-cases/create-book.use-case.ts:51:40)
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/src/modules/book/application/use-cases/create-book.use-case.spec.ts:67:20)
+
+      51 |       return Result.ok(BookResponseDto.fromEntity(saved));
+      52 |     } catch (error) {
+    > 53 |       console.error(error);
+         |               ^
+      54 |       return Result.fail('CREATE_BOOK_ERROR', 'Erro ao criar book');
+      55 |     }
+      56 |   }
+
+      at CreateBookUseCase.execute (modules/book/application/use-cases/create-book.use-case.ts:53:15)
+      at Object.<anonymous> (modules/book/application/use-cases/create-book.use-case.spec.ts:67:20)
+
+  ● CreateBookUseCase › should create a book successfully when ISBN13 is unique for the given estado
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "9788535913033", "usado"
+
+    Number of calls: 0
+
+      56 |     expect(result.success).toBe(true);
+      57 |     expect(result.data?.title).toBe(mockDto.title);
+    > 58 |     expect(bookRepository.findByIsbn13AndEstado).toHaveBeenCalledWith(mockDto.isbn13, mockDto.estado);
+         |                                                  ^
+      59 |     expect(bookRepository.create).toHaveBeenCalledTimes(1);
+      60 |   });
+      61 |
+
+      at Object.<anonymous> (modules/book/application/use-cases/create-book.use-case.spec.ts:58:50)
+
+  ● CreateBookUseCase › should fail if ISBN13 already exists for the same estado
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "BOOK_ISBN13_EXISTS"
+    Received: "CREATE_BOOK_ERROR"
+
+      69 |     // Assert
+      70 |     expect(result.success).toBe(false);
+    > 71 |     expect(result.error?.code).toBe('BOOK_ISBN13_EXISTS');
+         |                                ^
+      72 |     expect(bookRepository.create).not.toHaveBeenCalled();
+      73 |   });
+      74 |
+
+      at Object.<anonymous> (modules/book/application/use-cases/create-book.use-case.spec.ts:71:32)
+
+FAIL src/modules/saida/create-saida.use-case.spec.ts
+  ● Console
+
+    console.error
+      TypeError: tx.estoque.findUnique is not a function
+          at /home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.ts:39:41
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.spec.ts:103:61)
+          at /home/jp/projects/SeboStockControl/backend/node_modules/jest-mock/build/index.js:305:39
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/node_modules/jest-mock/build/index.js:312:13)
+          at Object.mockConstructor [as $transaction] (/home/jp/projects/SeboStockControl/backend/node_modules/jest-mock/build/index.js:102:19)
+          at CreateSaidaUseCase.execute (/home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.ts:38:39)
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.spec.ts:105:20)
+
+      117 |       return Result.ok(saida);
+      118 |     } catch (error) {
+    > 119 |       console.error(error);
+          |               ^
+      120 |       const msg = error instanceof Error && error.message === 'ESTOQUE_INSUFICIENTE' 
+      121 |         ? 'Estoque insuficiente para realizar a saída'
+      122 |         : 'Falha ao registrar saída';
+
+      at CreateSaidaUseCase.execute (modules/saida/create-saida.use-case.ts:119:15)
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:105:20)
+
+    console.error
+      TypeError: tx.estoque.findUnique is not a function
+          at /home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.ts:39:41
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.spec.ts:143:61)
+          at /home/jp/projects/SeboStockControl/backend/node_modules/jest-mock/build/index.js:305:39
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/node_modules/jest-mock/build/index.js:312:13)
+          at Object.mockConstructor [as $transaction] (/home/jp/projects/SeboStockControl/backend/node_modules/jest-mock/build/index.js:102:19)
+          at CreateSaidaUseCase.execute (/home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.ts:38:39)
+          at Object.<anonymous> (/home/jp/projects/SeboStockControl/backend/src/modules/saida/create-saida.use-case.spec.ts:145:20)
+
+      117 |       return Result.ok(saida);
+      118 |     } catch (error) {
+    > 119 |       console.error(error);
+          |               ^
+      120 |       const msg = error instanceof Error && error.message === 'ESTOQUE_INSUFICIENTE' 
+      121 |         ? 'Estoque insuficiente para realizar a saída'
+      122 |         : 'Falha ao registrar saída';
+
+      at CreateSaidaUseCase.execute (modules/saida/create-saida.use-case.ts:119:15)
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:145:20)
+
+    console.error
+      FAILED SAIDA NON-SALE: {
+        code: 'SAIDA_TRANSACTION_FAILED',
+        message: 'Falha ao registrar saída'
+      }
+
+      145 |     const result = await useCase.execute(baseSaidaNaoVenda);
+      146 |
+    > 147 |     if (!result.success) console.error('FAILED SAIDA NON-SALE:', result.error);
+          |                                  ^
+      148 |     expect(result.success).toBe(true);
+      149 |     expect(txMock.saida.create).toHaveBeenCalledWith(
+      150 |       expect.objectContaining({
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:147:34)
+
+  ● CreateSaidaUseCase › should reject if book is not found
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "LIVRO_NOT_FOUND"
+    Received: "BOOK_NOT_FOUND"
+
+      45 |     const result = await useCase.execute(baseSaidaVenda);
+      46 |     expect(result.success).toBe(false);
+    > 47 |     expect(result.error?.code).toBe('LIVRO_NOT_FOUND');
+         |                                ^
+      48 |   });
+      49 |
+      50 |   it('should reject if book is inactive (RULE LIV-03)', async () => {
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:47:32)
+
+  ● CreateSaidaUseCase › should reject if book is inactive (RULE LIV-03)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "LIVRO_INATIVO"
+    Received: "BOOK_INACTIVE"
+
+      53 |     const result = await useCase.execute({ ...baseSaidaVenda, bookId: 2 });
+      54 |     expect(result.success).toBe(false);
+    > 55 |     expect(result.error?.code).toBe('LIVRO_INATIVO');
+         |                                ^
+      56 |   });
+      57 |
+      58 |   it('should reject sale without canalVendaId (RULE SAI-02)', async () => {
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:55:32)
+
+  ● CreateSaidaUseCase › should reject sale without canalVendaId (RULE SAI-02)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "SAIDA_CANAL_REQUIRED"
+    Received: "VENDA_INVALIDA"
+
+      61 |     const result = await useCase.execute({ ...baseSaidaVenda, canalVendaId: undefined });
+      62 |     expect(result.success).toBe(false);
+    > 63 |     expect(result.error?.code).toBe('SAIDA_CANAL_REQUIRED');
+         |                                ^
+      64 |   });
+      65 |
+      66 |   it('should reject sale with valorUnitario = 0 (RULE SAI-02)', async () => {
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:63:32)
+
+  ● CreateSaidaUseCase › should reject sale with valorUnitario = 0 (RULE SAI-02)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "SAIDA_VALOR_REQUIRED"
+    Received: "VENDA_INVALIDA"
+
+      70 |     const result = await useCase.execute({ ...baseSaidaVenda, valorUnitario: 0 });
+      71 |     expect(result.success).toBe(false);
+    > 72 |     expect(result.error?.code).toBe('SAIDA_VALOR_REQUIRED');
+         |                                ^
+      73 |   });
+      74 |
+      75 |   it('should reject non-sale with valorUnitario > 0 (RULE SAI-03)', async () => {
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:72:32)
+
+  ● CreateSaidaUseCase › should reject non-sale with valorUnitario > 0 (RULE SAI-03)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      77 |     prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
+      78 |     const result = await useCase.execute({ ...baseSaidaNaoVenda, valorUnitario: 10 });
+    > 79 |     expect(result.success).toBe(false);
+         |                            ^
+      80 |     expect(result.error?.code).toBe('SAIDA_VALOR_MUST_BE_ZERO');
+      81 |   });
+      82 |
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:79:28)
+
+  ● CreateSaidaUseCase › should reject when stock is insufficient (RULE SAI-01)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      86 |     prismaMock.estoque.findUnique.mockResolvedValue({ ...mockEstoque, quantidade: 1 });
+      87 |     const result = await useCase.execute({ ...baseSaidaNaoVenda, quantidade: 5 });
+    > 88 |     expect(result.success).toBe(false);
+         |                            ^
+      89 |     expect(result.error?.code).toBe('ESTOQUE_INSUFICIENTE');
+      90 |   });
+      91 |
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:88:28)
+
+  ● CreateSaidaUseCase › should create a sale with correct snapshots (RULE SAI-05)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      105 |     const result = await useCase.execute(baseSaidaVenda);
+      106 |
+    > 107 |     expect(result.success).toBe(true);
+          |                            ^
+      108 |     // valorTotal = 2 * 50 = 100
+      109 |     // snapshotCustoUnitario = 20, snapshotCustoTotal = 2 * 20 = 40
+      110 |     // valorComissaoPlataforma = 100 * 0.20 = 20
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:107:28)
+
+  ● CreateSaidaUseCase › should create a non-sale exit with zero comissao/taxa
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      146 |
+      147 |     if (!result.success) console.error('FAILED SAIDA NON-SALE:', result.error);
+    > 148 |     expect(result.success).toBe(true);
+          |                            ^
+      149 |     expect(txMock.saida.create).toHaveBeenCalledWith(
+      150 |       expect.objectContaining({
+      151 |         data: expect.objectContaining({
+
+      at Object.<anonymous> (modules/saida/create-saida.use-case.spec.ts:148:28)
+
+FAIL src/modules/entrada/create-entrada.use-case.spec.ts
+  ● CreateEntradaUseCase › should reject if book is not found
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "LIVRO_NOT_FOUND"
+    Received: "BOOK_NOT_FOUND"
+
+      37 |
+      38 |     expect(result.success).toBe(false);
+    > 39 |     expect(result.error?.code).toBe('LIVRO_NOT_FOUND');
+         |                                ^
+      40 |   });
+      41 |
+      42 |   it('should reject if book is inactive (RULE LIV-03)', async () => {
+
+      at Object.<anonymous> (modules/entrada/create-entrada.use-case.spec.ts:39:32)
+
+  ● CreateEntradaUseCase › should reject if book is inactive (RULE LIV-03)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "LIVRO_INATIVO"
+    Received: "BOOK_INACTIVE"
+
+      46 |
+      47 |     expect(result.success).toBe(false);
+    > 48 |     expect(result.error?.code).toBe('LIVRO_INATIVO');
+         |                                ^
+      49 |   });
+      50 |
+      51 |   it('should apply WACC correctly on first purchase (estoque zerado)', async () => {
+
+      at Object.<anonymous> (modules/entrada/create-entrada.use-case.spec.ts:48:32)
+
+  ● CreateEntradaUseCase › should apply WACC correctly on first purchase (estoque zerado)
+
+    [DecimalError] Invalid argument: undefined
+
+      19 |     }
+      20 |
+    > 21 |     const custoUnitario = new Prisma.Decimal(dto.custoUnitario);
+         |                           ^
+      22 |     const valorTotal = custoUnitario.mul(dto.quantidade);
+      23 |     const dataEntrada = new Date(dto.dataEntrada);
+      24 |
+
+      at new Decimal2 (../node_modules/@prisma/client-runtime-utils/dist/index.js:2230:11)
+      at CreateEntradaUseCase.execute (modules/entrada/create-entrada.use-case.ts:21:27)
+      at Object.<anonymous> (modules/entrada/create-entrada.use-case.spec.ts:61:20)
+
+  ● CreateEntradaUseCase › should apply WACC correctly when there is existing stock
+
+    [DecimalError] Invalid argument: undefined
+
+      19 |     }
+      20 |
+    > 21 |     const custoUnitario = new Prisma.Decimal(dto.custoUnitario);
+         |                           ^
+      22 |     const valorTotal = custoUnitario.mul(dto.quantidade);
+      23 |     const dataEntrada = new Date(dto.dataEntrada);
+      24 |
+
+      at new Decimal2 (../node_modules/@prisma/client-runtime-utils/dist/index.js:2230:11)
+      at CreateEntradaUseCase.execute (modules/entrada/create-entrada.use-case.ts:21:27)
+      at Object.<anonymous> (modules/entrada/create-entrada.use-case.spec.ts:85:20)
+
+  ● CreateEntradaUseCase › should NOT change custo_unitario_medio on donation (valorUnitario = 0)
+
+    [DecimalError] Invalid argument: undefined
+
+      19 |     }
+      20 |
+    > 21 |     const custoUnitario = new Prisma.Decimal(dto.custoUnitario);
+         |                           ^
+      22 |     const valorTotal = custoUnitario.mul(dto.quantidade);
+      23 |     const dataEntrada = new Date(dto.dataEntrada);
+      24 |
+
+      at new Decimal2 (../node_modules/@prisma/client-runtime-utils/dist/index.js:2230:11)
+      at CreateEntradaUseCase.execute (modules/entrada/create-entrada.use-case.ts:21:27)
+      at Object.<anonymous> (modules/entrada/create-entrada.use-case.spec.ts:110:20)
+
+Test Suites: 3 failed, 3 total
+Tests:       15 failed, 2 passed, 17 total
+Snapshots:   0 total
+Time:        0.517 s, estimated 1 s
+Ran all test suites matching src/modules/entrada/create-entrada.use-case.spec.ts|src/modules/book/application/use-cases/create-book.use-case.spec.ts|src/modules/saida/create-saida.use-case.spec.ts.

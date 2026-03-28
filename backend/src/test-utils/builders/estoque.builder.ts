@@ -3,10 +3,9 @@ import { Decimal } from '../decimal';
 
 export class EstoqueBuilder {
   private props: Partial<Estoque> = {
-    livroId: 1,
+    bookId: 1,
     quantidade: 10,
-    custoUnitarioMedio: new Decimal('20.0000'),
-    custoTotal: new Decimal('200.0000'),
+    custoMedio: new Decimal('20.0000'),
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -15,34 +14,30 @@ export class EstoqueBuilder {
     return new EstoqueBuilder();
   }
 
-  withLivroId(livroId: number): this {
-    this.props.livroId = livroId;
+  withBookId(bookId: number): this {
+    this.props.bookId = bookId;
     return this;
   }
 
   withQuantidade(quantidade: number): this {
     this.props.quantidade = quantidade;
-    this.calculateTotal();
+    return this;
+  }
+
+  withCustoMedio(custo: string | number): this {
+    this.props.custoMedio = new Decimal(custo);
     return this;
   }
 
   withCustoUnitarioMedio(custo: string | number): this {
-    this.props.custoUnitarioMedio = new Decimal(custo);
-    this.calculateTotal();
-    return this;
+    return this.withCustoMedio(custo);
   }
+
 
   empty(): this {
     this.props.quantidade = 0;
-    this.props.custoUnitarioMedio = new Decimal('0.0000');
-    this.props.custoTotal = new Decimal('0.0000');
+    this.props.custoMedio = new Decimal('0.0000');
     return this;
-  }
-
-  private calculateTotal() {
-    if (this.props.quantidade !== undefined && this.props.custoUnitarioMedio) {
-      this.props.custoTotal = this.props.custoUnitarioMedio.mul(this.props.quantidade);
-    }
   }
 
   build(): Estoque {

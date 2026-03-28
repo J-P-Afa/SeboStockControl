@@ -4,10 +4,10 @@ import { Decimal } from '../decimal';
 export class SaidaBuilder {
   private props: Partial<Saida> = {
     id: 1,
-    livroId: 1,
+    bookId: 1,
     usuarioId: 'user-uuid',
     tipoSaidaId: 1,
-    data: new Date(),
+    dataSaida: new Date(),
     quantidade: 2,
     valorUnitario: new Decimal('50.0000'),
     valorTotal: new Decimal('100.0000'),
@@ -24,8 +24,8 @@ export class SaidaBuilder {
     return new SaidaBuilder();
   }
 
-  withLivroId(livroId: number): this {
-    this.props.livroId = livroId;
+  withBookId(bookId: number): this {
+    this.props.bookId = bookId;
     return this;
   }
 
