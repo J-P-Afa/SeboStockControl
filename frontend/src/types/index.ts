@@ -15,3 +15,7 @@ export type {
   ListBooksFilters,
 } from './books';
 export * from './role';
+export type { Genre, CreateGenreData, UpdateGenreData } from './genre';
+export * from './genre';
+export * from './language';
+export * from './publisher';

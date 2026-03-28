@@ -20,3 +20,21 @@ export {
   updateBook,
   deleteBook,
 } from './books.api';
+export {
+  listGenres,
+  createGenre,
+  updateGenre,
+  deleteGenre,
+} from './genres.api';
+export {
+  listLanguages,
+  createLanguage,
+  updateLanguage,
+  deleteLanguage,
+} from './languages.api';
+export {
+  listPublishers,
+  createPublisher,
+  updatePublisher,
+  deletePublisher,
+} from './publishers.api';

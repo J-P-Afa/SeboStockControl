@@ -1,31 +1,53 @@
-import { IsBoolean, IsEnum, IsInt, IsNumber, IsOptional, IsString, Length, Matches, Min } from 'class-validator';
-import { EdicaoEspecial, EstadoLivro, ColecaoLivro } from '../../domain/livro.entity';
-
+import { IsString, IsOptional, IsNumber, IsEnum, IsInt, Min, IsBoolean } from 'class-validator';
+import { EditionType, Condition, Status } from '@prisma/client';
 
 export class UpdateBookDto {
-  @IsOptional() @IsInt() classificacaoId?: number;
-  @IsOptional() @IsInt() editoraId?: number;
-  @IsOptional() @IsInt() idiomaId?: number;
-  @IsOptional() @IsString() descricao?: string;
-  @IsOptional() @IsString() capa?: string | null;
+  @IsOptional()
+  @IsString()
+  title?: string;
 
   @IsOptional()
   @IsString()
-  @Length(13, 13)
-  @Matches(/^\d{13}$/, { message: 'isbn13 deve conter exatamente 13 dígitos numéricos' })
-  isbn13?: string | null;
+  isbn13?: string;
 
   @IsOptional()
   @IsString()
-  @Length(10, 10)
-  @Matches(/^\d{10}$/, { message: 'isbn10 deve conter exatamente 10 dígitos numéricos' })
-  isbn10?: string | null;
+  isbn10?: string;
 
-  @IsOptional() @IsEnum(EdicaoEspecial) edicaoEspecial?: EdicaoEspecial;
-  @IsOptional() @IsString() volume?: string | null;
-  @IsOptional() @IsEnum(EstadoLivro) estado?: EstadoLivro;
-  @IsOptional() @IsEnum(ColecaoLivro) colecao?: ColecaoLivro;
-  @IsOptional() @IsNumber() @Min(0) pesoGramas?: number | null;
-  @IsOptional() @IsNumber() @Min(0) precoTabelado?: number | null;
-  @IsOptional() @IsBoolean() ativo?: boolean;
+  @IsOptional()
+  @IsEnum(EditionType)
+  editionType?: EditionType;
+
+  @IsOptional()
+  @IsString()
+  volume?: string;
+
+  @IsOptional()
+  @IsEnum(Condition)
+  condition?: Condition;
+
+  @IsOptional()
+  @IsEnum(Status)
+  status?: Status;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  weight?: number;
+
+  @IsOptional()
+  @IsInt()
+  publisherId?: number;
+
+  @IsOptional()
+  @IsInt()
+  languageId?: number;
+
+  @IsOptional()
+  @IsInt()
+  genreId?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }

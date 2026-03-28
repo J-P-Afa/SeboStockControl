@@ -1,27 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Result } from '../../../../common';
-import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
-import type { IBookRepository } from '../../domain/book.repository.interface';
+import type { BookRepository } from '../../domain/book.repository';
 
-/**
- * Caso de Uso: Remoção de Livro (soft delete via ativo = false)
- * @ai-context Não permite exclusão física; use ativo=false via UpdateBookUseCase.
- * Este use-case faz hard delete apenas se não houver movimentações associadas.
- */
 @Injectable()
 export class DeleteBookUseCase {
   constructor(
-    @Inject(BOOK_REPOSITORY)
-    private readonly bookRepository: IBookRepository,
+    @Inject('BookRepository')
+    private readonly bookRepo: BookRepository
   ) {}
 
-  async execute(id: number): Promise<Result<void>> {
-    const existing = await this.bookRepository.findById(id);
-    if (!existing) {
-      return Result.fail('BOOK_NOT_FOUND', 'Livro não encontrado');
-    }
+  async execute(id: number) {
+    try {
+      const existing = await this.bookRepo.findById(id);
 
-    await this.bookRepository.delete(id);
-    return Result.ok(undefined);
+      if (!existing) {
+        return { success: false, error: 'Livro não encontrado' };
+      }
+
+      await this.bookRepo.delete(id);
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Erro ao excluir livro' };
+    }
   }
 }

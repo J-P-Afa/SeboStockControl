@@ -1,47 +1,72 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Result } from '../../../../common';
-import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
-import type { IBookRepository } from '../../domain/book.repository.interface';
-import { CreateBookDto, BookResponseDto } from '../dtos';
-import { EdicaoEspecial } from '../../domain/livro.entity';
+import type { BookRepository } from '../../domain/book.repository';
+import { BookEntity } from '../../domain/book.entity';
+import { EditionType, Condition, Status } from '@prisma/client';
 
-/**
- * Caso de Uso: Criação de Livro
- *
- * Valida unicidade de ISBN por estado (RULE [LIV-02]) antes de persistir.
- * A criação automática do Estoque (RULE [LIV-01]) é responsabilidade do repositório.
- *
- * @ai-context Result Pattern — sem exceções para fluxos esperados.
- * @side-effects Persiste Livro e cria Estoque inicial via repositório.
- */
+interface CreateBookInput {
+  title: string;
+  isbn13?: string;
+  isbn10?: string;
+  editionType: EditionType;
+  volume?: string;
+  condition: Condition;
+  status: Status;
+  weight: number;
+  publisherId: number;
+  languageId: number;
+  genreId: number;
+}
+
 @Injectable()
 export class CreateBookUseCase {
   constructor(
-    @Inject(BOOK_REPOSITORY)
-    private readonly bookRepository: IBookRepository,
+    @Inject('BookRepository')
+    private readonly bookRepo: BookRepository
   ) {}
 
-  async execute(dto: CreateBookDto): Promise<Result<BookResponseDto>> {
-    // RULE [LIV-02]: unicidade ISBN por estado
-    if (dto.isbn13) {
-      const existing = await this.bookRepository.findByIsbn13AndEstado(dto.isbn13, dto.estado);
-      if (existing) {
-        return Result.fail('BOOK_ISBN13_EXISTS', `Já existe um livro ${dto.estado} com este ISBN-13`);
-      }
-    }
-    if (dto.isbn10) {
-      const existing = await this.bookRepository.findByIsbn10AndEstado(dto.isbn10, dto.estado);
-      if (existing) {
-        return Result.fail('BOOK_ISBN10_EXISTS', `Já existe um livro ${dto.estado} com este ISBN-10`);
-      }
-    }
+  async execute(input: CreateBookInput) {
+    try {
+      if (input.isbn13) {
+        const existingByIsbn13 = await this.bookRepo.findByIsbn13AndCondition(
+          input.isbn13,
+          input.condition,
+        );
 
-    const livro = await this.bookRepository.create({
-      ...dto,
-      edicaoEspecial: dto.edicaoEspecial ?? EdicaoEspecial.NORMAL,
-      ativo: true,
-    });
+        if (existingByIsbn13) {
+          return {
+            success: false,
+            error: 'ISBN13 já existe para o mesmo estado do livro',
+          };
+        }
+      }
 
-    return Result.ok(BookResponseDto.fromEntity(livro));
+      if (input.isbn10) {
+        const existingByIsbn10 = await this.bookRepo.findByIsbn10AndCondition(
+          input.isbn10,
+          input.condition,
+        );
+
+        if (existingByIsbn10) {
+          return {
+            success: false,
+            error: 'ISBN10 já existe para o mesmo estado do livro',
+          };
+        }
+      }
+
+      const book = BookEntity.create({
+        ...input,
+        isbn13: input.isbn13 ?? null,
+        isbn10: input.isbn10 ?? null,
+        volume: input.volume ?? null,
+        isActive: true,
+      });
+
+      const saved = await this.bookRepo.create(book);
+
+      return { success: true, data: saved };
+    } catch (error) {
+      return { success: false, error: 'Erro ao criar livro' };
+    }
   }
 }

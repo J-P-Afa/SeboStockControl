@@ -1,42 +1,44 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Result } from '../../../../common';
-import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
-import type { IBookRepository, UpdateLivroParams } from '../../domain/book.repository.interface';
-import { UpdateBookDto, BookResponseDto } from '../dtos';
+import type { BookRepository } from '../../domain/book.repository';
+import { EditionType, Condition, Status } from '@prisma/client';
 
-/**
- * Caso de Uso: Atualização de Livro
- * @ai-context Valida existência e, se ISBN for alterado, garante unicidade por estado (RULE [LIV-02]).
- */
+interface UpdateBookInput {
+  title?: string;
+  isbn13?: string | null;
+  isbn10?: string | null;
+  editionType?: EditionType;
+  volume?: string | null;
+  condition?: Condition;
+  status?: Status;
+  weight?: number;
+  publisherId?: number;
+  languageId?: number;
+  genreId?: number;
+  isActive?: boolean;
+}
+
 @Injectable()
 export class UpdateBookUseCase {
   constructor(
-    @Inject(BOOK_REPOSITORY)
-    private readonly bookRepository: IBookRepository,
+    @Inject('BookRepository')
+    private readonly bookRepo: BookRepository
   ) {}
 
-  async execute(id: number, dto: UpdateBookDto): Promise<Result<BookResponseDto>> {
-    const existing = await this.bookRepository.findById(id);
-    if (!existing) {
-      return Result.fail('BOOK_NOT_FOUND', 'Livro não encontrado');
-    }
+  async execute(id: number, input: UpdateBookInput) {
+    try {
+      const existing = await this.bookRepo.findById(id);
 
-    const targetEstado = dto.estado ?? existing.estado;
-
-    if (dto.isbn13 !== undefined && dto.isbn13 !== null) {
-      const conflict = await this.bookRepository.findByIsbn13AndEstado(dto.isbn13, targetEstado);
-      if (conflict && conflict.id !== id) {
-        return Result.fail('BOOK_ISBN13_EXISTS', `Já existe um livro ${targetEstado} com este ISBN-13`);
+      if (!existing) {
+        return { success: false, error: 'Livro não encontrado' };
       }
-    }
-    if (dto.isbn10 !== undefined && dto.isbn10 !== null) {
-      const conflict = await this.bookRepository.findByIsbn10AndEstado(dto.isbn10, targetEstado);
-      if (conflict && conflict.id !== id) {
-        return Result.fail('BOOK_ISBN10_EXISTS', `Já existe um livro ${targetEstado} com este ISBN-10`);
-      }
-    }
 
-    const updated = await this.bookRepository.update(id, dto as UpdateLivroParams);
-    return Result.ok(BookResponseDto.fromEntity(updated));
+      existing.update(input);
+
+      const updated = await this.bookRepo.update(existing);
+
+      return { success: true, data: updated };
+    } catch (error) {
+      return { success: false, error: 'Erro ao atualizar livro' };
+    }
   }
 }
