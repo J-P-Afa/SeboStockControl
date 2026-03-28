@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database';
+import { PaginatedResult } from '../../../common';
 import { GenreEntity } from '../domain/genre.entity';
 import type { GenreRepository } from '../domain/genre.repository';
 
@@ -73,13 +74,7 @@ export class PrismaGenreRepository implements GenreRepository {
     sortBy: string = 'createdAt',
     sortOrder: 'asc' | 'desc' = 'desc',
     filters?: { search?: string; isActive?: boolean },
-  ): Promise<{
-    items: GenreEntity[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> {
+  ): Promise<PaginatedResult<GenreEntity>> {
     const skip = (page - 1) * limit;
     const where = this.buildWhereClause(filters);
 
@@ -93,7 +88,13 @@ export class PrismaGenreRepository implements GenreRepository {
       this.prisma.genre.count({ where }),
     ]);
 
-    return list.map(this.toEntity);
+    return {
+      items: genres.map(this.toEntity),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async update(genre: GenreEntity): Promise<GenreEntity> {
