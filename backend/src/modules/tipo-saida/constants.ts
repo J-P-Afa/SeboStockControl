@@ -1,0 +1,1 @@
+export const TIPO_SAIDA_REPOSITORY = Symbol('TIPO_SAIDA_REPOSITORY');

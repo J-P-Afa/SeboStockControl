@@ -1,10 +1,22 @@
 import { Module } from '@nestjs/common';
-import { BookController } from './controllers/book.controller';
+import { BOOK_REPOSITORY } from './domain/book.repository.interface';
 import { PrismaBookRepository } from './infrastructure/prisma-book.repository';
-import { PrismaService } from '../database/prisma.service';
+import {
+  CreateBookUseCase, UpdateBookUseCase, DeleteBookUseCase,
+  GetBookUseCase, ListBooksUseCase,
+} from './application/use-cases';
+import { BookController } from './presentation/book.controller';
 
 @Module({
   controllers: [BookController],
-  providers: [PrismaBookRepository, PrismaService],
+  providers: [
+    { provide: BOOK_REPOSITORY, useClass: PrismaBookRepository },
+    CreateBookUseCase,
+    UpdateBookUseCase,
+    DeleteBookUseCase,
+    GetBookUseCase,
+    ListBooksUseCase,
+  ],
+  exports: [BOOK_REPOSITORY],
 })
 export class BookModule {}

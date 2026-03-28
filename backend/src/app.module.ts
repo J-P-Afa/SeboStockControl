@@ -5,6 +5,15 @@ import { DatabaseModule } from './modules/database';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { BookModule } from './modules/book/book.module';
+import { ClassificacaoModule } from './modules/classificacao/classificacao.module';
+import { EditoraModule } from './modules/editora/editora.module';
+import { IdiomaModule } from './modules/idioma/idioma.module';
+import { CanalVendaModule } from './modules/canal-venda/canal-venda.module';
+import { FormaPagamentoModule } from './modules/forma-pagamento/forma-pagamento.module';
+import { TipoSaidaModule } from './modules/tipo-saida/tipo-saida.module';
+import { StockModule } from './modules/stock/stock.module';
+import { EntradaModule } from './modules/entrada/entrada.module';
+import { SaidaModule } from './modules/saida/saida.module';
 import { JwtAuthGuard } from './common';
 
 @Module({
@@ -13,7 +22,18 @@ import { JwtAuthGuard } from './common';
     DatabaseModule,
     AuthModule,
     UserModule,
-    BookModule
+    // Domínio principal
+    BookModule,
+    StockModule,
+    EntradaModule,
+    SaidaModule,
+    // Lookup tables
+    ClassificacaoModule,
+    EditoraModule,
+    IdiomaModule,
+    CanalVendaModule,
+    FormaPagamentoModule,
+    TipoSaidaModule,
   ],
   providers: [
     {

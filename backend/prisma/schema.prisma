@@ -6,36 +6,12 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── Segurança e Acesso ───────────────────────────────────────────────────────
+
 enum ThemePreference {
   SYSTEM
   LIGHT
   DARK
-}
-
-model User {
-  id              String           @id @default(uuid())
-  name            String
-  email           String           @unique
-  password        String
-  isActive        Boolean          @default(true)
-  themePreference ThemePreference  @default(SYSTEM)
-  role            Role             @relation(fields: [roleId], references: [id])
-  roleId          String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  @@map("users")
-}
-
-model Role {
-  id          String       @id @default(uuid())
-  name        String       @unique
-  permissions Permission[]
-  users       User[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  @@map("roles")
 }
 
 model Permission {
@@ -49,12 +25,234 @@ model Permission {
   @@map("permissions")
 }
 
-model Book {
-  id          Int      @id @default(autoincrement())
-  title       String
-  author      String
-  stock       Int      @default(0)
-  price       Float
-  publisher   String?
-  edition     String?
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  permissions Permission[]
+  users       User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("roles")
+}
+
+model User {
+  id              String          @id @default(uuid())
+  name            String
+  email           String          @unique
+  password        String
+  isActive        Boolean         @default(true) @map("isActive")
+  themePreference ThemePreference @default(SYSTEM) @map("themePreference")
+  role            Role            @relation(fields: [roleId], references: [id])
+  roleId          String
+  entradas        Entrada[]
+  saidas          Saida[]
+  createdAt       DateTime        @default(now()) @map("createdAt")
+  updatedAt       DateTime        @updatedAt @map("updatedAt")
+
+  @@map("users")
+}
+
+// ─── Lookup Tables ────────────────────────────────────────────────────────────
+
+model Classificacao {
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(100)
+  ativo     Boolean  @default(true)
+  livros    Livro[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("classificacao")
+}
+
+model Editora {
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(150)
+  ativo     Boolean  @default(true)
+  livros    Livro[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("editora")
+}
+
+model Idioma {
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(50)
+  ativo     Boolean  @default(true)
+  livros    Livro[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("idioma")
+}
+
+model CanalVenda {
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(100)
+  /// Taxa percentual da plataforma (0.0 a 1.0)
+  comissao  Decimal  @default(0.0) @db.Decimal(5, 4)
+  ativo     Boolean  @default(true)
+  saidas    Saida[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("canal_venda")
+}
+
+model FormaPagamento {
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(100)
+  /// Taxa percentual da forma de pagamento (0.0 a 1.0)
+  taxa      Decimal  @default(0.0) @db.Decimal(5, 4)
+  ativo     Boolean  @default(true)
+  saidas    Saida[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("forma_pagamento")
+}
+
+model TipoSaida {
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(50)
+  /// TRUE apenas para o tipo "Venda". RULE [TPS-01]: apenas um registro pode ter isVenda = TRUE.
+  isVenda   Boolean  @default(false) @map("is_venda")
+  ativo     Boolean  @default(true)
+  saidas    Saida[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tipo_saida")
+}
+
+// ─── Tabela Principal ─────────────────────────────────────────────────────────
+
+enum EdicaoEspecial {
+  normal
+  variante
+}
+
+enum EstadoLivro {
+  novo
+  usado
+}
+
+enum ColecaoLivro {
+  completa
+  em_lancamento
+}
+
+model Livro {
+  id              Int           @id @default(autoincrement())
+  classificacao   Classificacao @relation(fields: [classificacaoId], references: [id])
+  classificacaoId Int           @map("id_classificacao")
+  editora         Editora       @relation(fields: [editoraId], references: [id])
+  editoraId       Int           @map("id_editora")
+  idioma          Idioma        @relation(fields: [idiomaId], references: [id])
+  idiomaId        Int           @map("id_idioma")
+  descricao       String        @db.VarChar(255)
+  capa            String?       @db.VarChar(500)
+  /// Validar formato 13 dígitos. RULE [LIV-02]: unicidade por estado.
+  isbn13          String?       @db.Char(13)
+  /// Validar formato 10 dígitos. RULE [LIV-02]: unicidade por estado.
+  isbn10          String?       @db.Char(10)
+  edicaoEspecial  EdicaoEspecial @default(normal) @map("edicao_especial")
+  volume          String?       @db.VarChar(50)
+  estado          EstadoLivro
+  colecao         ColecaoLivro
+  pesoGramas      Decimal?      @db.Decimal(8, 2) @map("peso_gramas")
+  /// Preço unitário tabelado/sugerido. NULLABLE.
+  precoTabelado   Decimal?      @db.Decimal(12, 2) @map("preco_tabelado")
+  /// Soft delete — RULE [LIV-03]: livro inativo não permite movimentação.
+  ativo           Boolean       @default(true)
+  estoque         Estoque?
+  entradas        Entrada[]
+  saidas          Saida[]
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@map("livro")
+}
+
+// ─── Estoque ─────────────────────────────────────────────────────────────────
+
+model Estoque {
+  /// PK = FK para Livro (relação 1:1). RULE [LIV-01]: criado automaticamente pelo use-case ao criar Livro.
+  livroId            Int     @id @map("id_livro")
+  livro              Livro   @relation(fields: [livroId], references: [id])
+  quantidade         Int     @default(0)
+  /// Custo Médio Ponderado (WACC). RULE [EST-01]: não resetado quando quantidade chega a 0.
+  custoUnitarioMedio Decimal @default(0.0) @db.Decimal(12, 4) @map("custo_unitario_medio")
+  /// GENERATED: quantidade * custoUnitarioMedio — atualizado pelo use-case junto com custoUnitarioMedio.
+  custoTotal         Decimal @default(0.0) @db.Decimal(14, 4) @map("custo_total")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("estoque")
+}
+
+// ─── Entrada ──────────────────────────────────────────────────────────────────
+
+model Entrada {
+  id            Int      @id @default(autoincrement())
+  livro         Livro    @relation(fields: [livroId], references: [id])
+  livroId       Int      @map("id_livro")
+  usuario       User     @relation(fields: [usuarioId], references: [id])
+  usuarioId     String   @map("id_usuario")
+  data          DateTime @db.Date
+  quantidade    Int
+  /// Custo unitário desta entrada. = 0 para doações.
+  valorUnitario Decimal  @db.Decimal(12, 4) @map("valor_unitario")
+  /// GENERATED: quantidade * valorUnitario — calculado pelo use-case.
+  valorTotal    Decimal  @db.Decimal(14, 4) @map("valor_total")
+  observacao    String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("entrada")
+}
+
+// ─── Saída ────────────────────────────────────────────────────────────────────
+
+model Saida {
+  id                        Int            @id @default(autoincrement())
+  livro                     Livro          @relation(fields: [livroId], references: [id])
+  livroId                   Int            @map("id_livro")
+  usuario                   User           @relation(fields: [usuarioId], references: [id])
+  usuarioId                 String         @map("id_usuario")
+  tipoSaida                 TipoSaida      @relation(fields: [tipoSaidaId], references: [id])
+  tipoSaidaId               Int            @map("id_tipo_saida")
+  canalVenda                CanalVenda?    @relation(fields: [canalVendaId], references: [id])
+  canalVendaId              Int?           @map("id_canal_venda")
+  formaPagamento            FormaPagamento? @relation(fields: [formaPagamentoId], references: [id])
+  formaPagamentoId          Int?           @map("id_forma_pagamento")
+  data                      DateTime       @db.Date
+  quantidade                Int
+  /// = 0 se não for venda; > 0 se for venda.
+  valorUnitario             Decimal        @db.Decimal(12, 4) @map("valor_unitario")
+  /// GENERATED: quantidade * valorUnitario
+  valorTotal                Decimal        @db.Decimal(14, 4) @map("valor_total")
+  /// TRIGGER-MANAGED: copiado de estoque.custoUnitarioMedio no momento da saída.
+  snapshotCustoUnitario     Decimal        @db.Decimal(12, 4) @map("snapshot_custo_unitario")
+  /// GENERATED: quantidade * snapshotCustoUnitario
+  snapshotCustoTotal        Decimal        @db.Decimal(14, 4) @map("snapshot_custo_total")
+  /// TRIGGER-MANAGED: copiado de livro.precoTabelado no momento da saída.
+  snapshotPrecoTabelado     Decimal?       @db.Decimal(12, 2) @map("snapshot_preco_tabelado")
+  /// TRIGGER-MANAGED: copiado de canalVenda.comissao; = 0 se não for venda.
+  snapshotComissaoPlataforma Decimal       @default(0.0) @db.Decimal(5, 4) @map("snapshot_comissao_plataforma")
+  /// GENERATED: valorTotal * snapshotComissaoPlataforma
+  valorComissaoPlataforma   Decimal        @db.Decimal(14, 4) @map("valor_comissao_plataforma")
+  /// TRIGGER-MANAGED: copiado de formaPagamento.taxa; = 0 se não for venda.
+  snapshotTaxaPagamento     Decimal        @default(0.0) @db.Decimal(5, 4) @map("snapshot_taxa_pagamento")
+  /// GENERATED: valorTotal * snapshotTaxaPagamento
+  valorTaxaPagamento        Decimal        @db.Decimal(14, 4) @map("valor_taxa_pagamento")
+  /// GENERATED: valorTotal - snapshotCustoTotal - valorComissaoPlataforma - valorTaxaPagamento
+  lucroVenda                Decimal        @db.Decimal(14, 4) @map("lucro_venda")
+  observacao                String?
+  createdAt                 DateTime       @default(now()) @map("created_at")
+  updatedAt                 DateTime       @updatedAt @map("updated_at")
+
+  @@map("saida")
 }

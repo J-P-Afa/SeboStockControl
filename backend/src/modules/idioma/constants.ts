@@ -1,0 +1,1 @@
+export const IDIOMA_REPOSITORY = Symbol('IDIOMA_REPOSITORY');

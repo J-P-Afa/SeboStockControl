@@ -1,0 +1,1 @@
+export const EDITORA_REPOSITORY = Symbol('EDITORA_REPOSITORY');
