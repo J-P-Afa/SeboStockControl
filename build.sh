@@ -77,6 +77,24 @@ step "Parando containers anteriores..."
 cd "$ROOT_DIR"
 docker compose down 2>/dev/null && ok "Containers parados" || ok "Nenhum container rodando"
 
+step "Limpando processos do frontend e backend..."
+# Tenta matar processos pelo número da porta (mais comum)
+fuser -k 3000/tcp 2>/dev/null || true
+fuser -k 3001/tcp 2>/dev/null || true
+
+# Tenta matar todos os processos de 'node' ou 'nest' que estejam rodando nesta pasta
+# Excluímos o próprio PID do script ($$) para não nos matarmos
+pgrep -f "node.*$ROOT_DIR" | grep -v "$$" | xargs kill -9 2>/dev/null || true
+pgrep -f "nest.*$ROOT_DIR" | grep -v "$$" | xargs kill -9 2>/dev/null || true
+
+# Pequeno delay para o SO liberar os sockets e limpar processos
+sleep 1
+
+if lsof -Pi :3001 -sTCP:LISTEN -t >/dev/null ; then
+  fail "Porta 3001 ainda em uso. Tente rodar: lsof -i :3001 para ver quem está usando."
+fi
+ok "Processos antigos limpos e portas liberadas"
+
 step "Subindo banco de dados PostgreSQL..."
 docker compose up -d
 ok "PostgreSQL rodando na porta 5432"
