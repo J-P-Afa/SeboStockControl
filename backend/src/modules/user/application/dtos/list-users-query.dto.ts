@@ -51,7 +51,7 @@ export class ListUsersQueryDto {
   @IsOptional()
   roleIds?: string;
 
-  @ApiPropertyOptional({ description: 'Filtrar por status ativo (true/false)' })
+  @ApiPropertyOptional({ description: 'Filtrar por status isActive (true/false)' })
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()

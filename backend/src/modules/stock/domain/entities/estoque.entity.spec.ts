@@ -8,48 +8,51 @@ describe('EstoqueEntity', () => {
     estoque.applyEntrada(10, 20); // 10 units @ 20.00
     
     expect(estoque.quantidade).toBe(10);
-    expect(estoque.custoUnitarioMedio.toNumber()).toBe(20);
+    expect(estoque.custoMedio.toNumber()).toBe(20);
     expect(estoque.custoTotal.toNumber()).toBe(200);
+
   });
 
   it('should apply WACC correctly with existing stock', () => {
     const estoque = EstoqueEntity.restore({
-      livroId: 1,
+      bookId: 1,
       quantidade: 10,
-      custoUnitarioMedio: new Decimal('20.0000'),
-      custoTotal: new Decimal('200.0000'),
+      custoMedio: new Decimal('20.0000'),
     });
+
 
     estoque.applyEntrada(5, 30); // 5 units @ 30.00
     
     // WACC: (10 * 20 + 5 * 30) / (10 + 5) = 350 / 15 ≈ 23.3333
     expect(estoque.quantidade).toBe(15);
-    expect(estoque.custoUnitarioMedio.toNumber()).toBeCloseTo(23.3333, 4);
+    expect(estoque.custoMedio.toNumber()).toBeCloseTo(23.3333, 4);
     expect(estoque.custoTotal.toNumber()).toBeCloseTo(350, 2);
+
   });
 
   it('should NOT change custoUnitarioMedio on donation (valorUnitario = 0)', () => {
     const estoque = EstoqueEntity.restore({
-      livroId: 1,
+      bookId: 1,
       quantidade: 10,
-      custoUnitarioMedio: new Decimal('20.0000'),
-      custoTotal: new Decimal('200.0000'),
+      custoMedio: new Decimal('20.0000'),
     });
+
 
     estoque.applyEntrada(5, 0); // 5 units @ 0.00 (donation)
     
     expect(estoque.quantidade).toBe(15);
-    expect(estoque.custoUnitarioMedio.toNumber()).toBe(20);
+    expect(estoque.custoMedio.toNumber()).toBe(20);
     expect(estoque.custoTotal.toNumber()).toBe(300); // 15 * 20
+
   });
 
   it('should decrement stock and update total', () => {
     const estoque = EstoqueEntity.restore({
-      livroId: 1,
+      bookId: 1,
       quantidade: 10,
-      custoUnitarioMedio: new Decimal('20.0000'),
-      custoTotal: new Decimal('200.0000'),
+      custoMedio: new Decimal('20.0000'),
     });
+
 
     estoque.decrement(2);
     
@@ -59,11 +62,12 @@ describe('EstoqueEntity', () => {
 
   it('should throw error when stock is insufficient', () => {
     const estoque = EstoqueEntity.restore({
-      livroId: 1,
+      bookId: 1,
       quantidade: 1,
-      custoUnitarioMedio: new Decimal('20.0000'),
-      custoTotal: new Decimal('200.0000'),
+      custoMedio: new Decimal('20.0000'),
     });
+
+
 
     expect(() => estoque.decrement(2)).toThrow('ESTOQUE_INSUFICIENTE');
   });

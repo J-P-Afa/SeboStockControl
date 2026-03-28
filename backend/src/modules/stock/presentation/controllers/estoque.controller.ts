@@ -14,10 +14,10 @@ export class EstoqueController {
     return { success: true, data: await this.repo.findAll() };
   }
 
-  @Get('livro/:livroId')
-  async findByLivro(@Param('livroId', ParseIntPipe) livroId: number) {
-    const item = await this.repo.findByLivroId(livroId);
-    if (!item) throw new NotFoundException('Estoque não encontrado para este livro');
+  @Get('book/:bookId')
+  async findByBook(@Param('bookId', ParseIntPipe) bookId: number) {
+    const item = await this.repo.findByBookId(bookId);
+    if (!item) throw new NotFoundException('Estoque não encontrado para este book');
     return { success: true, data: item };
   }
 }

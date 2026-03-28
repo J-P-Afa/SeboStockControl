@@ -1,16 +1,17 @@
 import { EstoqueEntity } from '../entities/estoque.entity';
+import { Condition } from '@prisma/client';
 
 export const ESTOQUE_REPOSITORY = Symbol('ESTOQUE_REPOSITORY');
 
-export interface EstoqueWithLivro extends EstoqueEntity {
-  livro: {
-    descricao: string;
-    estado: string;
+export interface EstoqueWithBook extends EstoqueEntity {
+  book: {
+    title: string;
+    condition: Condition;
     isbn13: string | null;
   };
 }
 
 export interface IStockRepository {
-  findByLivroId(livroId: number): Promise<EstoqueWithLivro | null>;
-  findAll(): Promise<EstoqueWithLivro[]>;
+  findByBookId(bookId: number): Promise<EstoqueWithBook | null>;
+  findAll(): Promise<EstoqueWithBook[]>;
 }

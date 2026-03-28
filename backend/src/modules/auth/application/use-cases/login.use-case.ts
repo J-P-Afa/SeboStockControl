@@ -23,8 +23,9 @@ export class LoginUseCase {
     email: string,
     password: string,
   ): Promise<Result<TokenResponseDto>> {
+    const trimmedEmail = email.trim();
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: trimmedEmail },
       include: {
         role: {
           include: { permissions: true },

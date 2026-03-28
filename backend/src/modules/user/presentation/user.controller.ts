@@ -72,7 +72,7 @@ export class UserController {
       filters,
     );
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Post()
@@ -87,7 +87,7 @@ export class UserController {
       throw new ConflictException(result.error);
     }
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Patch(':id')
@@ -108,7 +108,7 @@ export class UserController {
       throw new ConflictException(result.error);
     }
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Delete(':id')

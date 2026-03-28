@@ -22,7 +22,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   roleId!: string;
 
-  @ApiPropertyOptional({ default: true, description: 'Define se o usuário está ativo' })
+  @ApiPropertyOptional({ default: true, description: 'Define se o usuário está isActive' })
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
