@@ -1,8 +1,24 @@
-import type { Genre, CreateGenreData, UpdateGenreData, ApiResponse } from '@/types';
+import type { Genre, CreateGenreData, UpdateGenreData, ApiResponse, PaginatedResponse, ListGenresFilters } from '@/types';
 import { apiClient } from './client';
 
-export async function listGenres(): Promise<Genre[]> {
-  const { data } = await apiClient.get<ApiResponse<Genre[]>>('/genres');
+export async function listGenres(
+  page: number = 1,
+  limit: number = 10,
+  sortBy?: string,
+  sortOrder?: 'asc' | 'desc',
+  filters?: ListGenresFilters
+): Promise<PaginatedResponse<Genre>> {
+  const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Genre>>>('/genres', {
+    params: {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+      search: filters?.search,
+      isActive: filters?.isActive,
+    },
+  });
+
   return data.data;
 }
 

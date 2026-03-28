@@ -35,7 +35,7 @@ export function useGenres(
     'queryKey' | 'queryFn'
   >
 ) {
-  return useQuery({
+  return useQuery<PaginatedResponse<Genre>, Error>({
     queryKey: ['genres', page, limit, sortBy, sortOrder, filters],
     queryFn: () => listGenres(page, limit, sortBy, sortOrder, filters),
     ...options,
