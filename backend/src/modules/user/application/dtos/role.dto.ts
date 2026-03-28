@@ -51,7 +51,9 @@ export class RoleResponseDto {
     return {
       id: entity.id,
       name: entity.name,
-      permissions: entity.permissions.map(PermissionResponseDto.fromEntity),
+      permissions: entity.permissions.map((p) =>
+        PermissionResponseDto.fromEntity(p),
+      ),
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

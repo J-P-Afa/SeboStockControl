@@ -7,7 +7,13 @@ import { PublisherEntity } from '../domain/publisher.entity';
 export class PrismaPublisherRepository implements PublisherRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private toEntity(data: any): PublisherEntity {
+  private toEntity(data: {
+    id: number;
+    description: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): PublisherEntity {
     return PublisherEntity.restore({
       id: data.id,
       description: data.description,
@@ -57,7 +63,7 @@ export class PrismaPublisherRepository implements PublisherRepository {
   async findAll(): Promise<PublisherEntity[]> {
     const list = await this.prisma.publisher.findMany();
 
-    return list.map(this.toEntity);
+    return list.map((item) => this.toEntity(item));
   }
 
   async update(publisher: PublisherEntity): Promise<PublisherEntity> {

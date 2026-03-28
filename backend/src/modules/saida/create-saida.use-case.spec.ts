@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CreateSaidaUseCase } from './create-saida.use-case';
 import { PrismaService } from '../database';
 import { BookBuilder } from '../../test-utils/builders/book.builder';

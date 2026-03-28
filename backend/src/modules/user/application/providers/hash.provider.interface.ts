@@ -1,4 +1,4 @@
-import { Result } from '../../../../common';
+// No common result needed for now
 
 export const HASH_PROVIDER = 'HASH_PROVIDER';
 

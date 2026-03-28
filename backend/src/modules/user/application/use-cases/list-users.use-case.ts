@@ -31,7 +31,7 @@ export class ListUsersUseCase {
 
     return Result.ok({
       ...result,
-      items: result.items.map(UserResponseDto.fromEntity),
+      items: result.items.map((item) => UserResponseDto.fromEntity(item)),
     });
   }
 }

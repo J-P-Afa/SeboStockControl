@@ -27,7 +27,11 @@ export class UpdatePublisherUseCase {
       }
 
       if (input.isActive !== undefined) {
-        input.isActive ? publisher.activate() : publisher.deactivate();
+        if (input.isActive) {
+          publisher.activate();
+        } else {
+          publisher.deactivate();
+        }
       }
 
       const updated = await this.publisherRepo.update(publisher);

@@ -67,13 +67,12 @@ describe('CreateEntradaUseCase', () => {
 
     expect(result.success).toBe(true);
     // WACC: (0 * 0 + 5 * 30) / (0 + 5) = 30
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     expect(txMock.estoque.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         update: expect.objectContaining({
           quantidade: 5,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
           custoMedio: expect.anything(),
         }),
       }),
@@ -96,13 +95,12 @@ describe('CreateEntradaUseCase', () => {
 
     expect(result.success).toBe(true);
     // WACC: (10 * 20 + 5 * 30) / (10 + 5) = (200 + 150) / 15 = 350/15 ≈ 23.3333
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     expect(txMock.estoque.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         update: expect.objectContaining({
           quantidade: 15,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
           custoMedio: expect.anything(),
         }),
       }),
@@ -124,13 +122,12 @@ describe('CreateEntradaUseCase', () => {
 
     expect(result.success).toBe(true);
     // Doação: custo médio DEVE ser mantido em 20
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     expect(txMock.estoque.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         update: expect.objectContaining({
           quantidade: 15,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
           custoMedio: expect.anything(),
         }),
       }),

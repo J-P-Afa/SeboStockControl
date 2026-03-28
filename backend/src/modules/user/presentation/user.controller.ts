@@ -19,7 +19,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { RequirePermission } from '../../../common';
 import { PermissionsGuard } from '../../../common/guards';

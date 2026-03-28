@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { LookupExternalBookUseCase } from './lookup-external-book.use-case';
 import { IExternalBookService } from '../../domain/external-book-service.interface';
