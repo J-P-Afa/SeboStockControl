@@ -16,15 +16,6 @@ export interface User {
 /** Response from GET /users/me (current user profile with theme). */
 export type MeResponse = User;
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-
 export interface CreateUserPayload {
   name: string;
   email: string;
