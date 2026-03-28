@@ -7,7 +7,7 @@ export class PrismaFormaPagamentoRepository {
 
   findAll(includeInactive = false) {
     return this.prisma.formaPagamento.findMany({
-      where: includeInactive ? undefined : { ativo: true },
+      where: includeInactive ? undefined : { isActive: true },
       orderBy: { descricao: 'asc' },
     });
   }
@@ -20,11 +20,11 @@ export class PrismaFormaPagamentoRepository {
     return this.prisma.formaPagamento.findUnique({ where: { descricao } });
   }
 
-  create(data: { descricao: string; taxa?: number; ativo?: boolean }) {
+  create(data: { descricao: string; taxa?: number; isActive?: boolean }) {
     return this.prisma.formaPagamento.create({ data });
   }
 
-  update(id: number, data: { descricao?: string; taxa?: number; ativo?: boolean }) {
+  update(id: number, data: { descricao?: string; taxa?: number; isActive?: boolean }) {
     return this.prisma.formaPagamento.update({ where: { id }, data });
   }
 

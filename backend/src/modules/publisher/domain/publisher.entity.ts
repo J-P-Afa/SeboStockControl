@@ -17,7 +17,7 @@ export class PublisherEntity {
     props: Omit<PublisherProps, 'id' | 'createdAt' | 'updatedAt'>,
   ): PublisherEntity {
     if (!props.description || props.description.trim().length === 0) {
-      throw new Error('Nome da editora é obrigatório');
+      throw new Error('Nome da publisher é obrigatório');
     }
 
     return new PublisherEntity({

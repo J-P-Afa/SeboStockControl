@@ -44,7 +44,7 @@ export class GenreController {
 
     return {
       success: true,
-      genre: result.data,
+      data: result.data,
     };
   }
 
@@ -55,7 +55,7 @@ export class GenreController {
 
     return {
       success: true,
-      genres: result.data,
+      data: result.data,
     };
   }
 
@@ -73,7 +73,7 @@ export class GenreController {
 
     return {
       success: true,
-      genre: result.data,
+      data: result.data,
     };
   }
 
@@ -97,7 +97,7 @@ export class GenreController {
 
     return {
       success: true,
-      genre: result.data,
+      data: result.data,
     };
   }
 

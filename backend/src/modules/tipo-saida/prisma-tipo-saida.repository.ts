@@ -11,7 +11,7 @@ export class PrismaTipoSaidaRepository {
 
   findAll(includeInactive = false) {
     return this.prisma.tipoSaida.findMany({
-      where: includeInactive ? undefined : { ativo: true },
+      where: includeInactive ? undefined : { isActive: true },
       orderBy: { descricao: 'asc' },
     });
   }
@@ -34,11 +34,11 @@ export class PrismaTipoSaidaRepository {
     return this.prisma.tipoSaida.count({ where: { isVenda: true } });
   }
 
-  create(data: { descricao: string; isVenda?: boolean; ativo?: boolean }) {
+  create(data: { descricao: string; isVenda?: boolean; isActive?: boolean }) {
     return this.prisma.tipoSaida.create({ data });
   }
 
-  update(id: number, data: { descricao?: string; ativo?: boolean }) {
+  update(id: number, data: { descricao?: string; isActive?: boolean }) {
     return this.prisma.tipoSaida.update({ where: { id }, data });
   }
 

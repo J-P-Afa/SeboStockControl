@@ -24,7 +24,7 @@ export class CreateLanguageUseCase {
 
       return { success: true, data: saved };
     } catch (error) {
-      return { success: false, error: 'Erro ao criar idioma' };
+      return { success: false, error: 'Erro ao criar language' };
     }
   }
 }

@@ -1,34 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../database';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaClassificacaoRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(includeInactive = false) {
+  async findAll(includeInactive = false) {
     return this.prisma.classificacao.findMany({
-      where: includeInactive ? undefined : { ativo: true },
+      where: includeInactive ? undefined : { isActive: true },
       orderBy: { descricao: 'asc' },
     });
   }
 
-  findById(id: number) {
+  async findById(id: number) {
     return this.prisma.classificacao.findUnique({ where: { id } });
   }
 
-  findByDescricao(descricao: string) {
+  async findByDescricao(descricao: string) {
     return this.prisma.classificacao.findUnique({ where: { descricao } });
   }
 
-  create(data: { descricao: string; ativo?: boolean }) {
-    return this.prisma.classificacao.create({ data });
+  async create(data: { descricao: string; isActive?: boolean; margemAlvo?: number }) {
+    return this.prisma.classificacao.create({ 
+      data: {
+        descricao: data.descricao,
+        isActive: data.isActive,
+        margemAlvo: data.margemAlvo ?? 0,
+      } 
+    });
   }
 
-  update(id: number, data: { descricao?: string; ativo?: boolean }) {
+  async update(id: number, data: { descricao?: string; isActive?: boolean; margemAlvo?: number }) {
     return this.prisma.classificacao.update({ where: { id }, data });
   }
 
-  delete(id: number) {
+  async delete(id: number) {
     return this.prisma.classificacao.delete({ where: { id } });
   }
 }

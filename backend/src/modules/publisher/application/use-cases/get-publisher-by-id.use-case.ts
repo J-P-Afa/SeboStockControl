@@ -12,7 +12,7 @@ export class GetPublisherByIdUseCase {
     const publisher = await this.publisherRepo.findById(id);
 
     if (!publisher) {
-      return { success: false, error: 'Editora não encontrada' };
+      return { success: false, error: 'Publisher não encontrada' };
     }
 
     return { success: true, data: publisher };

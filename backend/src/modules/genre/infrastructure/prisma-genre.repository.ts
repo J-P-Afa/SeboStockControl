@@ -44,6 +44,16 @@ export class PrismaGenreRepository implements GenreRepository {
     return this.toEntity(found);
   }
 
+  async findByDescription(description: string): Promise<GenreEntity | null> {
+    const found = await this.prisma.genre.findUnique({
+      where: { description },
+    });
+
+    if (!found) return null;
+
+    return this.toEntity(found);
+  }
+
   async findAll(): Promise<GenreEntity[]> {
     const list = await this.prisma.genre.findMany();
 

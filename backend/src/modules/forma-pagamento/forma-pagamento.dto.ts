@@ -8,11 +8,11 @@ export class CreateFormaPagamentoDto {
   taxa?: number;
 
   @IsOptional() @IsBoolean()
-  ativo?: boolean;
+  isActive?: boolean;
 }
 
 export class UpdateFormaPagamentoDto {
   @IsOptional() @IsString() @MaxLength(100) descricao?: string;
   @IsOptional() @IsNumber() @Min(0) @Max(1) taxa?: number;
-  @IsOptional() @IsBoolean() ativo?: boolean;
+  @IsOptional() @IsBoolean() isActive?: boolean;
 }

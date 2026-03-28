@@ -12,7 +12,7 @@ export class GetLanguageByIdUseCase {
     const language = await this.languageRepo.findById(id);
 
     if (!language) {
-      return { success: false, error: 'Idioma não encontrado' };
+      return { success: false, error: 'Language não encontrado' };
     }
 
     return { success: true, data: language };

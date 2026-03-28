@@ -42,6 +42,16 @@ export class PrismaPublisherRepository implements PublisherRepository {
     return this.toEntity(found);
   }
 
+  async findByDescription(description: string): Promise<PublisherEntity | null> {
+    const found = await this.prisma.publisher.findUnique({
+      where: { description },
+    });
+
+    if (!found) return null;
+
+    return this.toEntity(found);
+  }
+
   async findAll(): Promise<PublisherEntity[]> {
     const list = await this.prisma.publisher.findMany();
 

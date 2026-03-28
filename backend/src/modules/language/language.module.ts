@@ -27,5 +27,6 @@ import { DeleteLanguageUseCase } from './application/use-cases/delete-language.u
     UpdateLanguageUseCase,
     DeleteLanguageUseCase,
   ],
+  exports: ['LanguageRepository'],
 })
 export class LanguageModule {}

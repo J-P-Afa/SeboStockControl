@@ -29,5 +29,6 @@ import { DeleteGenreUseCase } from './application/use-cases/delete-genre.use-cas
     UpdateGenreUseCase,
     DeleteGenreUseCase,
   ],
+  exports: ['GenreRepository'],
 })
 export class GenreModule {}

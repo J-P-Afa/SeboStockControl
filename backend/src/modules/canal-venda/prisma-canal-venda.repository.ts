@@ -7,7 +7,7 @@ export class PrismaCanalVendaRepository {
 
   findAll(includeInactive = false) {
     return this.prisma.canalVenda.findMany({
-      where: includeInactive ? undefined : { ativo: true },
+      where: includeInactive ? undefined : { isActive: true },
       orderBy: { descricao: 'asc' },
     });
   }
@@ -20,11 +20,11 @@ export class PrismaCanalVendaRepository {
     return this.prisma.canalVenda.findUnique({ where: { descricao } });
   }
 
-  create(data: { descricao: string; comissao?: number; ativo?: boolean }) {
+  create(data: { descricao: string; comissao?: number; isActive?: boolean }) {
     return this.prisma.canalVenda.create({ data });
   }
 
-  update(id: number, data: { descricao?: string; comissao?: number; ativo?: boolean }) {
+  update(id: number, data: { descricao?: string; comissao?: number; isActive?: boolean }) {
     return this.prisma.canalVenda.update({ where: { id }, data });
   }
 

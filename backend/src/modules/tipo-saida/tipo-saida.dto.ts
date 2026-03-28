@@ -8,10 +8,10 @@ export class CreateTipoSaidaDto {
   isVenda?: boolean;
 
   @IsOptional() @IsBoolean()
-  ativo?: boolean;
+  isActive?: boolean;
 }
 
 export class UpdateTipoSaidaDto {
   @IsOptional() @IsString() @MaxLength(50) descricao?: string;
-  @IsOptional() @IsBoolean() ativo?: boolean;
+  @IsOptional() @IsBoolean() isActive?: boolean;
 }

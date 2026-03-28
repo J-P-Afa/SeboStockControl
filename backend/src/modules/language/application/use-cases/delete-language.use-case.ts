@@ -12,13 +12,13 @@ export class DeleteLanguageUseCase {
     const exists = await this.languageRepo.findById(id);
 
     if (!exists) {
-      return { success: false, error: 'Idioma não encontrado' };
+      return { success: false, error: 'Language não encontrado' };
     }
 
     const deleted = await this.languageRepo.delete(id);
 
     if (!deleted) {
-      return { success: false, error: 'Erro ao deletar idioma' };
+      return { success: false, error: 'Erro ao deletar language' };
     }
 
     return { success: true };

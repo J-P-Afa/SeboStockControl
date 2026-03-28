@@ -42,6 +42,16 @@ export class PrismaLanguageRepository implements LanguageRepository {
     return this.toEntity(found);
   }
 
+  async findByDescription(description: string): Promise<LanguageEntity | null> {
+    const found = await this.prisma.language.findUnique({
+      where: { description },
+    });
+
+    if (!found) return null;
+
+    return this.toEntity(found);
+  }
+
   async findAll(): Promise<LanguageEntity[]> {
     const list = await this.prisma.language.findMany();
 
