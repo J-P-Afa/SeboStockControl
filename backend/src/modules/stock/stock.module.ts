@@ -6,7 +6,9 @@ import { ESTOQUE_REPOSITORY } from './domain/repositories/stock.repository.inter
 
 @Module({
   controllers: [EstoqueController],
-  providers: [{ provide: ESTOQUE_REPOSITORY, useClass: PrismaEstoqueRepository }],
+  providers: [
+    { provide: ESTOQUE_REPOSITORY, useClass: PrismaEstoqueRepository },
+  ],
   exports: [ESTOQUE_REPOSITORY],
 })
 export class StockModule {}

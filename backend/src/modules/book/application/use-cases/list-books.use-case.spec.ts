@@ -1,6 +1,9 @@
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { ListBooksUseCase } from './list-books.use-case';
-import { IBookRepository, BookFilters } from '../../domain/book.repository.interface';
+import {
+  IBookRepository,
+  BookFilters,
+} from '../../domain/book.repository.interface';
 import { BookEntity } from '../../domain/book.entity';
 import { Condition, Status, EditionType, Prisma } from '@prisma/client';
 

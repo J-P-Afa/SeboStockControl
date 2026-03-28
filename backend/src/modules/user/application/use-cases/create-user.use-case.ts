@@ -8,10 +8,10 @@ import { CreateUserDto, UserResponseDto } from '../dtos';
 
 /**
  * Caso de Uso: Criação de Usuário
- * 
- * Este serviço orquestra a criação de novos usuários no sistema, 
+ *
+ * Este serviço orquestra a criação de novos usuários no sistema,
  * garantindo a unicidade do e-mail e a criptografia da senha.
- * 
+ *
  * @ai-context Segue o Result Pattern para evitar exceções de fluxo controlado.
  * @side-effects Persiste dados no Repositório de Usuários.
  */
@@ -22,11 +22,11 @@ export class CreateUserUseCase {
     private readonly userRepository: IUserRepository,
     @Inject(HASH_PROVIDER)
     private readonly hashProvider: IHashProvider,
-  ) { }
+  ) {}
 
   /**
    * Executa a lógica de criação do usuário.
-   * 
+   *
    * @param dto Dados de entrada validados pelo DTO.
    * @returns Um objeto Result contendo o DTO de resposta ou erro de domínio.
    * @throws Nunca lança exceções explicitamente (usa Result Pattern).
@@ -35,7 +35,10 @@ export class CreateUserUseCase {
     const existingUser = await this.userRepository.findByEmail(dto.email);
 
     if (existingUser) {
-      return Result.fail('USER_EMAIL_EXISTS', 'A user with this email already exists');
+      return Result.fail(
+        'USER_EMAIL_EXISTS',
+        'A user with this email already exists',
+      );
     }
 
     const hashedPassword = await this.hashProvider.hash(dto.password);

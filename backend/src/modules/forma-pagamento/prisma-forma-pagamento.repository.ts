@@ -24,7 +24,10 @@ export class PrismaFormaPagamentoRepository {
     return this.prisma.formaPagamento.create({ data });
   }
 
-  update(id: number, data: { descricao?: string; taxa?: number; isActive?: boolean }) {
+  update(
+    id: number,
+    data: { descricao?: string; taxa?: number; isActive?: boolean },
+  ) {
     return this.prisma.formaPagamento.update({ where: { id }, data });
   }
 

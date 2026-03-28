@@ -33,12 +33,14 @@ export class EstoqueEntity {
     return this.props.custoMedio.mul(this.props.quantidade);
   }
 
-
   /**
    * Aplica o algoritmo WACC (Custo Médio Ponderado)
    * RULE [ENT-01]
    */
-  public applyEntrada(quantidade: number, custoUnitarioInput: Prisma.Decimal | number | string): void {
+  public applyEntrada(
+    quantidade: number,
+    custoUnitarioInput: Prisma.Decimal | number | string,
+  ): void {
     const custoUnitario = new Prisma.Decimal(custoUnitarioInput);
     const qtdAtual = this.props.quantidade;
 
@@ -57,7 +59,7 @@ export class EstoqueEntity {
       this.props.custoMedio = novoCusto;
       this.props.quantidade += quantidade;
     }
-    
+
     this.props.dataUltimaEntrada = new Date();
     this.props.updatedAt = new Date();
   }
@@ -75,12 +77,22 @@ export class EstoqueEntity {
     this.props.updatedAt = new Date();
   }
 
-  get bookId(): number { return this.props.bookId; }
-  get quantidade(): number { return this.props.quantidade; }
-  get custoMedio(): Prisma.Decimal { return this.props.custoMedio; }
-  get dataUltimaEntrada(): Date | null | undefined { return this.props.dataUltimaEntrada; }
-  get dataUltimaSaida(): Date | null | undefined { return this.props.dataUltimaSaida; }
-  
+  get bookId(): number {
+    return this.props.bookId;
+  }
+  get quantidade(): number {
+    return this.props.quantidade;
+  }
+  get custoMedio(): Prisma.Decimal {
+    return this.props.custoMedio;
+  }
+  get dataUltimaEntrada(): Date | null | undefined {
+    return this.props.dataUltimaEntrada;
+  }
+  get dataUltimaSaida(): Date | null | undefined {
+    return this.props.dataUltimaSaida;
+  }
+
   public toJSON() {
     return {
       bookId: this.props.bookId,

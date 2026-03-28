@@ -34,7 +34,10 @@ export class LoginUseCase {
     });
 
     if (!user) {
-      return Result.fail('AUTH_INVALID_CREDENTIALS', 'Invalid email or password');
+      return Result.fail(
+        'AUTH_INVALID_CREDENTIALS',
+        'Invalid email or password',
+      );
     }
 
     if (!user.isActive) {
@@ -44,7 +47,10 @@ export class LoginUseCase {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return Result.fail('AUTH_INVALID_CREDENTIALS', 'Invalid email or password');
+      return Result.fail(
+        'AUTH_INVALID_CREDENTIALS',
+        'Invalid email or password',
+      );
     }
 
     const payload: JwtPayload = {

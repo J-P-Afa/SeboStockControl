@@ -2,11 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateSaidaBulkUseCase } from './create-saida-bulk.use-case';
 import { PrismaService } from '../database/prisma.service';
 import { CreateSaidaBulkDto } from './create-saida-bulk.dto';
-import { Condition, EditionType, Status, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 describe('CreateSaidaBulkUseCase', () => {
   let useCase: CreateSaidaBulkUseCase;
-  let prisma: PrismaService;
 
   const mockPrisma = {
     $transaction: jest.fn(),
@@ -27,7 +26,6 @@ describe('CreateSaidaBulkUseCase', () => {
     }).compile();
 
     useCase = module.get<CreateSaidaBulkUseCase>(CreateSaidaBulkUseCase);
-    prisma = module.get<PrismaService>(PrismaService);
     jest.clearAllMocks();
   });
 
@@ -45,9 +43,19 @@ describe('CreateSaidaBulkUseCase', () => {
       ],
     };
 
-    mockPrisma.$transaction.mockImplementation(async (cb) => await cb(mockPrisma));
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 1, title: 'Book 1', isActive: true });
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue({ id: 1, isVenda: false });
+    mockPrisma.$transaction.mockImplementation(
+      async (cb: (tx: typeof mockPrisma) => Promise<unknown>) =>
+        await cb(mockPrisma),
+    );
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 1,
+      title: 'Book 1',
+      isActive: true,
+    });
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue({
+      id: 1,
+      isVenda: false,
+    });
     mockPrisma.estoque.findUnique.mockResolvedValue({
       bookId: 1,
       quantidade: 10,
@@ -78,9 +86,19 @@ describe('CreateSaidaBulkUseCase', () => {
       ],
     };
 
-    mockPrisma.$transaction.mockImplementation(async (cb) => await cb(mockPrisma));
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 1, title: 'Book 1', isActive: true });
-    mockPrisma.tipoSaida.findUnique.mockResolvedValue({ id: 1, isVenda: false });
+    mockPrisma.$transaction.mockImplementation(
+      async (cb: (tx: typeof mockPrisma) => Promise<unknown>) =>
+        await cb(mockPrisma),
+    );
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 1,
+      title: 'Book 1',
+      isActive: true,
+    });
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue({
+      id: 1,
+      isVenda: false,
+    });
     mockPrisma.estoque.findUnique.mockResolvedValue({
       bookId: 1,
       quantidade: 10,

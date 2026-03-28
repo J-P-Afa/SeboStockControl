@@ -3,14 +3,20 @@ import type { Prisma } from '@prisma/client';
 import { PaginatedResult } from '../../../../common';
 import { PrismaService } from '../../../database';
 import { ThemePreference, UserEntity } from '../../domain/entities/user.entity';
-import type { UserFilters, CreateUserParams, UpdateUserParams } from '../../domain/repositories/user.repository.interface';
+import type {
+  UserFilters,
+  CreateUserParams,
+  UpdateUserParams,
+} from '../../domain/repositories/user.repository.interface';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private mapToDomain(user: any): UserEntity {
+  private mapToDomain(
+    user: Prisma.UserGetPayload<{ include: { role: true } }>,
+  ): UserEntity {
     return UserEntity.restore({
       id: user.id,
       name: user.name,
@@ -109,7 +115,9 @@ export class PrismaUserRepository implements IUserRepository {
         password: data.password,
         isActive: data.isActive,
         roleId: data.roleId,
-        ...(data.themePreference != null && { themePreference: data.themePreference }),
+        ...(data.themePreference != null && {
+          themePreference: data.themePreference,
+        }),
       },
       include: { role: true },
     });

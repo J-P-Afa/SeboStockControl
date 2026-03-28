@@ -1,6 +1,17 @@
 import {
-  Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe,
-  NotFoundException, HttpCode, HttpStatus, Inject, Query,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  ParseIntPipe,
+  NotFoundException,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Query,
 } from '@nestjs/common';
 import { CreateLookupDto, UpdateLookupDto } from '../../common/dtos/lookup.dto';
 import { PrismaClassificacaoRepository } from './prisma-classificacao.repository';
@@ -29,13 +40,23 @@ export class ClassificacaoController {
   @Post()
   async create(@Body() dto: CreateLookupDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
-    if (existing) return { success: false, error: { code: 'CLASSIFICACAO_EXISTS', message: 'Classificação já existe' } };
+    if (existing)
+      return {
+        success: false,
+        error: {
+          code: 'CLASSIFICACAO_EXISTS',
+          message: 'Classificação já existe',
+        },
+      };
     const item = await this.repo.create(dto);
     return { success: true, data: item };
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateLookupDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateLookupDto,
+  ) {
     const item = await this.repo.findById(id);
     if (!item) throw new NotFoundException('Classificação não encontrada');
     const updated = await this.repo.update(id, dto);

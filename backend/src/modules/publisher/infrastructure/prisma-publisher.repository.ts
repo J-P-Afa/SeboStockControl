@@ -42,7 +42,9 @@ export class PrismaPublisherRepository implements PublisherRepository {
     return this.toEntity(found);
   }
 
-  async findByDescription(description: string): Promise<PublisherEntity | null> {
+  async findByDescription(
+    description: string,
+  ): Promise<PublisherEntity | null> {
     const found = await this.prisma.publisher.findUnique({
       where: { description },
     });

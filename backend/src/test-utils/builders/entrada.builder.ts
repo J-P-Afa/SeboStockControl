@@ -35,7 +35,9 @@ export class EntradaBuilder {
 
   private calculateTotal() {
     if (this.props.quantidade !== undefined && this.props.custoUnitario) {
-      this.props.valorTotal = this.props.custoUnitario.mul(this.props.quantidade);
+      this.props.valorTotal = this.props.custoUnitario.mul(
+        this.props.quantidade,
+      );
     }
   }
 

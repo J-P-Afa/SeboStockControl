@@ -33,7 +33,6 @@ export class EstoqueBuilder {
     return this.withCustoMedio(custo);
   }
 
-
   empty(): this {
     this.props.quantidade = 0;
     this.props.custoMedio = new Decimal('0.0000');

@@ -27,39 +27,81 @@ export class CreateSaidaBulkUseCase {
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        if (error.message.startsWith('LIVRO_NOT_FOUND')) return Result.fail('LIVRO_NOT_FOUND', error.message.split(':')[1]);
-        if (error.message.startsWith('LIVRO_INATIVO')) return Result.fail('LIVRO_INATIVO', error.message.split(':')[1]);
-        if (error.message.startsWith('TIPO_SAIDA_NOT_FOUND')) return Result.fail('TIPO_SAIDA_NOT_FOUND', error.message.split(':')[1]);
-        if (error.message.startsWith('SAIDA_CANAL_REQUIRED')) return Result.fail('SAIDA_CANAL_REQUIRED', error.message.split(':')[1]);
-        if (error.message.startsWith('SAIDA_VALOR_REQUIRED')) return Result.fail('SAIDA_VALOR_REQUIRED', error.message.split(':')[1]);
-        if (error.message.startsWith('SAIDA_VALOR_MUST_BE_ZERO')) return Result.fail('SAIDA_VALOR_MUST_BE_ZERO', error.message.split(':')[1]);
-        if (error.message === 'ESTOQUE_INSUFICIENTE') return Result.fail('ESTOQUE_INSUFICIENTE', 'Estoque insuficiente para um ou mais itens');
+        if (error.message.startsWith('LIVRO_NOT_FOUND'))
+          return Result.fail('LIVRO_NOT_FOUND', error.message.split(':')[1]);
+        if (error.message.startsWith('LIVRO_INATIVO'))
+          return Result.fail('LIVRO_INATIVO', error.message.split(':')[1]);
+        if (error.message.startsWith('TIPO_SAIDA_NOT_FOUND'))
+          return Result.fail(
+            'TIPO_SAIDA_NOT_FOUND',
+            error.message.split(':')[1],
+          );
+        if (error.message.startsWith('SAIDA_CANAL_REQUIRED'))
+          return Result.fail(
+            'SAIDA_CANAL_REQUIRED',
+            error.message.split(':')[1],
+          );
+        if (error.message.startsWith('SAIDA_VALOR_REQUIRED'))
+          return Result.fail(
+            'SAIDA_VALOR_REQUIRED',
+            error.message.split(':')[1],
+          );
+        if (error.message.startsWith('SAIDA_VALOR_MUST_BE_ZERO'))
+          return Result.fail(
+            'SAIDA_VALOR_MUST_BE_ZERO',
+            error.message.split(':')[1],
+          );
+        if (error.message === 'ESTOQUE_INSUFICIENTE')
+          return Result.fail(
+            'ESTOQUE_INSUFICIENTE',
+            'Estoque insuficiente para um ou mais itens',
+          );
       }
-      return Result.fail('SAIDA_BULK_TRANSACTION_FAILED', 'Falha ao registrar saídas em lote');
+      return Result.fail(
+        'SAIDA_BULK_TRANSACTION_FAILED',
+        'Falha ao registrar saídas em lote',
+      );
     }
   }
 
   private async processItem(dto: CreateSaidaDto, tx: Prisma.TransactionClient) {
     const book = await tx.book.findUnique({ where: { id: dto.bookId } });
-    if (!book) throw new Error(`LIVRO_NOT_FOUND:Livro ${dto.bookId} não encontrado`);
-    if (!book.isActive) throw new Error(`LIVRO_INATIVO:Livro ${book.title} está inativo`);
+    if (!book)
+      throw new Error(`LIVRO_NOT_FOUND:Livro ${dto.bookId} não encontrado`);
+    if (!book.isActive)
+      throw new Error(`LIVRO_INATIVO:Livro ${book.title} está inativo`);
 
-    const tipoSaida = await tx.tipoSaida.findUnique({ where: { id: dto.tipoSaidaId } });
-    if (!tipoSaida) throw new Error('TIPO_SAIDA_NOT_FOUND:Tipo de saída não encontrado');
+    const tipoSaida = await tx.tipoSaida.findUnique({
+      where: { id: dto.tipoSaidaId },
+    });
+    if (!tipoSaida)
+      throw new Error('TIPO_SAIDA_NOT_FOUND:Tipo de saída não encontrado');
 
     if (tipoSaida.isVenda) {
-      if (!dto.canalVendaId || !dto.formaPagamentoId) throw new Error('SAIDA_CANAL_REQUIRED:Vendas exigem canal e forma de pagamento');
-      if (dto.valorUnitario <= 0) throw new Error('SAIDA_VALOR_REQUIRED:Vendas exigem valor unitário positivo');
+      if (!dto.canalVendaId || !dto.formaPagamentoId)
+        throw new Error(
+          'SAIDA_CANAL_REQUIRED:Vendas exigem canal e forma de pagamento',
+        );
+      if (dto.valorUnitario <= 0)
+        throw new Error(
+          'SAIDA_VALOR_REQUIRED:Vendas exigem valor unitário positivo',
+        );
     } else {
-      if (dto.valorUnitario > 0) throw new Error('SAIDA_VALOR_MUST_BE_ZERO:Saídas que não são venda devem ter valor zero');
+      if (dto.valorUnitario > 0)
+        throw new Error(
+          'SAIDA_VALOR_MUST_BE_ZERO:Saídas que não são venda devem ter valor zero',
+        );
     }
 
     const valorUnitario = new Prisma.Decimal(dto.valorUnitario);
     const valorTotal = valorUnitario.mul(dto.quantidade);
     const dataSaida = new Date(dto.dataSaida);
 
-    const record = await tx.estoque.findUnique({ where: { bookId: dto.bookId } });
-    if (!record || record.quantidade < dto.quantidade) throw new Error('ESTOQUE_INSUFICIENTE');
+    const record = await tx.estoque.findUnique({
+      where: { bookId: dto.bookId },
+    });
+    if (!record || record.quantidade < dto.quantidade)
+      throw new Error('ESTOQUE_INSUFICIENTE');
 
     const estoque = EstoqueEntity.restore({
       bookId: record.bookId,
@@ -84,15 +126,19 @@ export class CreateSaidaBulkUseCase {
 
     const snapshotCustoUnitario = record.custoMedio;
     const snapshotCustoTotal = snapshotCustoUnitario.mul(dto.quantidade);
-    
+
     let valorComissaoPlataforma = new Prisma.Decimal(0);
     let snapshotComissaoPlataforma = new Prisma.Decimal(0);
     let valorTaxaPagamento = new Prisma.Decimal(0);
     let snapshotTaxaPagamento = new Prisma.Decimal(0);
 
     if (tipoSaida.isVenda && dto.canalVendaId && dto.formaPagamentoId) {
-      const canal = await tx.canalVenda.findUnique({ where: { id: dto.canalVendaId } });
-      const forma = await tx.formaPagamento.findUnique({ where: { id: dto.formaPagamentoId } });
+      const canal = await tx.canalVenda.findUnique({
+        where: { id: dto.canalVendaId },
+      });
+      const forma = await tx.formaPagamento.findUnique({
+        where: { id: dto.formaPagamentoId },
+      });
 
       if (canal) {
         snapshotComissaoPlataforma = canal.comissaoVariavel;

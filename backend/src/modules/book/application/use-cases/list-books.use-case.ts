@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Result } from '../../../../common';
 import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
-import type { IBookRepository, BookFilters } from '../../domain/book.repository.interface';
+import type {
+  IBookRepository,
+  BookFilters,
+} from '../../domain/book.repository.interface';
 import { BookResponseDto } from '../dtos';
 
 /**
@@ -17,6 +20,6 @@ export class ListBooksUseCase {
 
   async execute(filters?: BookFilters): Promise<Result<BookResponseDto[]>> {
     const books = await this.bookRepository.findAll(filters);
-    return Result.ok(books.map(BookResponseDto.fromEntity));
+    return Result.ok(books.map((b) => BookResponseDto.fromEntity(b)));
   }
 }

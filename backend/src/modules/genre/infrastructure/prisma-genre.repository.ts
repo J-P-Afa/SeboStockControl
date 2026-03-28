@@ -8,7 +8,13 @@ export class PrismaGenreRepository implements GenreRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   //Mapper: Prisma → Entity
-  private toEntity(data: any): GenreEntity {
+  private toEntity(data: {
+    id: number;
+    description: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): GenreEntity {
     return GenreEntity.restore({
       id: data.id,
       description: data.description,
@@ -57,7 +63,7 @@ export class PrismaGenreRepository implements GenreRepository {
   async findAll(): Promise<GenreEntity[]> {
     const list = await this.prisma.genre.findMany();
 
-    return list.map(this.toEntity);
+    return list.map((item) => this.toEntity(item));
   }
 
   async update(genre: GenreEntity): Promise<GenreEntity> {

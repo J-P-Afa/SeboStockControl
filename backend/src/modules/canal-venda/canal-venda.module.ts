@@ -5,7 +5,9 @@ import { CANAL_VENDA_REPOSITORY } from './constants';
 
 @Module({
   controllers: [CanalVendaController],
-  providers: [{ provide: CANAL_VENDA_REPOSITORY, useClass: PrismaCanalVendaRepository }],
+  providers: [
+    { provide: CANAL_VENDA_REPOSITORY, useClass: PrismaCanalVendaRepository },
+  ],
   exports: [CANAL_VENDA_REPOSITORY],
 })
 export class CanalVendaModule {}

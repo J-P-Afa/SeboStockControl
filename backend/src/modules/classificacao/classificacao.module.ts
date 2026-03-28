@@ -5,7 +5,12 @@ import { CLASSIFICACAO_REPOSITORY } from './constants';
 
 @Module({
   controllers: [ClassificacaoController],
-  providers: [{ provide: CLASSIFICACAO_REPOSITORY, useClass: PrismaClassificacaoRepository }],
+  providers: [
+    {
+      provide: CLASSIFICACAO_REPOSITORY,
+      useClass: PrismaClassificacaoRepository,
+    },
+  ],
   exports: [CLASSIFICACAO_REPOSITORY],
 })
 export class ClassificacaoModule {}

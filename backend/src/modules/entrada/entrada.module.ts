@@ -8,6 +8,10 @@ export const ENTRADA_MODULE_NAME = 'EntradaModule';
 
 @Module({
   controllers: [EntradaController],
-  providers: [CreateEntradaUseCase, GetLastEntradaUseCase, BulkCreateEntradaUseCase],
+  providers: [
+    CreateEntradaUseCase,
+    GetLastEntradaUseCase,
+    BulkCreateEntradaUseCase,
+  ],
 })
 export class EntradaModule {}

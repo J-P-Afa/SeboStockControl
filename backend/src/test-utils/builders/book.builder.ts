@@ -45,7 +45,6 @@ export class BookBuilder {
     return this.withListPrice(price);
   }
 
-
   build(): Book {
     return this.props as Book;
   }

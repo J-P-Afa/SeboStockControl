@@ -2,123 +2,150 @@ import { CreateSaidaUseCase } from './create-saida.use-case';
 import { PrismaService } from '../database';
 import { BookBuilder } from '../../test-utils/builders/book.builder';
 import { EstoqueBuilder } from '../../test-utils/builders/estoque.builder';
-import { SaidaBuilder } from '../../test-utils/builders/saida.builder';
 import { Prisma } from '@prisma/client';
-
 
 describe('CreateSaidaUseCase', () => {
   let useCase: CreateSaidaUseCase;
-  let prismaMock: any;
+
+  const mockPrisma = {
+    book: { findUnique: jest.fn() },
+    tipoSaida: { findUnique: jest.fn() },
+    estoque: { findUnique: jest.fn() },
+    canalVenda: { findUnique: jest.fn() },
+    formaPagamento: { findUnique: jest.fn() },
+    $transaction: jest.fn(),
+  };
 
   const mockBookAtivo = BookBuilder.aBook().withPrecoTabelado('89.90').build();
   const mockBookInisActive = BookBuilder.aBook().inactive().build();
   const mockTipoVenda = { id: 1, descricao: 'Venda', isVenda: true };
   const mockTipoNaoVenda = { id: 2, descricao: 'Perda', isVenda: false };
-  const mockEstoque = EstoqueBuilder.anEstoque().withQuantidade(10).withCustoUnitarioMedio(20).build();
-  const mockCanal = { id: 1, comissaoVariavel: new Prisma.Decimal('0.2000'), comissaoFixa: new Prisma.Decimal(0) };
+  const mockEstoque = EstoqueBuilder.anEstoque()
+    .withQuantidade(10)
+    .withCustoUnitarioMedio(20)
+    .build();
+  const mockCanal = {
+    id: 1,
+    comissaoVariavel: new Prisma.Decimal('0.2000'),
+    comissaoFixa: new Prisma.Decimal(0),
+  };
   const mockForma = { id: 1, taxa: new Prisma.Decimal('0.0360') };
 
-
   const baseSaidaVenda = {
-    bookId: 1, usuarioId: 'user-uuid', tipoSaidaId: 1,
-    canalVendaId: 1, formaPagamentoId: 1,
-    dataSaida: '2026-01-01', quantidade: 2, valorUnitario: 50,
+    bookId: 1,
+    usuarioId: 'user-uuid',
+    tipoSaidaId: 1,
+    canalVendaId: 1,
+    formaPagamentoId: 1,
+    dataSaida: '2026-01-01',
+    quantidade: 2,
+    valorUnitario: 50,
   };
-
 
   const baseSaidaNaoVenda = {
-    bookId: 1, usuarioId: 'user-uuid', tipoSaidaId: 2,
-    dataSaida: '2026-01-01', quantidade: 2, valorUnitario: 0,
+    bookId: 1,
+    usuarioId: 'user-uuid',
+    tipoSaidaId: 2,
+    dataSaida: '2026-01-01',
+    quantidade: 2,
+    valorUnitario: 0,
   };
 
-
   beforeEach(() => {
-    prismaMock = {
-      book: { findUnique: jest.fn() },
-      tipoSaida: { findUnique: jest.fn() },
-      estoque: { findUnique: jest.fn() },
-      canalVenda: { findUnique: jest.fn() },
-      formaPagamento: { findUnique: jest.fn() },
-      $transaction: jest.fn(),
-    };
-    useCase = new CreateSaidaUseCase(prismaMock as unknown as PrismaService);
+    useCase = new CreateSaidaUseCase(mockPrisma as unknown as PrismaService);
     jest.clearAllMocks();
   });
 
   it('should reject if book is not found', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(null);
+    mockPrisma.book.findUnique.mockResolvedValue(null);
     const result = await useCase.execute(baseSaidaVenda);
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('LIVRO_NOT_FOUND');
   });
 
   it('should reject if book is inactive (RULE LIV-03)', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookInisActive);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookInisActive);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
     const result = await useCase.execute({ ...baseSaidaVenda, bookId: 2 });
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('LIVRO_INATIVO');
   });
 
   it('should reject sale without canalVendaId (RULE SAI-02)', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
-    const result = await useCase.execute({ ...baseSaidaVenda, canalVendaId: undefined });
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    const result = await useCase.execute({
+      ...baseSaidaVenda,
+      canalVendaId: undefined,
+    });
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('SAIDA_CANAL_REQUIRED');
   });
 
   it('should reject sale with valorUnitario = 0 (RULE SAI-02)', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
     // canalVendaId present but valorUnitario = 0 → SAIDA_VALOR_REQUIRED
-    const result = await useCase.execute({ ...baseSaidaVenda, valorUnitario: 0 });
+    const result = await useCase.execute({
+      ...baseSaidaVenda,
+      valorUnitario: 0,
+    });
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('SAIDA_VALOR_REQUIRED');
   });
 
   it('should reject non-sale with valorUnitario > 0 (RULE SAI-03)', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
-    const result = await useCase.execute({ ...baseSaidaNaoVenda, valorUnitario: 10 });
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
+    const result = await useCase.execute({
+      ...baseSaidaNaoVenda,
+      valorUnitario: 10,
+    });
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('SAIDA_VALOR_MUST_BE_ZERO');
   });
 
   it('should reject when stock is insufficient (RULE SAI-01)', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda);
     const txMock = {
-      estoque: { 
-        findUnique: jest.fn().mockResolvedValue({ ...mockEstoque, quantidade: 1 }),
+      estoque: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ ...mockEstoque, quantidade: 1 }),
       },
     };
-    prismaMock.$transaction.mockImplementation((cb: any) => cb(txMock));
+    mockPrisma.$transaction.mockImplementation(
+      (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+    );
 
-    const result = await useCase.execute({ ...baseSaidaNaoVenda, quantidade: 5 });
+    const result = await useCase.execute({
+      ...baseSaidaNaoVenda,
+      quantidade: 5,
+    });
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('ESTOQUE_INSUFICIENTE');
-
   });
 
   it('should create a sale with correct snapshots (RULE SAI-05)', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
-    prismaMock.estoque.findUnique.mockResolvedValue(mockEstoque);
-    prismaMock.canalVenda.findUnique.mockResolvedValue(mockCanal);
-    prismaMock.formaPagamento.findUnique.mockResolvedValue(mockForma);
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoVenda);
+    mockPrisma.estoque.findUnique.mockResolvedValue(mockEstoque);
+    mockPrisma.canalVenda.findUnique.mockResolvedValue(mockCanal);
+    mockPrisma.formaPagamento.findUnique.mockResolvedValue(mockForma);
 
     const txMock = {
-      estoque: { 
+      estoque: {
         findUnique: jest.fn().mockResolvedValue(mockEstoque),
-        update: jest.fn() 
+        update: jest.fn(),
       },
       canalVenda: { findUnique: jest.fn().mockResolvedValue(mockCanal) },
       formaPagamento: { findUnique: jest.fn().mockResolvedValue(mockForma) },
       saida: { create: jest.fn().mockResolvedValue({ id: 1 }) },
     };
-    prismaMock.$transaction.mockImplementation((cb: any) => cb(txMock));
-
+    mockPrisma.$transaction.mockImplementation(
+      (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+    );
 
     const result = await useCase.execute(baseSaidaVenda);
 
@@ -138,35 +165,34 @@ describe('CreateSaidaUseCase', () => {
           snapshotTaxaPagamento: expect.anything(),
           lucroVenda: expect.anything(),
         }),
-
       }),
     );
     // Estoque decrementado (RULE SAI-04) - Agora absoluto via Entidade
     expect(txMock.estoque.update).toHaveBeenCalledWith(
-      expect.objectContaining({ 
-        data: expect.objectContaining({ 
+      expect.objectContaining({
+        data: expect.objectContaining({
           quantidade: 8,
-          dataUltimaSaida: expect.anything()
-        }) 
+          dataUltimaSaida: expect.anything(),
+        }),
       }),
     );
-
   });
 
   it('should create a non-sale exit with zero comissao/taxa', async () => {
-    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
-    prismaMock.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda); // fixed!
-    prismaMock.estoque.findUnique.mockResolvedValue(mockEstoque);
+    mockPrisma.book.findUnique.mockResolvedValue(mockBookAtivo);
+    mockPrisma.tipoSaida.findUnique.mockResolvedValue(mockTipoNaoVenda); // fixed!
+    mockPrisma.estoque.findUnique.mockResolvedValue(mockEstoque);
 
     const txMock = {
-      estoque: { 
+      estoque: {
         findUnique: jest.fn().mockResolvedValue(mockEstoque),
-        update: jest.fn() 
+        update: jest.fn(),
       },
       saida: { create: jest.fn().mockResolvedValue({ id: 2 }) },
     };
-    prismaMock.$transaction.mockImplementation((cb: any) => cb(txMock));
-
+    mockPrisma.$transaction.mockImplementation(
+      (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+    );
 
     const result = await useCase.execute(baseSaidaNaoVenda);
 
@@ -179,18 +205,16 @@ describe('CreateSaidaUseCase', () => {
           snapshotTaxaPagamento: expect.anything(),
           lucroVenda: expect.anything(),
         }),
-
       }),
     );
     // Estoque decrementado
     expect(txMock.estoque.update).toHaveBeenCalledWith(
-      expect.objectContaining({ 
-        data: expect.objectContaining({ 
+      expect.objectContaining({
+        data: expect.objectContaining({
           quantidade: 8,
-          dataUltimaSaida: expect.anything()
-        }) 
+          dataUltimaSaida: expect.anything(),
+        }),
       }),
     );
-
   });
 });

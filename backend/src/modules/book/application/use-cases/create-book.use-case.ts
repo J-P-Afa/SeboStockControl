@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client';
 export class CreateBookUseCase {
   constructor(
     @Inject(BOOK_REPOSITORY)
-    private readonly bookRepo: IBookRepository
+    private readonly bookRepo: IBookRepository,
   ) {}
 
   async execute(input: CreateBookDto): Promise<Result<BookResponseDto>> {
@@ -23,7 +23,10 @@ export class CreateBookUseCase {
         );
 
         if (existingByIsbn13) {
-          return Result.fail('ISBN13_ALREADY_EXISTS', 'ISBN13 já existe para o mesmo estado do book');
+          return Result.fail(
+            'ISBN13_ALREADY_EXISTS',
+            'ISBN13 já existe para o mesmo estado do book',
+          );
         }
       }
 
@@ -34,7 +37,10 @@ export class CreateBookUseCase {
         );
 
         if (existingByIsbn10) {
-          return Result.fail('ISBN10_ALREADY_EXISTS', 'ISBN10 já existe para o mesmo estado do book');
+          return Result.fail(
+            'ISBN10_ALREADY_EXISTS',
+            'ISBN10 já existe para o mesmo estado do book',
+          );
         }
       }
 
@@ -44,7 +50,6 @@ export class CreateBookUseCase {
         weight: new Prisma.Decimal(input.weight ?? 0),
         isActive: true,
       });
-
 
       const saved = await this.bookRepo.create(book.toJSON());
 

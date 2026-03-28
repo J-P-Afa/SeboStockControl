@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../database/prisma.service';
-import { IStockRepository, EstoqueWithBook } from '../../domain/repositories/stock.repository.interface';
+import {
+  IStockRepository,
+  EstoqueWithBook,
+} from '../../domain/repositories/stock.repository.interface';
 import { EstoqueEntity } from '../../domain/entities/estoque.entity';
 
 /**
@@ -14,7 +18,15 @@ export class PrismaEstoqueRepository implements IStockRepository {
   async findByBookId(bookId: number): Promise<EstoqueWithBook | null> {
     const record = await this.prisma.estoque.findUnique({
       where: { bookId },
-      include: { book: true },
+      include: {
+        book: {
+          select: {
+            title: true,
+            condition: true,
+            isbn13: true,
+          },
+        },
+      },
     });
     if (!record) return null;
     return this.mapToEntity(record);
@@ -22,21 +34,27 @@ export class PrismaEstoqueRepository implements IStockRepository {
 
   async findAll(): Promise<EstoqueWithBook[]> {
     const records = await this.prisma.estoque.findMany({
-      include: { 
-        book: { 
-          select: { 
-            title: true, 
-            condition: true, 
-            isbn13: true 
-          } 
-        } 
+      include: {
+        book: {
+          select: {
+            title: true,
+            condition: true,
+            isbn13: true,
+          },
+        },
       },
       orderBy: { book: { title: 'asc' } },
     });
-    return records.map(r => this.mapToEntity(r));
+    return records.map((r) => this.mapToEntity(r));
   }
 
-  private mapToEntity(record: any): EstoqueWithBook {
+  private mapToEntity(
+    record: Prisma.EstoqueGetPayload<{
+      include: {
+        book: { select: { title: true; condition: true; isbn13: true } };
+      };
+    }>,
+  ): EstoqueWithBook {
     const entity = EstoqueEntity.restore({
       bookId: record.bookId,
       quantidade: record.quantidade,

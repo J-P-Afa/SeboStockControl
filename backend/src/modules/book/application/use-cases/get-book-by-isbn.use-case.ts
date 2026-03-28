@@ -18,7 +18,10 @@ export class GetBookByIsbnUseCase {
   async execute(isbn: string): Promise<Result<BookResponseDto>> {
     const book = await this.bookRepository.findByIsbn(isbn);
     if (!book) {
-      return Result.fail('BOOK_NOT_FOUND', `Livro com ISBN ${isbn} não encontrado`);
+      return Result.fail(
+        'BOOK_NOT_FOUND',
+        `Livro com ISBN ${isbn} não encontrado`,
+      );
     }
     return Result.ok(BookResponseDto.fromEntity(book));
   }

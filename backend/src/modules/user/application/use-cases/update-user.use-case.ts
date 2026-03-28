@@ -10,7 +10,7 @@ export class UpdateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
-  ) { }
+  ) {}
 
   async execute(
     id: string,
@@ -25,11 +25,20 @@ export class UpdateUserUseCase {
     if (dto.email && dto.email !== existingUser.email) {
       const emailTaken = await this.userRepository.findByEmail(dto.email);
       if (emailTaken) {
-        return Result.fail('USER_EMAIL_EXISTS', 'A user with this email already exists');
+        return Result.fail(
+          'USER_EMAIL_EXISTS',
+          'A user with this email already exists',
+        );
       }
     }
 
-    const updateData: Partial<{ name: string; email: string; password: string; isActive: boolean; roleId: string }> = {};
+    const updateData: Partial<{
+      name: string;
+      email: string;
+      password: string;
+      isActive: boolean;
+      roleId: string;
+    }> = {};
 
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.email !== undefined) updateData.email = dto.email;

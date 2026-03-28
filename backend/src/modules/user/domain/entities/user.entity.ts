@@ -38,16 +38,36 @@ export class UserEntity {
   }
 
   // Getters for read-only access to encapsulate state
-  get id(): string { return this.props.id; }
-  get name(): string { return this.props.name; }
-  get email(): string { return this.props.email; }
-  get password(): string | undefined { return this.props.password; }
-  get isActive(): boolean { return this.props.isActive; }
-  get themePreference(): ThemePreference { return this.props.themePreference; }
-  get roleId(): string { return this.props.roleId; }
-  get roleName(): string | undefined { return this.props.roleName; }
-  get createdAt(): Date { return this.props.createdAt; }
-  get updatedAt(): Date { return this.props.updatedAt; }
+  get id(): string {
+    return this.props.id;
+  }
+  get name(): string {
+    return this.props.name;
+  }
+  get email(): string {
+    return this.props.email;
+  }
+  get password(): string | undefined {
+    return this.props.password;
+  }
+  get isActive(): boolean {
+    return this.props.isActive;
+  }
+  get themePreference(): ThemePreference {
+    return this.props.themePreference;
+  }
+  get roleId(): string {
+    return this.props.roleId;
+  }
+  get roleName(): string | undefined {
+    return this.props.roleName;
+  }
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+  get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
 
   // Actions representing state changes (Business Rules)
   public deactivate(): void {

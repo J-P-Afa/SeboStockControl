@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { CreateSaidaUseCase } from './create-saida.use-case';
 import { CreateSaidaBulkUseCase } from './create-saida-bulk.use-case';
 import { CreateSaidaDto } from './create-saida.dto';
@@ -28,7 +36,10 @@ export class SaidaController {
   }
 
   @Get()
-  async findAll(@Query('bookId') bookId?: string, @Query('tipoSaidaId') tipoSaidaId?: string) {
+  async findAll(
+    @Query('bookId') bookId?: string,
+    @Query('tipoSaidaId') tipoSaidaId?: string,
+  ) {
     const where: any = {};
     if (bookId) where.bookId = Number(bookId);
     if (tipoSaidaId) where.tipoSaidaId = Number(tipoSaidaId);
@@ -59,7 +70,11 @@ export class SaidaController {
         formaPagamento: true,
       },
     });
-    if (!saida) return { success: false, error: { code: 'SAIDA_NOT_FOUND', message: 'Saída não encontrada' } };
+    if (!saida)
+      return {
+        success: false,
+        error: { code: 'SAIDA_NOT_FOUND', message: 'Saída não encontrada' },
+      };
     return { success: true, data: saida };
   }
 }

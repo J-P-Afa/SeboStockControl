@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsNumber, IsEnum, IsInt, Min, Max, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+  IsInt,
+  Min,
+  Max,
+  IsBoolean,
+} from 'class-validator';
 import { EditionType, Condition, Status } from '@prisma/client';
 
 export class UpdateBookDto {

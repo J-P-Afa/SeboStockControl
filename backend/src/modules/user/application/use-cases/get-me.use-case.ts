@@ -9,7 +9,7 @@ export class GetMeUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
-  ) { }
+  ) {}
 
   /**
    * Returns the current user profile (without password) for the given userId.

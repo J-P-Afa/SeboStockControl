@@ -20,15 +20,19 @@ export class OpenLibraryService implements IExternalBookService {
       });
 
       if (!response.ok) {
-        this.logger.error(`Open Library Data API error: ${response.status} ${response.statusText}`);
+        this.logger.error(
+          `Open Library Data API error: ${response.status} ${response.statusText}`,
+        );
         return null;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as Record<string, OpenLibraryData>;
       const bookData = data[bibkey];
 
       if (!bookData) {
-        this.logger.debug(`Book with ISBN ${isbn} not found in Open Library Data API`);
+        this.logger.debug(
+          `Book with ISBN ${isbn} not found in Open Library Data API`,
+        );
         return this.tryFetchFromDetails(isbn);
       }
 
@@ -41,7 +45,11 @@ export class OpenLibraryService implements IExternalBookService {
           if (!dto.language) dto.language = extraData.language;
           if (!dto.publisher) dto.publisher = extraData.publisher;
           // Se não tiver gênero, tenta pegar do fallback
-          if (dto.subjects?.length === 0 && extraData.subjects?.length && extraData.subjects.length > 0) {
+          if (
+            dto.subjects?.length === 0 &&
+            extraData.subjects?.length &&
+            extraData.subjects.length > 0
+          ) {
             dto.subjects = extraData.subjects;
           }
         }
@@ -58,7 +66,9 @@ export class OpenLibraryService implements IExternalBookService {
    * Tenta buscar dados diretamente do JSON da ISBN (detalhes da edição)
    * Útil quando a API de Dados (jscmd=data) retorna um registro muito reduzido.
    */
-  private async tryFetchFromDetails(isbn: string): Promise<ExternalBookLookupDto | null> {
+  private async tryFetchFromDetails(
+    isbn: string,
+  ): Promise<ExternalBookLookupDto | null> {
     try {
       const url = `${this.detailsUrl}/${isbn}.json`;
       const response = await fetch(url, {
@@ -68,16 +78,16 @@ export class OpenLibraryService implements IExternalBookService {
       });
 
       if (!response.ok) return null;
-      const data = await response.json();
+      const data = (await response.json()) as OpenLibraryDetails;
 
       const dto = new ExternalBookLookupDto();
       dto.title = data.title;
       dto.subtitle = data.subtitle || null;
       dto.authors = []; // No detalhes vem em chaves, teria que buscar autores separadamente
-      
+
       // Editora
       dto.publisher = data.publishers ? data.publishers[0] : null;
-      
+
       // Idioma (Mapeamento de chaves comuns)
       if (data.languages && data.languages.length > 0) {
         const langKey = data.languages[0].key;
@@ -87,9 +97,17 @@ export class OpenLibraryService implements IExternalBookService {
         else if (langKey.includes('/fre')) dto.language = 'Francês';
       }
 
-      dto.isbn10 = data.isbn_10 ? data.isbn_10[0] : (isbn.length === 10 ? isbn : null);
-      dto.isbn13 = data.isbn_13 ? data.isbn_13[0] : (isbn.length === 13 ? isbn : null);
-      
+      dto.isbn10 = data.isbn_10
+        ? data.isbn_10[0]
+        : isbn.length === 10
+          ? isbn
+          : null;
+      dto.isbn13 = data.isbn_13
+        ? data.isbn_13[0]
+        : isbn.length === 13
+          ? isbn
+          : null;
+
       if (data.publish_date) {
         const yearMatch = data.publish_date.match(/\d{4}/);
         dto.publicationYear = yearMatch ? parseInt(yearMatch[0], 10) : null;
@@ -102,17 +120,20 @@ export class OpenLibraryService implements IExternalBookService {
     }
   }
 
-  private mapToDto(data: any, originalIsbn: string): ExternalBookLookupDto {
+  private mapToDto(
+    data: OpenLibraryData,
+    originalIsbn: string,
+  ): ExternalBookLookupDto {
     const dto = new ExternalBookLookupDto();
     dto.title = data.title;
     dto.subtitle = data.subtitle || null;
-    dto.authors = data.authors ? data.authors.map((a: any) => a.name) : [];
+    dto.authors = data.authors ? data.authors.map((a) => a.name) : [];
     dto.publisher = data.publishers ? data.publishers[0]?.name : null;
     dto.language = data.languages ? data.languages[0]?.name : null;
-    
+
     dto.isbn10 = data.identifiers?.isbn_10 ? data.identifiers.isbn_10[0] : null;
     dto.isbn13 = data.identifiers?.isbn_13 ? data.identifiers.isbn_13[0] : null;
-    
+
     if (!dto.isbn10 && originalIsbn.length === 10) dto.isbn10 = originalIsbn;
     if (!dto.isbn13 && originalIsbn.length === 13) dto.isbn13 = originalIsbn;
 
@@ -122,10 +143,44 @@ export class OpenLibraryService implements IExternalBookService {
     }
 
     dto.pages = data.number_of_pages || null;
-    dto.synopsis = typeof data.notes === 'string' ? data.notes : null;
-    dto.coverUrl = data.cover?.large || data.cover?.medium || data.cover?.small || null;
-    dto.subjects = data.subjects ? data.subjects.map((s: any) => s.name) : [];
+    dto.synopsis =
+      typeof data.notes === 'string' ? data.notes : data.notes?.value || null;
+    dto.coverUrl =
+      data.cover?.large || data.cover?.medium || data.cover?.small || null;
+    dto.subjects = data.subjects ? data.subjects.map((s) => s.name) : [];
 
     return dto;
   }
+}
+
+interface OpenLibraryData {
+  title: string;
+  subtitle?: string;
+  authors?: Array<{ name: string }>;
+  publishers?: Array<{ name: string }>;
+  languages?: Array<{ name: string }>;
+  identifiers?: {
+    isbn_10?: string[];
+    isbn_13?: string[];
+  };
+  publish_date?: string;
+  number_of_pages?: number;
+  notes?: string | { value: string };
+  cover?: {
+    small?: string;
+    medium?: string;
+    large?: string;
+  };
+  subjects?: Array<{ name: string }>;
+}
+
+interface OpenLibraryDetails {
+  title: string;
+  subtitle?: string;
+  publishers?: string[];
+  languages?: Array<{ key: string }>;
+  isbn_10?: string[];
+  isbn_13?: string[];
+  publish_date?: string;
+  number_of_pages?: number;
 }

@@ -24,8 +24,10 @@ export class BulkCreateEntradaUseCase {
           const custoUnitario = new Prisma.Decimal(item.custoUnitario ?? 0);
           const valorTotal = custoUnitario.mul(item.quantidade);
 
-          const record = await tx.estoque.findUnique({ where: { bookId: item.bookId } });
-          const estoque = record 
+          const record = await tx.estoque.findUnique({
+            where: { bookId: item.bookId },
+          });
+          const estoque = record
             ? EstoqueEntity.restore({
                 bookId: record.bookId,
                 quantidade: record.quantidade,
@@ -75,10 +77,15 @@ export class BulkCreateEntradaUseCase {
       });
 
       return Result.ok(results);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      const [code, details] = error.message.split(':');
-      return Result.fail(code || 'BULK_ENTRADA_FAILED', details || 'Falha ao processar lote de entradas');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const [code, details] = errorMessage.split(':');
+      return Result.fail(
+        code || 'BULK_ENTRADA_FAILED',
+        details || 'Falha ao processar lote de entradas',
+      );
     }
   }
 }

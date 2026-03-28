@@ -7,7 +7,7 @@ import type { IBookRepository } from '../../domain/book.repository.interface';
 export class DeleteBookUseCase {
   constructor(
     @Inject(BOOK_REPOSITORY)
-    private readonly bookRepo: IBookRepository
+    private readonly bookRepo: IBookRepository,
   ) {}
 
   async execute(id: number): Promise<Result<void>> {

@@ -11,7 +11,10 @@ describe('CreateEntradaUseCase', () => {
   const mockBookInisActive = BookBuilder.aBook().inactive().build();
 
   const mockEstoqueVazio = EstoqueBuilder.anEstoque().empty().build();
-  const mockEstoqueComSaldo = EstoqueBuilder.anEstoque().withQuantidade(10).withCustoUnitarioMedio(20).build();
+  const mockEstoqueComSaldo = EstoqueBuilder.anEstoque()
+    .withQuantidade(10)
+    .withCustoUnitarioMedio(20)
+    .build();
 
   const baseDto = {
     bookId: 1,
@@ -21,7 +24,6 @@ describe('CreateEntradaUseCase', () => {
     quantidade: 5,
     custoUnitario: 30,
   };
-
 
   beforeEach(() => {
     prismaMock = {
@@ -70,8 +72,6 @@ describe('CreateEntradaUseCase', () => {
           quantidade: 5,
           custoMedio: expect.anything(),
         }),
-
-
       }),
     );
   });
@@ -96,8 +96,6 @@ describe('CreateEntradaUseCase', () => {
           quantidade: 15,
           custoMedio: expect.anything(),
         }),
-
-
       }),
     );
   });
@@ -115,7 +113,6 @@ describe('CreateEntradaUseCase', () => {
 
     const result = await useCase.execute({ ...baseDto, custoUnitario: 0 });
 
-
     expect(result.success).toBe(true);
     // Doação: custo médio DEVE ser mantido em 20
     expect(txMock.estoque.upsert).toHaveBeenCalledWith(
@@ -124,8 +121,6 @@ describe('CreateEntradaUseCase', () => {
           quantidade: 15,
           custoMedio: expect.anything(),
         }),
-
-
       }),
     );
   });

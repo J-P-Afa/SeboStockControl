@@ -43,7 +43,9 @@ export class SaidaBuilder {
 
   private calculateTotals() {
     if (this.props.quantidade !== undefined && this.props.valorUnitario) {
-      this.props.valorTotal = this.props.valorUnitario.mul(this.props.quantidade);
+      this.props.valorTotal = this.props.valorUnitario.mul(
+        this.props.quantidade,
+      );
     }
     // Simplification for builder: profit is not recalculated here as it depends on snapshots
   }

@@ -23,18 +23,18 @@ describe('OpenLibraryService', () => {
         publishers: [{ name: 'Puffin' }],
         identifiers: {
           isbn_13: ['9780140328721'],
-          isbn_10: ['0140328726']
+          isbn_10: ['0140328726'],
         },
         publish_date: 'April 1, 1988',
         number_of_pages: 96,
         cover: { large: 'large.jpg' },
-        subjects: [{ name: 'Foxes' }]
-      }
+        subjects: [{ name: 'Foxes' }],
+      },
     };
 
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue(mockResponse)
+      json: jest.fn().mockResolvedValue(mockResponse),
     });
 
     // Act
@@ -51,10 +51,10 @@ describe('OpenLibraryService', () => {
     expect(result?.pages).toBe(96);
     expect(result?.coverUrl).toBe('large.jpg');
     expect(result?.subjects).toEqual(['Foxes']);
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining(`bibkeys=${bibkey}`),
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 
@@ -63,7 +63,7 @@ describe('OpenLibraryService', () => {
     const isbn = '0000000000';
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({})
+      json: jest.fn().mockResolvedValue({}),
     });
 
     // Act
@@ -79,7 +79,7 @@ describe('OpenLibraryService', () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: false,
       status: 500,
-      statusText: 'Internal Server Error'
+      statusText: 'Internal Server Error',
     });
 
     // Act

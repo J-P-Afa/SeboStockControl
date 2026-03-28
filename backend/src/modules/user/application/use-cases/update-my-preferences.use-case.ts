@@ -10,7 +10,7 @@ export class UpdateMyPreferencesUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
-  ) { }
+  ) {}
 
   /**
    * Updates theme preference for the current user. Only the user's own preferences are updated.

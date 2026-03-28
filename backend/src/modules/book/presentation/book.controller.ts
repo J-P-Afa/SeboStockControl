@@ -1,6 +1,16 @@
 import {
-  Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe, Query,
-  NotFoundException, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  ParseIntPipe,
+  Query,
+  NotFoundException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   CreateBookUseCase,
@@ -73,11 +83,17 @@ export class BookController {
   }
 
   @Get('isbn/:isbn')
-  async getByIsbn(@Param('isbn') isbn: string, @Query('condition') condition?: Condition) {
+  async getByIsbn(
+    @Param('isbn') isbn: string,
+    @Query('condition') condition?: Condition,
+  ) {
     if (condition) {
       const result = await this.listBooksUseCase.execute({ isbn, condition });
-      if (result.data && result.data.length > 0) return { success: true, data: result.data[0] };
-      throw new NotFoundException(`Livro com ISBN ${isbn} e condição ${condition} não encontrado`);
+      if (result.data && result.data.length > 0)
+        return { success: true, data: result.data[0] };
+      throw new NotFoundException(
+        `Livro com ISBN ${isbn} e condição ${condition} não encontrado`,
+      );
     }
     const result = await this.getBookByIsbnUseCase.execute(isbn);
     if (!result.success) throw new NotFoundException(result.error?.message);
@@ -92,7 +108,10 @@ export class BookController {
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBookDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateBookDto,
+  ) {
     const result = await this.updateBookUseCase.execute(id, dto);
     if (!result.success) return { success: false, error: result.error };
     return { success: true, data: result.data };

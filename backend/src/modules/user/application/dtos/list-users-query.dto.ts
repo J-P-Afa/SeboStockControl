@@ -1,4 +1,12 @@
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -31,7 +39,10 @@ export class ListUsersQueryDto {
   @IsOptional()
   limit?: number = 10;
 
-  @ApiPropertyOptional({ enum: UserSortField, default: UserSortField.CREATED_AT })
+  @ApiPropertyOptional({
+    enum: UserSortField,
+    default: UserSortField.CREATED_AT,
+  })
   @IsEnum(UserSortField)
   @IsOptional()
   sortBy?: UserSortField = UserSortField.CREATED_AT;
@@ -51,7 +62,9 @@ export class ListUsersQueryDto {
   @IsOptional()
   roleIds?: string;
 
-  @ApiPropertyOptional({ description: 'Filtrar por status isActive (true/false)' })
+  @ApiPropertyOptional({
+    description: 'Filtrar por status isActive (true/false)',
+  })
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()

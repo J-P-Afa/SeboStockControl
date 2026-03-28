@@ -1,6 +1,17 @@
 import {
-  Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe,
-  NotFoundException, HttpCode, HttpStatus, Inject, Query,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  ParseIntPipe,
+  NotFoundException,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Query,
 } from '@nestjs/common';
 import { CreateCanalVendaDto, UpdateCanalVendaDto } from './canal-venda.dto';
 import { PrismaCanalVendaRepository } from './prisma-canal-venda.repository';
@@ -28,12 +39,22 @@ export class CanalVendaController {
   @Post()
   async create(@Body() dto: CreateCanalVendaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
-    if (existing) return { success: false, error: { code: 'CANAL_VENDA_EXISTS', message: 'Canal de venda já existe' } };
+    if (existing)
+      return {
+        success: false,
+        error: {
+          code: 'CANAL_VENDA_EXISTS',
+          message: 'Canal de venda já existe',
+        },
+      };
     return { success: true, data: await this.repo.create(dto) };
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateCanalVendaDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateCanalVendaDto,
+  ) {
     const item = await this.repo.findById(id);
     if (!item) throw new NotFoundException('Canal de venda não encontrado');
     return { success: true, data: await this.repo.update(id, dto) };

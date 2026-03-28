@@ -25,17 +25,22 @@ export class LookupExternalBookUseCase {
 
   async execute(isbn: string): Promise<Result<ExternalBookLookupDto>> {
     const book = await this.externalBookService.lookupByIsbn(isbn);
-    
+
     if (!book) {
-      return Result.fail('EXTERNAL_BOOK_NOT_FOUND', `Livro com ISBN ${isbn} não encontrado em bases externas`);
+      return Result.fail(
+        'EXTERNAL_BOOK_NOT_FOUND',
+        `Livro com ISBN ${isbn} não encontrado em bases externas`,
+      );
     }
 
     // --- Get or Create Language ---
     if (book.language) {
-      let language = await this.languageRepository.findByDescription(book.language);
+      let language = await this.languageRepository.findByDescription(
+        book.language,
+      );
       if (!language) {
         language = await this.languageRepository.create(
-          LanguageEntity.create({ description: book.language, isActive: true })
+          LanguageEntity.create({ description: book.language, isActive: true }),
         );
       }
       book.languageId = language.id;
@@ -43,10 +48,15 @@ export class LookupExternalBookUseCase {
 
     // --- Get or Create Publisher ---
     if (book.publisher) {
-      let publisher = await this.publisherRepository.findByDescription(book.publisher);
+      let publisher = await this.publisherRepository.findByDescription(
+        book.publisher,
+      );
       if (!publisher) {
         publisher = await this.publisherRepository.create(
-          PublisherEntity.create({ description: book.publisher, isActive: true })
+          PublisherEntity.create({
+            description: book.publisher,
+            isActive: true,
+          }),
         );
       }
       book.publisherId = publisher.id;
@@ -58,7 +68,7 @@ export class LookupExternalBookUseCase {
       let genre = await this.genreRepository.findByDescription(mainSubject);
       if (!genre) {
         genre = await this.genreRepository.create(
-          GenreEntity.create({ description: mainSubject, isActive: true })
+          GenreEntity.create({ description: mainSubject, isActive: true }),
         );
       }
       book.genreId = genre.id;

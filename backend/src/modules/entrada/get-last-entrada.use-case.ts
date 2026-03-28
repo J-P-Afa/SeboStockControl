@@ -6,7 +6,9 @@ import { Result } from '../../common';
 export class GetLastEntradaUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(bookId: number): Promise<Result<{ custoUnitario: number; dataEntrada: Date }>> {
+  async execute(
+    bookId: number,
+  ): Promise<Result<{ custoUnitario: number; dataEntrada: Date }>> {
     const lastEntrada = await this.prisma.entrada.findFirst({
       where: { bookId },
       orderBy: { dataEntrada: 'desc' },
@@ -14,7 +16,10 @@ export class GetLastEntradaUseCase {
     });
 
     if (!lastEntrada) {
-      return Result.fail('ENTRADA_NOT_FOUND', 'Nenhuma entrada encontrada para este livro');
+      return Result.fail(
+        'ENTRADA_NOT_FOUND',
+        'Nenhuma entrada encontrada para este livro',
+      );
     }
 
     return Result.ok({

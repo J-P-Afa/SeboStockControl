@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { IBookRepository, CreateBookParams, UpdateBookParams, BookFilters } from '../domain/book.repository.interface';
+import {
+  IBookRepository,
+  CreateBookParams,
+  UpdateBookParams,
+  BookFilters,
+} from '../domain/book.repository.interface';
 import { BookEntity, BookProps } from '../domain/book.entity';
 import { Book, Condition } from '@prisma/client';
 
@@ -85,13 +90,19 @@ export class PrismaBookRepository implements IBookRepository {
             { isbn10: { contains: filters.search } },
           ],
         }),
-        ...(filters?.classificacaoId && { classificacaoId: filters.classificacaoId }),
+        ...(filters?.classificacaoId && {
+          classificacaoId: filters.classificacaoId,
+        }),
         ...(filters?.publisherId && { publisherId: filters.publisherId }),
         ...(filters?.languageId && { languageId: filters.languageId }),
         ...(filters?.genreId && { genreId: filters.genreId }),
         ...(filters?.editionType && { editionType: filters.editionType }),
-        ...(filters?.volume && { volume: { contains: filters.volume, mode: 'insensitive' } }),
-        ...(filters?.collection && { collection: { contains: filters.collection, mode: 'insensitive' } }),
+        ...(filters?.volume && {
+          volume: { contains: filters.volume, mode: 'insensitive' },
+        }),
+        ...(filters?.collection && {
+          collection: { contains: filters.collection, mode: 'insensitive' },
+        }),
         ...(filters?.condition && { condition: filters.condition }),
         ...(filters?.status && { status: filters.status }),
         ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
@@ -103,14 +114,20 @@ export class PrismaBookRepository implements IBookRepository {
     return books.map((book) => this.toEntity(book));
   }
 
-  async findByIsbn13AndCondition(isbn13: string, condition: Condition): Promise<BookEntity | null> {
+  async findByIsbn13AndCondition(
+    isbn13: string,
+    condition: Condition,
+  ): Promise<BookEntity | null> {
     const book = await this.prisma.book.findFirst({
       where: { isbn13, condition },
     });
     return book ? this.toEntity(book) : null;
   }
 
-  async findByIsbn10AndCondition(isbn10: string, condition: Condition): Promise<BookEntity | null> {
+  async findByIsbn10AndCondition(
+    isbn10: string,
+    condition: Condition,
+  ): Promise<BookEntity | null> {
     const book = await this.prisma.book.findFirst({
       where: { isbn10, condition },
     });

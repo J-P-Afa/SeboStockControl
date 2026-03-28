@@ -1,23 +1,35 @@
-import { IsArray, IsDateString, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateEntradaDto } from './create-entrada.dto';
 
 export class BulkCreateEntradaItemDto extends CreateEntradaDto {}
 
 export class BulkCreateEntradaDto {
-  @IsUUID() @IsNotEmpty()
+  @IsUUID()
+  @IsNotEmpty()
   usuarioId: string;
 
   @IsDateString()
   dataEntrada: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   fornecedor?: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   numeroNotaFiscal?: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   observacao?: string;
 
   @IsArray()

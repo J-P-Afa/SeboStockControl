@@ -1,28 +1,44 @@
-import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 
 export class CreateEntradaDto {
-  @IsInt() @IsNotEmpty()
+  @IsInt()
+  @IsNotEmpty()
   bookId: number;
 
-  @IsUUID() @IsNotEmpty()
+  @IsUUID()
+  @IsNotEmpty()
   usuarioId: string;
 
   @IsDateString()
   dataEntrada: string;
 
-  @IsInt() @Min(1)
+  @IsInt()
+  @Min(1)
   quantidade: number;
 
   /** Custo unitário. 0 = doação recebida. */
-  @IsNumber() @Min(0)
+  @IsNumber()
+  @Min(0)
   custoUnitario: number;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   fornecedor?: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   numeroNotaFiscal?: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   observacao?: string;
 }

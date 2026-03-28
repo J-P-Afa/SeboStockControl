@@ -1,8 +1,22 @@
 import {
-  Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe,
-  NotFoundException, HttpCode, HttpStatus, Inject, Query,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  ParseIntPipe,
+  NotFoundException,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Query,
 } from '@nestjs/common';
-import { CreateFormaPagamentoDto, UpdateFormaPagamentoDto } from './forma-pagamento.dto';
+import {
+  CreateFormaPagamentoDto,
+  UpdateFormaPagamentoDto,
+} from './forma-pagamento.dto';
 import { PrismaFormaPagamentoRepository } from './prisma-forma-pagamento.repository';
 import { FORMA_PAGAMENTO_REPOSITORY } from './constants';
 
@@ -28,12 +42,22 @@ export class FormaPagamentoController {
   @Post()
   async create(@Body() dto: CreateFormaPagamentoDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
-    if (existing) return { success: false, error: { code: 'FORMA_PAGAMENTO_EXISTS', message: 'Forma de pagamento já existe' } };
+    if (existing)
+      return {
+        success: false,
+        error: {
+          code: 'FORMA_PAGAMENTO_EXISTS',
+          message: 'Forma de pagamento já existe',
+        },
+      };
     return { success: true, data: await this.repo.create(dto) };
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateFormaPagamentoDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateFormaPagamentoDto,
+  ) {
     const item = await this.repo.findById(id);
     if (!item) throw new NotFoundException('Forma de pagamento não encontrada');
     return { success: true, data: await this.repo.update(id, dto) };

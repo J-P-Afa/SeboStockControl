@@ -23,8 +23,8 @@ export const Result = {
       success: false,
       error: {
         code,
-        message
-      }
+        message,
+      },
     };
   },
 };

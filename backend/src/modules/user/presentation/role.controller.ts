@@ -29,7 +29,7 @@ export class RoleController {
     private readonly createRoleUseCase: CreateRoleUseCase,
     private readonly updateRoleUseCase: UpdateRoleUseCase,
     private readonly deleteRoleUseCase: DeleteRoleUseCase,
-  ) { }
+  ) {}
 
   @Get()
   @RequirePermission('user:read')

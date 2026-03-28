@@ -24,7 +24,10 @@ export class PrismaCanalVendaRepository {
     return this.prisma.canalVenda.create({ data });
   }
 
-  update(id: number, data: { descricao?: string; comissao?: number; isActive?: boolean }) {
+  update(
+    id: number,
+    data: { descricao?: string; comissao?: number; isActive?: boolean },
+  ) {
     return this.prisma.canalVenda.update({ where: { id }, data });
   }
 

@@ -20,17 +20,24 @@ export class PrismaClassificacaoRepository {
     return this.prisma.classificacao.findUnique({ where: { descricao } });
   }
 
-  async create(data: { descricao: string; isActive?: boolean; margemAlvo?: number }) {
-    return this.prisma.classificacao.create({ 
+  async create(data: {
+    descricao: string;
+    isActive?: boolean;
+    margemAlvo?: number;
+  }) {
+    return this.prisma.classificacao.create({
       data: {
         descricao: data.descricao,
         isActive: data.isActive,
         margemAlvo: data.margemAlvo ?? 0,
-      } 
+      },
     });
   }
 
-  async update(id: number, data: { descricao?: string; isActive?: boolean; margemAlvo?: number }) {
+  async update(
+    id: number,
+    data: { descricao?: string; isActive?: boolean; margemAlvo?: number },
+  ) {
     return this.prisma.classificacao.update({ where: { id }, data });
   }
 

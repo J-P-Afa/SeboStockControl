@@ -19,7 +19,10 @@ export class RefreshTokenUseCase {
         secret: process.env.JWT_REFRESH_SECRET,
       });
     } catch {
-      return Result.fail('AUTH_INVALID_REFRESH_TOKEN', 'Invalid or expired refresh token');
+      return Result.fail(
+        'AUTH_INVALID_REFRESH_TOKEN',
+        'Invalid or expired refresh token',
+      );
     }
 
     const user = await this.prisma.user.findUnique({

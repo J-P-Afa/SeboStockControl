@@ -29,7 +29,11 @@ import {
   ListUsersUseCase,
   UpdateUserUseCase,
 } from '../application/use-cases';
-import { CreateUserDto, ListUsersQueryDto, UpdateUserDto } from '../application/dtos';
+import {
+  CreateUserDto,
+  ListUsersQueryDto,
+  UpdateUserDto,
+} from '../application/dtos';
 import type { UserFilters } from '../domain/repositories/user.repository.interface';
 
 @ApiTags('Users')
@@ -46,8 +50,15 @@ export class UserController {
 
   @Get()
   @RequirePermission('user:read')
-  @ApiOperation({ summary: 'Listar usuários', description: 'Retorna uma lista paginada de usuários com filtros opcionais.' })
-  @ApiResponse({ status: 200, description: 'Lista de usuários recuperada com sucesso.' })
+  @ApiOperation({
+    summary: 'Listar usuários',
+    description:
+      'Retorna uma lista paginada de usuários com filtros opcionais.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de usuários recuperada com sucesso.',
+  })
   @ApiResponse({ status: 403, description: 'Permissão insuficiente.' })
   async list(@Query() query: ListUsersQueryDto) {
     const filters: UserFilters = {};
@@ -65,10 +76,10 @@ export class UserController {
     }
 
     const result = await this.listUsersUseCase.execute(
-      query.page!,
-      query.limit!,
-      query.sortBy!,
-      query.sortOrder!,
+      query.page,
+      query.limit,
+      query.sortBy,
+      query.sortOrder,
       filters,
     );
 
@@ -77,7 +88,10 @@ export class UserController {
 
   @Post()
   @RequirePermission('user:create')
-  @ApiOperation({ summary: 'Criar usuário', description: 'Cria um novo usuário no sistema.' })
+  @ApiOperation({
+    summary: 'Criar usuário',
+    description: 'Cria um novo usuário no sistema.',
+  })
   @ApiResponse({ status: 201, description: 'Usuário criado com sucesso.' })
   @ApiResponse({ status: 409, description: 'E-mail já cadastrado.' })
   async create(@Body() dto: CreateUserDto) {
@@ -92,7 +106,10 @@ export class UserController {
 
   @Patch(':id')
   @RequirePermission('user:update')
-  @ApiOperation({ summary: 'Atualizar usuário', description: 'Atualiza dados de um usuário existente.' })
+  @ApiOperation({
+    summary: 'Atualizar usuário',
+    description: 'Atualiza dados de um usuário existente.',
+  })
   @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso.' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado.' })
   async update(
@@ -114,7 +131,10 @@ export class UserController {
   @Delete(':id')
   @RequirePermission('user:delete')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Excluir usuário', description: 'Remove um usuário do sistema.' })
+  @ApiOperation({
+    summary: 'Excluir usuário',
+    description: 'Remove um usuário do sistema.',
+  })
   @ApiResponse({ status: 204, description: 'Usuário excluído com sucesso.' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado.' })
   async delete(@Param('id', ParseUUIDPipe) id: string) {

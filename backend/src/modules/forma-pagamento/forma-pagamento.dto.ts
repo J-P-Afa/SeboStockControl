@@ -1,13 +1,28 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CreateFormaPagamentoDto {
-  @IsString() @IsNotEmpty() @MaxLength(100)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
   descricao: string;
 
-  @IsOptional() @IsNumber() @Min(0) @Max(1)
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   taxa?: number;
 
-  @IsOptional() @IsBoolean()
+  @IsOptional()
+  @IsBoolean()
   isActive?: boolean;
 }
 

@@ -49,4 +49,4 @@ import { UserController } from './presentation/user.controller';
   ],
   exports: [USER_REPOSITORY, ROLE_REPOSITORY, HASH_PROVIDER],
 })
-export class UserModule { }
+export class UserModule {}

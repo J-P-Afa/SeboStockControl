@@ -1,4 +1,12 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength, IsNumber, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  IsNumber,
+  Min,
+} from 'class-validator';
 
 export class CreateLookupDto {
   @IsString()
@@ -33,6 +41,16 @@ export class UpdateLookupDto {
   margemAlvo?: number;
 }
 
+interface LookupEntity {
+  id: number;
+  descricao?: string;
+  description?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  margemAlvo?: number | string;
+}
+
 export class LookupResponseDto {
   id: number;
   descricao: string;
@@ -41,10 +59,10 @@ export class LookupResponseDto {
   updatedAt: Date;
   margemAlvo?: number;
 
-  static from(entity: any): LookupResponseDto {
+  static from(entity: LookupEntity): LookupResponseDto {
     const dto = new LookupResponseDto();
     dto.id = entity.id;
-    dto.descricao = entity.descricao || entity.description;
+    dto.descricao = entity.descricao || entity.description || '';
     dto.isActive = entity.isActive;
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;

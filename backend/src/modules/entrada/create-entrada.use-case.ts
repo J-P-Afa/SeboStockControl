@@ -10,15 +10,19 @@ export class CreateEntradaUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(dto: CreateEntradaDto): Promise<Result<any>> {
-    const book = await this.prisma.book.findUnique({ where: { id: dto.bookId } });
+    const book = await this.prisma.book.findUnique({
+      where: { id: dto.bookId },
+    });
     if (!book) {
       return Result.fail('LIVRO_NOT_FOUND', 'Book não encontrado');
     }
 
     if (!book.isActive) {
-      return Result.fail('LIVRO_INATIVO', 'Book inisActive — movimentação não permitida');
+      return Result.fail(
+        'LIVRO_INATIVO',
+        'Book inisActive — movimentação não permitida',
+      );
     }
-
 
     const custoUnitario = new Prisma.Decimal(dto.custoUnitario ?? 0);
 
@@ -27,9 +31,11 @@ export class CreateEntradaUseCase {
 
     try {
       const entrada = await this.prisma.$transaction(async (tx) => {
-        const record = await tx.estoque.findUnique({ where: { bookId: dto.bookId } });
-        
-        const estoque = record 
+        const record = await tx.estoque.findUnique({
+          where: { bookId: dto.bookId },
+        });
+
+        const estoque = record
           ? EstoqueEntity.restore({
               bookId: record.bookId,
               quantidade: record.quantidade,
@@ -77,7 +83,10 @@ export class CreateEntradaUseCase {
       return Result.ok(entrada);
     } catch (error) {
       console.error(error);
-      return Result.fail('ENTRADA_TRANSACTION_FAILED', 'Falha ao registrar entrada');
+      return Result.fail(
+        'ENTRADA_TRANSACTION_FAILED',
+        'Falha ao registrar entrada',
+      );
     }
   }
 }

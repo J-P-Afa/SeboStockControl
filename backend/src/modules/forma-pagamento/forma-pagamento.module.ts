@@ -5,7 +5,12 @@ import { FORMA_PAGAMENTO_REPOSITORY } from './constants';
 
 @Module({
   controllers: [FormaPagamentoController],
-  providers: [{ provide: FORMA_PAGAMENTO_REPOSITORY, useClass: PrismaFormaPagamentoRepository }],
+  providers: [
+    {
+      provide: FORMA_PAGAMENTO_REPOSITORY,
+      useClass: PrismaFormaPagamentoRepository,
+    },
+  ],
   exports: [FORMA_PAGAMENTO_REPOSITORY],
 })
 export class FormaPagamentoModule {}

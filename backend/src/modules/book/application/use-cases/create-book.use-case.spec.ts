@@ -5,7 +5,6 @@ import { CreateBookDto } from '../dtos';
 import { BookEntity } from '../../domain/book.entity';
 import { Condition, Status, EditionType, Prisma } from '@prisma/client';
 
-
 describe('CreateBookUseCase', () => {
   let useCase: CreateBookUseCase;
   let bookRepository: MockProxy<IBookRepository>;
@@ -22,7 +21,6 @@ describe('CreateBookUseCase', () => {
     isbn13: '9788535913033',
     weight: 500,
   };
-
 
   const mockBook = BookEntity.restore({
     id: 1,
@@ -44,7 +42,6 @@ describe('CreateBookUseCase', () => {
     updatedAt: new Date(),
   });
 
-
   beforeEach(() => {
     bookRepository = mockDeep<IBookRepository>();
     useCase = new CreateBookUseCase(bookRepository);
@@ -62,10 +59,12 @@ describe('CreateBookUseCase', () => {
     // Assert
     expect(result.success).toBe(true);
     expect(result.data?.title).toBe(mockDto.title);
-    expect(bookRepository.findByIsbn13AndCondition).toHaveBeenCalledWith(mockDto.isbn13, mockDto.condition);
+    expect(bookRepository.findByIsbn13AndCondition).toHaveBeenCalledWith(
+      mockDto.isbn13,
+      mockDto.condition,
+    );
     expect(bookRepository.create).toHaveBeenCalledTimes(1);
   });
-
 
   it('should fail if ISBN13 already exists for the same condition', async () => {
     // Arrange
@@ -80,12 +79,14 @@ describe('CreateBookUseCase', () => {
     expect(bookRepository.create).not.toHaveBeenCalled();
   });
 
-
   it('should create successfully when ISBN13 exists for a DIFFERENT condition', async () => {
     // Arrange — mesmo ISBN mas estado diferente (novo vs usado) é permitido
     const novoDto = { ...mockDto, condition: Condition.novo } as CreateBookDto;
     bookRepository.findByIsbn13AndCondition.mockResolvedValue(null);
-    bookRepository.create.mockResolvedValue({ ...mockBook, condition: Condition.novo } as unknown as BookEntity);
+    bookRepository.create.mockResolvedValue({
+      ...mockBook,
+      condition: Condition.novo,
+    } as unknown as BookEntity);
 
     // Act
     const result = await useCase.execute(novoDto);
@@ -93,7 +94,6 @@ describe('CreateBookUseCase', () => {
     // Assert
     expect(result.success).toBe(true);
   });
-
 
   it('should create successfully when no ISBN is provided', async () => {
     // Arrange
@@ -107,5 +107,4 @@ describe('CreateBookUseCase', () => {
     expect(result.success).toBe(true);
     expect(bookRepository.findByIsbn13AndCondition).not.toHaveBeenCalled();
   });
-
 });

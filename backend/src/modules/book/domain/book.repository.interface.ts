@@ -75,8 +75,14 @@ export interface IBookRepository {
   findById(id: number): Promise<BookEntity | null>;
   findAll(filters?: BookFilters): Promise<BookEntity[]>;
   findByIsbn(isbn: string): Promise<BookEntity | null>;
-  findByIsbn13AndCondition(isbn13: string, condition: Condition): Promise<BookEntity | null>;
-  findByIsbn10AndCondition(isbn10: string, condition: Condition): Promise<BookEntity | null>;
+  findByIsbn13AndCondition(
+    isbn13: string,
+    condition: Condition,
+  ): Promise<BookEntity | null>;
+  findByIsbn10AndCondition(
+    isbn10: string,
+    condition: Condition,
+  ): Promise<BookEntity | null>;
   create(data: CreateBookParams): Promise<BookEntity>;
   update(id: number, data: UpdateBookParams): Promise<BookEntity>;
   delete(id: number): Promise<void>;
