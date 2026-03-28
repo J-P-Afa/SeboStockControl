@@ -43,19 +43,20 @@ export function RoleMultiSelect({
       />
       <PopoverContent align="start" className="w-56 p-2">
         <div className="flex flex-col gap-1">
-          {roles?.map((role) => (
-            <Label
-              key={role.id}
-              className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted cursor-pointer transition-colors"
-            >
-              <Checkbox
-                checked={selectedIds.includes(role.id)}
-                onCheckedChange={() => toggleRole(role.id)}
-              />
-              <span className="text-sm">{role.name}</span>
-            </Label>
-          ))}
-          {(!roles || roles.length === 0) && (
+          {Array.isArray(roles) &&
+            roles.map((role) => (
+              <Label
+                key={role.id}
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted cursor-pointer transition-colors"
+              >
+                <Checkbox
+                  checked={selectedIds.includes(role.id)}
+                  onCheckedChange={() => toggleRole(role.id)}
+                />
+                <span className="text-sm">{role.name}</span>
+              </Label>
+            ))}
+          {(!roles || (Array.isArray(roles) && roles.length === 0)) && (
             <p className="text-sm text-muted-foreground px-2 py-1.5">
               Nenhum perfil encontrado.
             </p>

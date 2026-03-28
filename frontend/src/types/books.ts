@@ -34,7 +34,10 @@ export interface ExternalBook {
   subtitle?: string | null;
   authors: string[];
   publisher?: string | null;
+  publisherId?: number | null;
   language?: string | null;
+  languageId?: number | null;
+  genreId?: number | null;
   isbn10?: string | null;
   isbn13?: string | null;
   publicationYear?: number | null;

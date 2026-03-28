@@ -13,6 +13,7 @@ export type {
   CreateBookPayload,
   UpdateBookPayload,
   ListBooksFilters,
+  ExternalBook,
 } from './books';
 export * from './role';
 export * from './book-enums';

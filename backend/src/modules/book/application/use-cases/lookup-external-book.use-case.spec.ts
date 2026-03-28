@@ -1,11 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { LookupExternalBookUseCase } from './lookup-external-book.use-case';
 import { IExternalBookService } from '../../domain/external-book-service.interface';
 import { ExternalBookLookupDto } from '../dtos/external-book-lookup.dto';
+import { LanguageRepository } from '../../../language/domain/language.repository';
+import { PublisherRepository } from '../../../publisher/domain/publisher.repository';
+import { GenreRepository } from '../../../genre/domain/genre.repository';
 
 describe('LookupExternalBookUseCase', () => {
   let useCase: LookupExternalBookUseCase;
   let externalBookService: MockProxy<IExternalBookService>;
+  let languageRepository: MockProxy<LanguageRepository>;
+  let publisherRepository: MockProxy<PublisherRepository>;
+  let genreRepository: MockProxy<GenreRepository>;
 
   const mockExternalBook: ExternalBookLookupDto = {
     title: 'Fantastic Mr. Fox',
@@ -19,7 +26,16 @@ describe('LookupExternalBookUseCase', () => {
 
   beforeEach(() => {
     externalBookService = mockDeep<IExternalBookService>();
-    useCase = new LookupExternalBookUseCase(externalBookService);
+    languageRepository = mockDeep<LanguageRepository>();
+    publisherRepository = mockDeep<PublisherRepository>();
+    genreRepository = mockDeep<GenreRepository>();
+
+    useCase = new LookupExternalBookUseCase(
+      externalBookService,
+      languageRepository,
+      publisherRepository,
+      genreRepository,
+    );
     jest.clearAllMocks();
   });
 
@@ -27,6 +43,20 @@ describe('LookupExternalBookUseCase', () => {
     // Arrange
     const isbn = '9780140328721';
     externalBookService.lookupByIsbn.mockResolvedValue(mockExternalBook);
+
+    // Mock repositories to return something so it doesn't crash on .id
+    publisherRepository.findByDescription.mockResolvedValue({
+      id: 1,
+      description: 'Puffin',
+    } as any);
+    languageRepository.findByDescription.mockResolvedValue({
+      id: 1,
+      description: 'English',
+    } as any);
+    genreRepository.findByDescription.mockResolvedValue({
+      id: 1,
+      description: 'Foxes',
+    } as any);
 
     // Act
     const result = await useCase.execute(isbn);

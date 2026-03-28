@@ -25,7 +25,6 @@ export class CreateSaidaBulkUseCase {
 
       return Result.ok(results);
     } catch (error) {
-      console.error(error);
       if (error instanceof Error) {
         if (error.message.startsWith('LIVRO_NOT_FOUND'))
           return Result.fail('LIVRO_NOT_FOUND', error.message.split(':')[1]);
@@ -57,6 +56,7 @@ export class CreateSaidaBulkUseCase {
             'Estoque insuficiente para um ou mais itens',
           );
       }
+      console.error(error);
       return Result.fail(
         'SAIDA_BULK_TRANSACTION_FAILED',
         'Falha ao registrar saídas em lote',

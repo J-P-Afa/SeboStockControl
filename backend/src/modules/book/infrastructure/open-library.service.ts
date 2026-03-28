@@ -80,6 +80,8 @@ export class OpenLibraryService implements IExternalBookService {
       if (!response.ok) return null;
       const data = (await response.json()) as OpenLibraryDetails;
 
+      if (!data || !data.title) return null;
+
       const dto = new ExternalBookLookupDto();
       dto.title = data.title;
       dto.subtitle = data.subtitle || null;
@@ -115,7 +117,7 @@ export class OpenLibraryService implements IExternalBookService {
 
       dto.pages = data.number_of_pages || null;
       return dto;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

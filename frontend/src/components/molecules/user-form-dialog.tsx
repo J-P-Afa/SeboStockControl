@@ -119,21 +119,24 @@ export function UserFormDialog({
               value={selectedRoleId ?? ''}
               onValueChange={(value) => setValue('roleId', value ?? '')}
               items={
-                roles?.map((role) => ({
-                  value: role.id,
-                  label: role.name,
-                })) ?? []
+                Array.isArray(roles)
+                  ? roles.map((role) => ({
+                      value: role.id,
+                      label: role.name,
+                    }))
+                  : []
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um perfil" />
               </SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>
-                {roles?.map((role) => (
-                  <SelectItem key={role.id} value={role.id}>
-                    {role.name}
-                  </SelectItem>
-                ))}
+                {Array.isArray(roles) &&
+                  roles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             {errors.roleId && (

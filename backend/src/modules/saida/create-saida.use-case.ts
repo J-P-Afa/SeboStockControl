@@ -153,13 +153,13 @@ export class CreateSaidaUseCase {
 
       return Result.ok(saida);
     } catch (error) {
-      console.error(error);
       if (error instanceof Error && error.message === 'ESTOQUE_INSUFICIENTE') {
         return Result.fail(
           'ESTOQUE_INSUFICIENTE',
           'Estoque insuficiente para realizar a saída',
         );
       }
+      console.error(error);
       return Result.fail(
         'SAIDA_TRANSACTION_FAILED',
         'Falha ao registrar saída',
