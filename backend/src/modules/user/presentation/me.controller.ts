@@ -35,7 +35,7 @@ export class MeController {
       throw new NotFoundException(result.error);
     }
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Patch('me/preferences')
@@ -52,6 +52,6 @@ export class MeController {
       throw new NotFoundException(result.error);
     }
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 }

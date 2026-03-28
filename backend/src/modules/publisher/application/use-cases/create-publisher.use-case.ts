@@ -24,7 +24,7 @@ export class CreatePublisherUseCase {
 
       return { success: true, data: saved };
     } catch {
-      return { success: false, error: 'Erro ao criar editora' };
+      return { success: false, error: 'Erro ao criar publisher' };
     }
   }
 }

@@ -2,8 +2,21 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { Button } from './button';
+import { axe } from 'jest-axe';
 
 describe('Button Atom', () => {
+  it('should have no accessibility violations', async () => {
+    const { container } = render(<Button>Click me</Button>);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should have no accessibility violations when disabled', async () => {
+    const { container } = render(<Button disabled>Disabled</Button>);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should render the button with children', () => {
     render(<Button>Click me</Button>);
     expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();

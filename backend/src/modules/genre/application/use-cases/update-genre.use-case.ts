@@ -10,9 +10,9 @@ interface UpdateGenreInput {
 @Injectable()
 export class UpdateGenreUseCase {
   constructor(
-  @Inject('GenreRepository')
-  private readonly genreRepo: GenreRepository
-) {}
+    @Inject('GenreRepository')
+    private readonly genreRepo: GenreRepository,
+  ) {}
 
   async execute(input: UpdateGenreInput) {
     const genre = await this.genreRepo.findById(input.id);

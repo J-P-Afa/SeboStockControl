@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PaginatedResult, Result } from '../../../../common';
-import type { IUserRepository, UserFilters } from '../../domain/repositories/user.repository.interface';
+import type {
+  IUserRepository,
+  UserFilters,
+} from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { UserResponseDto } from '../dtos';
 

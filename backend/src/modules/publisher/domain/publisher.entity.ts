@@ -17,7 +17,7 @@ export class PublisherEntity {
     props: Omit<PublisherProps, 'id' | 'createdAt' | 'updatedAt'>,
   ): PublisherEntity {
     if (!props.description || props.description.trim().length === 0) {
-      throw new Error('Nome da editora é obrigatório');
+      throw new Error('Nome da publisher é obrigatório');
     }
 
     return new PublisherEntity({
@@ -30,11 +30,21 @@ export class PublisherEntity {
     return new PublisherEntity(props);
   }
 
-  get id(): number | undefined {return this.props.id;}
-  get description(): string {return this.props.description;}
-  get isActive(): boolean {return this.props.isActive;}
-  get createdAt(): Date | undefined {return this.props.createdAt;}
-  get updatedAt(): Date | undefined {return this.props.updatedAt;}
+  get id(): number | undefined {
+    return this.props.id;
+  }
+  get description(): string {
+    return this.props.description;
+  }
+  get isActive(): boolean {
+    return this.props.isActive;
+  }
+  get createdAt(): Date | undefined {
+    return this.props.createdAt;
+  }
+  get updatedAt(): Date | undefined {
+    return this.props.updatedAt;
+  }
 
   public toJSON(): PublisherProps {
     return this.props;

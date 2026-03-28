@@ -29,20 +29,20 @@ export class RoleController {
     private readonly createRoleUseCase: CreateRoleUseCase,
     private readonly updateRoleUseCase: UpdateRoleUseCase,
     private readonly deleteRoleUseCase: DeleteRoleUseCase,
-  ) { }
+  ) {}
 
   @Get()
   @RequirePermission('user:read')
   async list() {
     const result = await this.listRolesUseCase.execute();
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Get('permissions')
   @RequirePermission('user:read')
   async listPermissions() {
     const result = await this.listRolesUseCase.listPermissions();
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Post()
@@ -54,7 +54,7 @@ export class RoleController {
       throw new ConflictException(result.error);
     }
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Patch(':id')
@@ -69,7 +69,7 @@ export class RoleController {
       throw new NotFoundException(result.error);
     }
 
-    return result.data;
+    return { success: true, data: result.data };
   }
 
   @Delete(':id')

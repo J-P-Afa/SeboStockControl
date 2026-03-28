@@ -88,28 +88,34 @@ export default function BooksPage() {
   };
 
   async function handleFormSubmit(formData: BookFormData) {
+    const commonPayload = {
+      title: formData.title,
+      subtitle: formData.subtitle,
+      author: formData.author,
+      isbn13: formData.isbn13,
+      isbn10: formData.isbn10,
+      listPrice: formData.listPrice,
+      editionType: formData.editionType,
+      volume: formData.volume,
+      condition: formData.condition,
+      status: formData.status,
+      weight: formData.weight,
+      publisherId: Number(formData.publisherId),
+      languageId: Number(formData.languageId),
+      genreId: Number(formData.genreId),
+      publicationYear: formData.publicationYear,
+      pages: formData.pages,
+      synopsis: formData.synopsis,
+      dimensions: formData.dimensions,
+    };
+
     if (selectedBook) {
-      const payload: UpdateBookPayload = {
-        title: formData.title,
-        author: formData.author,
-        stock: formData.stock,
-        price: formData.price,
-        publisher: formData.publisher,
-        edition: formData.edition,
-      };
-
-      await updateMutation.mutateAsync({ id: selectedBook.id, payload });
+      await updateMutation.mutateAsync({ 
+        id: selectedBook.id, 
+        payload: commonPayload as UpdateBookPayload 
+      });
     } else {
-      const payload: CreateBookPayload = {
-        title: formData.title,
-        author: formData.author,
-        stock: formData.stock,
-        price: formData.price,
-        publisher: formData.publisher,
-        edition: formData.edition,
-      };
-
-      await createMutation.mutateAsync(payload);
+      await createMutation.mutateAsync(commonPayload as CreateBookPayload);
     }
 
     setFormOpen(false);

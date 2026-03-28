@@ -43,7 +43,7 @@ export class PublisherController {
 
     return {
       success: true,
-      publisher: result.data,
+      data: result.data,
     };
   }
 
@@ -53,7 +53,7 @@ export class PublisherController {
 
     return {
       success: true,
-      publishers: result.data,
+      data: result.data,
     };
   }
 
@@ -70,7 +70,7 @@ export class PublisherController {
 
     return {
       success: true,
-      publisher: result.data,
+      data: result.data,
     };
   }
 
@@ -93,7 +93,7 @@ export class PublisherController {
 
     return {
       success: true,
-      publisher: result.data,
+      data: result.data,
     };
   }
 

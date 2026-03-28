@@ -46,7 +46,7 @@ export class GenreController {
 
     return {
       success: true,
-      genre: result.data,
+      data: result.data,
     };
   }
 
@@ -66,7 +66,10 @@ export class GenreController {
       filters,
     );
 
-    return result.data;
+    return {
+      success: true,
+      data: result.data,
+    };
   }
 
   //GET BY ID
@@ -83,7 +86,7 @@ export class GenreController {
 
     return {
       success: true,
-      genre: result.data,
+      data: result.data,
     };
   }
 
@@ -107,7 +110,7 @@ export class GenreController {
 
     return {
       success: true,
-      genre: result.data,
+      data: result.data,
     };
   }
 

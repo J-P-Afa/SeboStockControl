@@ -282,124 +282,126 @@ describe('Book (e2e)', () => {
     });
 
     it('should allow same ISBN for different conditions', async () => {
-  const isbn = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(-13);
+      const isbn = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(
+        -13,
+      );
 
-  const book1 = await request(app.getHttpServer())
-    .post('/api/books')
-    .set('Authorization', `Bearer ${authToken}`)
-    .send({
-      title: 'Book Novo',
-      isbn13: isbn,
-      editionType: 'normal',
-      condition: 'novo',
-      status: 'completo',
-      weight: 1,
-      publisherId,
-      languageId,
-      genreId,
-    })
-    .expect(201);
+      const book1 = await request(app.getHttpServer())
+        .post('/api/books')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Book Novo',
+          isbn13: isbn,
+          editionType: 'normal',
+          condition: 'novo',
+          status: 'completo',
+          weight: 1,
+          publisherId,
+          languageId,
+          genreId,
+        })
+        .expect(201);
 
-  const book2 = await request(app.getHttpServer())
-    .post('/api/books')
-    .set('Authorization', `Bearer ${authToken}`)
-    .send({
-      title: 'Book Usado',
-      isbn13: isbn,
-      editionType: 'normal',
-      condition: 'usado',
-      status: 'completo',
-      weight: 1,
-      publisherId,
-      languageId,
-      genreId,
-    })
-    .expect(201);
+      const book2 = await request(app.getHttpServer())
+        .post('/api/books')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Book Usado',
+          isbn13: isbn,
+          editionType: 'normal',
+          condition: 'usado',
+          status: 'completo',
+          weight: 1,
+          publisherId,
+          languageId,
+          genreId,
+        })
+        .expect(201);
 
-  expect(book1.body.success).toBe(true);
-  expect(book2.body.success).toBe(true);
-});
+      expect(book1.body.success).toBe(true);
+      expect(book2.body.success).toBe(true);
+    });
 
-it('should NOT allow duplicate ISBN for same condition', async () => {
-  const isbn = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(-13);
+    it('should NOT allow duplicate ISBN for same condition', async () => {
+      const isbn = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(
+        -13,
+      );
 
-  await request(app.getHttpServer())
-    .post('/api/books')
-    .set('Authorization', `Bearer ${authToken}`)
-    .send({
-      title: 'Book 1',
-      isbn13: isbn,
-      editionType: 'normal',
-      condition: 'novo',
-      status: 'completo',
-      weight: 1,
-      publisherId,
-      languageId,
-      genreId,
-    })
-    .expect(201);
+      await request(app.getHttpServer())
+        .post('/api/books')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Book 1',
+          isbn13: isbn,
+          editionType: 'normal',
+          condition: 'novo',
+          status: 'completo',
+          weight: 1,
+          publisherId,
+          languageId,
+          genreId,
+        })
+        .expect(201);
 
-  await request(app.getHttpServer())
-    .post('/api/books')
-    .set('Authorization', `Bearer ${authToken}`)
-    .send({
-      title: 'Book 2',
-      isbn13: isbn,
-      editionType: 'normal',
-      condition: 'novo',
-      status: 'completo',
-      weight: 1,
-      publisherId,
-      languageId,
-      genreId,
-    })
-      .expect(400);
+      await request(app.getHttpServer())
+        .post('/api/books')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Book 2',
+          isbn13: isbn,
+          editionType: 'normal',
+          condition: 'novo',
+          status: 'completo',
+          weight: 1,
+          publisherId,
+          languageId,
+          genreId,
+        })
+        .expect(400);
     });
 
     it('should filter books by title', async () => {
-  await request(app.getHttpServer())
-    .post('/api/books')
-    .set('Authorization', `Bearer ${authToken}`)
-    .send({
-      title: 'Unique Filter Book',
-      editionType: 'normal',
-      condition: 'novo',
-      status: 'completo',
-      weight: 1,
-      publisherId,
-      languageId,
-      genreId,
+      await request(app.getHttpServer())
+        .post('/api/books')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Unique Filter Book',
+          editionType: 'normal',
+          condition: 'novo',
+          status: 'completo',
+          weight: 1,
+          publisherId,
+          languageId,
+          genreId,
+        });
+
+      const res = await request(app.getHttpServer())
+        .get('/api/books?title=Unique')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(res.body.data.length).toBeGreaterThan(0);
+      expect(res.body.data[0].title).toContain('Unique');
     });
 
-  const res = await request(app.getHttpServer())
-    .get('/api/books?title=Unique')
-    .set('Authorization', `Bearer ${authToken}`)
-    .expect(200);
-
-  expect(res.body.data.length).toBeGreaterThan(0);
-  expect(res.body.data[0].title).toContain('Unique');
-});
-
-it('should reject invalid enum values', () => {
-  return request(app.getHttpServer())
-    .post('/api/books')
-    .set('Authorization', `Bearer ${authToken}`)
-    .send({
-      title: 'Invalid Enum',
-      editionType: 'INVALID',
-      condition: 'novo',
-      status: 'completo',
-      weight: 1,
-      publisherId,
-      languageId,
-      genreId,
-    })
-    .expect(400);
-});
-
+    it('should reject invalid enum values', () => {
+      return request(app.getHttpServer())
+        .post('/api/books')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Invalid Enum',
+          editionType: 'INVALID',
+          condition: 'novo',
+          status: 'completo',
+          weight: 1,
+          publisherId,
+          languageId,
+          genreId,
+        })
+        .expect(400);
+    });
   });
 });
-
 
 describe('Genre (e2e)', () => {
   let app: INestApplication<App>;

@@ -12,13 +12,13 @@ export class DeletePublisherUseCase {
     const exists = await this.publisherRepo.findById(id);
 
     if (!exists) {
-      return { success: false, error: 'Editora não encontrada' };
+      return { success: false, error: 'Publisher não encontrada' };
     }
 
     const deleted = await this.publisherRepo.delete(id);
 
     if (!deleted) {
-      return { success: false, error: 'Erro ao deletar editora' };
+      return { success: false, error: 'Erro ao deletar publisher' };
     }
 
     return { success: true };

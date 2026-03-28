@@ -5,6 +5,7 @@ import type {
   UpdateUserPayload,
   Role,
   ListUsersFilters,
+  ApiResponse,
 } from '@/types';
 import { apiClient } from './client';
 
@@ -15,7 +16,7 @@ export async function listUsers(
   sortOrder?: 'asc' | 'desc',
   filters?: ListUsersFilters,
 ): Promise<PaginatedResponse<User>> {
-  const { data } = await apiClient.get<PaginatedResponse<User>>('/users', {
+  const { data } = await apiClient.get<ApiResponse<PaginatedResponse<User>>>('/users', {
     params: {
       page,
       limit,
@@ -26,20 +27,20 @@ export async function listUsers(
       isActive: filters?.isActive,
     },
   });
-  return data;
+  return data.data;
 }
 
 export async function createUser(payload: CreateUserPayload): Promise<User> {
-  const { data } = await apiClient.post<User>('/users', payload);
-  return data;
+  const { data } = await apiClient.post<ApiResponse<User>>('/users', payload);
+  return data.data;
 }
 
 export async function updateUser(
   id: string,
   payload: UpdateUserPayload,
 ): Promise<User> {
-  const { data } = await apiClient.patch<User>(`/users/${id}`, payload);
-  return data;
+  const { data } = await apiClient.patch<ApiResponse<User>>(`/users/${id}`, payload);
+  return data.data;
 }
 
 export async function deleteUser(id: string): Promise<void> {
@@ -48,6 +49,6 @@ export async function deleteUser(id: string): Promise<void> {
 
 
 export async function listRoles(): Promise<Role[]> {
-  const { data } = await apiClient.get<Role[]>('/roles');
-  return data;
+  const { data } = await apiClient.get<ApiResponse<Role[]>>('/roles');
+  return data.data;
 }

@@ -4,8 +4,15 @@ import type {
   CreateBookPayload,
   UpdateBookPayload,
   ListBooksFilters,
+  ApiResponse,
+  ExternalBook,
 } from '@/types';
 import { apiClient } from './client';
+
+export async function lookupExternalBook(isbn: string): Promise<ExternalBook | null> {
+  const { data } = await apiClient.get<ApiResponse<ExternalBook>>(`/books/external-lookup/${isbn}`);
+  return data.data;
+}
 
 export async function listBooks(
   page: number = 1,
@@ -14,44 +21,40 @@ export async function listBooks(
   sortOrder?: 'asc' | 'desc',
   filters?: ListBooksFilters,
 ): Promise<PaginatedResponse<Book>> {
-  const { data } = await apiClient.get<{ success: boolean; books: Book[] }>('/books', {
+  const { data } = await apiClient.get<ApiResponse<Book[]>>('/books', {
     params: {
       page,
       limit,
       sortBy,
       sortOrder,
-      search: filters?.search || undefined,
-      author: filters?.author || undefined,
-      publisher: filters?.publisher || undefined,
-      minPrice: filters?.minPrice,
-      maxPrice: filters?.maxPrice,
-      inStock: filters?.inStock,
+      ...filters,
     },
   });
 
-  const books = data.books ?? [];
+  const books = data.data ?? [];
   const total = books.length;
 
+  // Mock pagination metadata as backend returns full list for now
   return {
     items: books,
     total,
     page: 1,
-    limit: total,
+    limit: total || limit,
     totalPages: total > 0 ? 1 : 0,
   };
 }
 
 export async function createBook(payload: CreateBookPayload): Promise<Book> {
-  const { data } = await apiClient.post<{ success: boolean; book: Book }>('/books', payload);
-  return data.book;
+  const { data } = await apiClient.post<ApiResponse<Book>>('/books', payload);
+  return data.data;
 }
 
 export async function updateBook(
   id: number,
   payload: UpdateBookPayload,
 ): Promise<Book> {
-  const { data } = await apiClient.patch<{ success: boolean; book: Book }>(`/books/${id}`, payload);
-  return data.book;
+  const { data } = await apiClient.patch<ApiResponse<Book>>(`/books/${id}`, payload);
+  return data.data;
 }
 
 export async function deleteBook(id: number): Promise<void> {

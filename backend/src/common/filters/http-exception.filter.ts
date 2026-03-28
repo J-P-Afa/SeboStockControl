@@ -29,12 +29,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     ) {
       // Structure already matches ResultError
       error = exceptionResponse as ResultError;
-    } else if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+    } else if (
+      typeof exceptionResponse === 'object' &&
+      exceptionResponse !== null
+    ) {
       // Handle NestJS default structure or other objects
-      const body = exceptionResponse as any;
+      const body = exceptionResponse as Record<string, unknown>;
       error = {
-        code: body.code || exception.name || 'INTERNAL_ERROR',
-        message: body.message || exception.message,
+        code: (body.code as string) || exception.name || 'INTERNAL_ERROR',
+        message: (body.message as string) || exception.message,
       };
     } else {
       // Fallback for string responses

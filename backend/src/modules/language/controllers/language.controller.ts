@@ -43,7 +43,7 @@ export class LanguageController {
 
     return {
       success: true,
-      language: result.data,
+      data: result.data,
     };
   }
 
@@ -53,7 +53,7 @@ export class LanguageController {
 
     return {
       success: true,
-      languages: result.data,
+      data: result.data,
     };
   }
 
@@ -70,7 +70,7 @@ export class LanguageController {
 
     return {
       success: true,
-      language: result.data,
+      data: result.data,
     };
   }
 
@@ -93,7 +93,7 @@ export class LanguageController {
 
     return {
       success: true,
-      language: result.data,
+      data: result.data,
     };
   }
 

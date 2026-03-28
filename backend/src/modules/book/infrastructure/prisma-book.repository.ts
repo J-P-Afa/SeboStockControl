@@ -1,61 +1,117 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database';
-import { BookRepository } from '../domain/book.repository';
-import { BookEntity } from '../domain/book.entity';
+import { PrismaService } from '../../database/prisma.service';
+import {
+  IBookRepository,
+  CreateBookParams,
+  UpdateBookParams,
+  BookFilters,
+} from '../domain/book.repository.interface';
+import { BookEntity, BookProps } from '../domain/book.entity';
 import { Book, Condition } from '@prisma/client';
 
+/** Tipo interno: resultado do Prisma com o join 1:1 de Estoque */
+type BookWithEstoque = Book & { estoque?: { quantidade: number } | null };
+
+/**
+ * @ai-context Implementação do repositório usando Prisma.
+ * A criação do Estoque (RULE [LIV-01]) é feita via transação atômica neste repositório.
+ */
 @Injectable()
-export class PrismaBookRepository implements BookRepository {
+export class PrismaBookRepository implements IBookRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-    //MAPPERS
-
-  private toEntity(prisma: Book): BookEntity {
-    return BookEntity.restore({
+  private toEntity(prisma: BookWithEstoque): BookEntity {
+    const props: BookProps = {
       id: prisma.id,
       title: prisma.title,
+      subtitle: prisma.subtitle,
+      author: prisma.author,
       isbn13: prisma.isbn13,
       isbn10: prisma.isbn10,
+      listPrice: prisma.listPrice,
       editionType: prisma.editionType,
       volume: prisma.volume,
+      collection: prisma.collection,
       condition: prisma.condition,
       status: prisma.status,
-      weight: Number(prisma.weight),
+      publicationYear: prisma.publicationYear,
+      pages: prisma.pages,
+      synopsis: prisma.synopsis,
+      dimensions: prisma.dimensions,
+      weight: prisma.weight,
       publisherId: prisma.publisherId,
       languageId: prisma.languageId,
       genreId: prisma.genreId,
+      classificacaoId: prisma.classificacaoId,
       isActive: prisma.isActive,
       createdAt: prisma.createdAt,
       updatedAt: prisma.updatedAt,
-    });
-  }
-
-  private toPrisma(entity: BookEntity) {
-    const data = entity.toJSON();
-
-    return {
-      title: data.title,
-      isbn13: data.isbn13 ?? null,
-      isbn10: data.isbn10 ?? null,
-      editionType: data.editionType,
-      volume: data.volume ?? null,
-      condition: data.condition,
-      status: data.status,
-      weight: data.weight,
-      publisherId: data.publisherId,
-      languageId: data.languageId,
-      genreId: data.genreId,
-      isActive: data.isActive,
+      // @ai-context: campo de infra enriquecido via join; não pertence ao domínio puro
+      estoqueQuantidade: prisma.estoque?.quantidade ?? null,
     };
+    return BookEntity.restore(props);
   }
 
-  //CREATE
-  async create(book: BookEntity): Promise<BookEntity> {
-    const created = await this.prisma.book.create({
-      data: this.toPrisma(book),
+  async findById(id: number): Promise<BookEntity | null> {
+    const book = await this.prisma.book.findUnique({
+      where: { id },
+      include: { estoque: { select: { quantidade: true } } },
+    });
+    return book ? this.toEntity(book) : null;
+  }
+
+  /**
+   * Busca livro por ISBN-13 ou ISBN-10 sem filtro de condição.
+   * @ai-context Usado pelo leitor de código de barras na tela de Entrada.
+   */
+  async findByIsbn(isbn: string): Promise<BookEntity | null> {
+    const book = await this.prisma.book.findFirst({
+      where: { OR: [{ isbn13: isbn }, { isbn10: isbn }] },
+      include: { estoque: { select: { quantidade: true } } },
+    });
+    return book ? this.toEntity(book) : null;
+  }
+
+  async findAll(filters?: BookFilters): Promise<BookEntity[]> {
+    const books = await this.prisma.book.findMany({
+      where: {
+        ...(filters?.id && { id: filters.id }),
+        ...(filters?.isbn && {
+          OR: [
+            { isbn13: { contains: filters.isbn } },
+            { isbn10: { contains: filters.isbn } },
+          ],
+        }),
+        ...(filters?.search && {
+          OR: [
+            { title: { contains: filters.search, mode: 'insensitive' } },
+            { author: { contains: filters.search, mode: 'insensitive' } },
+            { isbn13: { contains: filters.search } },
+            { isbn10: { contains: filters.search } },
+          ],
+        }),
+        ...(filters?.classificacaoId && {
+          classificacaoId: filters.classificacaoId,
+        }),
+        ...(filters?.publisherId && { publisherId: filters.publisherId }),
+        ...(filters?.languageId && { languageId: filters.languageId }),
+        ...(filters?.genreId && { genreId: filters.genreId }),
+        ...(filters?.editionType && { editionType: filters.editionType }),
+        ...(filters?.volume && {
+          volume: { contains: filters.volume, mode: 'insensitive' },
+        }),
+        ...(filters?.collection && {
+          collection: { contains: filters.collection, mode: 'insensitive' },
+        }),
+        ...(filters?.condition && { condition: filters.condition }),
+        ...(filters?.status && { status: filters.status }),
+        ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
+      },
+      include: { estoque: { select: { quantidade: true } } },
+      orderBy: { title: 'asc' },
     });
 
-    return this.toEntity(created);
+    return books.map((book) => this.toEntity(book));
   }
 
   async findByIsbn13AndCondition(
@@ -63,14 +119,9 @@ export class PrismaBookRepository implements BookRepository {
     condition: Condition,
   ): Promise<BookEntity | null> {
     const book = await this.prisma.book.findFirst({
-      where: {
-        isbn13,
-        condition,
-      },
+      where: { isbn13, condition },
     });
-
-    if (!book) return null;
-    return this.toEntity(book);
+    return book ? this.toEntity(book) : null;
   }
 
   async findByIsbn10AndCondition(
@@ -78,67 +129,75 @@ export class PrismaBookRepository implements BookRepository {
     condition: Condition,
   ): Promise<BookEntity | null> {
     const book = await this.prisma.book.findFirst({
-      where: {
-        isbn10,
-        condition,
-      },
+      where: { isbn10, condition },
     });
-
-    if (!book) return null;
-    return this.toEntity(book);
+    return book ? this.toEntity(book) : null;
   }
 
-  //FIND ALL
-async findAll(filters?: any): Promise<BookEntity[]> {
-  const books = await this.prisma.book.findMany({
-    where: {
-      ...(filters?.title && {
-        title: { contains: filters.title, mode: 'insensitive' },
-      }),
-      ...(filters?.genreId && { genreId: filters.genreId }),
-      ...(filters?.publisherId && { publisherId: filters.publisherId }),
-      ...(filters?.languageId && { languageId: filters.languageId }),
-      ...(filters?.condition && { condition: filters.condition }),
-      ...(filters?.status && { status: filters.status }),
-    },
-  });
+  /**
+   * Cria o Book e o Estoque inicial em transação atômica.
+   * @ai-context Implementa RULE [LIV-01]: criar estoque zerado junto com o book.
+   */
+  async create(data: CreateBookParams): Promise<BookEntity> {
+    const raw = await this.prisma.$transaction(async (tx) => {
+      const book = await tx.book.create({
+        data: {
+          title: data.title,
+          subtitle: data.subtitle,
+          author: data.author,
+          isbn13: data.isbn13,
+          isbn10: data.isbn10,
+          listPrice: data.listPrice,
+          editionType: data.editionType,
+          volume: data.volume,
+          collection: data.collection,
+          condition: data.condition,
+          status: data.status,
+          publicationYear: data.publicationYear,
+          pages: data.pages,
+          synopsis: data.synopsis,
+          dimensions: data.dimensions,
+          weight: data.weight,
+          publisherId: data.publisherId,
+          languageId: data.languageId,
+          genreId: data.genreId,
+          classificacaoId: data.classificacaoId,
+          isActive: data.isActive ?? true,
+        },
+      });
 
-  return books.map((book) => this.toEntity(book));
-}
+      // RULE [LIV-01]: criar estoque zerado automaticamente
+      await tx.estoque.create({
+        data: {
+          bookId: book.id,
+          quantidade: 0,
+          custoMedio: 0,
+        },
+      });
 
-  //FIND BY ID
-  async findById(id: number): Promise<BookEntity | null> {
-    const book = await this.prisma.book.findUnique({
-      where: { id },
+      return tx.book.findUnique({
+        where: { id: book.id },
+        include: { estoque: { select: { quantidade: true } } },
+      });
     });
 
-    if (!book) return null;
-
-    return this.toEntity(book);
+    return this.toEntity(raw as BookWithEstoque);
   }
 
-  //UPDATE
-  async update(book: BookEntity): Promise<BookEntity> {
-    const data = book.toJSON();
-
+  async update(id: number, data: UpdateBookParams): Promise<BookEntity> {
     const updated = await this.prisma.book.update({
-      where: { id: data.id! },
-      data: this.toPrisma(book),
+      where: { id },
+      data: {
+        ...data,
+      },
+      include: { estoque: { select: { quantidade: true } } },
     });
-
     return this.toEntity(updated);
   }
 
-  //DELETE
-  async delete(id: number): Promise<boolean> {
-    try {
-      await this.prisma.book.delete({
-        where: { id },
-      });
-      return true;
-    } catch {
-      return false;
-    }
+  async delete(id: number): Promise<void> {
+    await this.prisma.book.delete({
+      where: { id },
+    });
   }
-
 }

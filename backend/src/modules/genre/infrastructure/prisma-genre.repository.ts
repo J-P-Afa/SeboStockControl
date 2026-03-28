@@ -8,7 +8,7 @@ import type { GenreRepository } from '../domain/genre.repository';
 export class PrismaGenreRepository implements GenreRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Mapper: Prisma → Entity
+  //Mapper: Prisma → Entity
   private toEntity(data: any): GenreEntity {
     return GenreEntity.restore({
       id: data.id,
@@ -57,6 +57,16 @@ export class PrismaGenreRepository implements GenreRepository {
     return this.toEntity(genre);
   }
 
+  async findByDescription(description: string): Promise<GenreEntity | null> {
+    const found = await this.prisma.genre.findUnique({
+      where: { description },
+    });
+
+    if (!found) return null;
+
+    return this.toEntity(found);
+  }
+
   async findAll(
     page: number,
     limit: number,
@@ -83,13 +93,7 @@ export class PrismaGenreRepository implements GenreRepository {
       this.prisma.genre.count({ where }),
     ]);
 
-    return {
-      items: genres.map(this.toEntity),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return list.map(this.toEntity);
   }
 
   async update(genre: GenreEntity): Promise<GenreEntity> {

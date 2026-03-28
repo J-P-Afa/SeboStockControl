@@ -7,7 +7,13 @@ import { LanguageEntity } from '../domain/language.entity';
 export class PrismaLanguageRepository implements LanguageRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private toEntity(data: any): LanguageEntity {
+  private toEntity(data: {
+    id: number;
+    description: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): LanguageEntity {
     return LanguageEntity.restore({
       id: data.id,
       description: data.description,
@@ -42,10 +48,20 @@ export class PrismaLanguageRepository implements LanguageRepository {
     return this.toEntity(found);
   }
 
+  async findByDescription(description: string): Promise<LanguageEntity | null> {
+    const found = await this.prisma.language.findUnique({
+      where: { description },
+    });
+
+    if (!found) return null;
+
+    return this.toEntity(found);
+  }
+
   async findAll(): Promise<LanguageEntity[]> {
     const list = await this.prisma.language.findMany();
 
-    return list.map(this.toEntity);
+    return list.map((item) => this.toEntity(item));
   }
 
   async update(language: LanguageEntity): Promise<LanguageEntity> {

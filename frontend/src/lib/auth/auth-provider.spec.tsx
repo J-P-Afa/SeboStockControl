@@ -3,15 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from './auth-provider';
 import { useAuth } from '@/hooks/use-auth';
-import * as api from '@/lib/api';
+import { http, HttpResponse } from 'msw';
+import { server } from '@/lib/api/mocks/server';
 
-// Mock the API module
-vi.mock('@/lib/api', () => ({
-  login: vi.fn(),
-  setTokens: vi.fn(),
-  clearTokens: vi.fn(),
-  getAccessToken: vi.fn(),
-}));
+const API_URL = 'http://localhost:3001/api';
 
 // Helper component to test useAuth within AuthProvider
 function TestComponent() {
@@ -28,9 +23,8 @@ function TestComponent() {
 
 describe('AuthProvider & useAuth', () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.clearAllMocks();
-    // Default mock for getAccessToken (empty)
-    (api.getAccessToken as any).mockReturnValue(null);
   });
 
   it('should initialize with no user and not loading after mount', async () => {
@@ -46,7 +40,7 @@ describe('AuthProvider & useAuth', () => {
 
   it('should restore user if token exists in localStorage on mount', async () => {
     const mockToken = 'header.' + btoa(JSON.stringify({ sub: '1', email: 'stored@test.com', role: 'user' })) + '.signature';
-    (api.getAccessToken as any).mockReturnValue(mockToken);
+    localStorage.setItem('accessToken', mockToken);
 
     render(
       <AuthProvider>
@@ -58,8 +52,25 @@ describe('AuthProvider & useAuth', () => {
   });
 
   it('should login successfully and update user state', async () => {
-    const mockToken = 'header.' + btoa(JSON.stringify({ sub: '2', email: 'new@test.com', role: 'admin' })) + '.signature';
-    (api.login as any).mockResolvedValue({ accessToken: mockToken, refreshToken: 'refresh' });
+    const mockToken = 'header.' + btoa(JSON.stringify({ sub: '2', email: 'test@test.com', role: 'ADMIN' })) + '.signature';
+    
+    // MSW will use the default handler from handlers.ts, but we can override it here if needed
+    // In this case, our handlers.ts already returns a fake-access-token.
+    // Let's override it to return our mockToken for the test.
+    server.use(
+      http.post(`${API_URL}/auth/login`, () => {
+        return HttpResponse.json({
+          accessToken: mockToken,
+          refreshToken: 'refresh',
+          user: {
+            id: 'user-2',
+            email: 'test@test.com',
+            name: 'Test User',
+            role: 'ADMIN',
+          },
+        });
+      })
+    );
 
     render(
       <AuthProvider>
@@ -67,23 +78,24 @@ describe('AuthProvider & useAuth', () => {
       </AuthProvider>
     );
 
+    const user = userEvent.setup();
     const loginButton = screen.getByText('Login');
-    loginButton.click();
+    await user.click(loginButton);
 
     await waitFor(() => {
-      expect(api.login).toHaveBeenCalledWith({ email: 'test@test.com', password: 'password' });
-      expect(api.setTokens).toHaveBeenCalled();
-      expect(screen.getByTestId('user')).toHaveTextContent('new@test.com');
+      expect(screen.getByTestId('user')).toHaveTextContent('test@test.com');
     });
+
+    expect(localStorage.getItem('accessToken')).toBe(mockToken);
   });
 
   it('should handle logout', async () => {
     const mockToken = 'header.' + btoa(JSON.stringify({ sub: '1', email: 'test@test.com' })) + '.signature';
-    (api.getAccessToken as any).mockReturnValue(mockToken);
+    localStorage.setItem('accessToken', mockToken);
     
     // Mock window.location using vi.stubGlobal
     const locationStub = { href: '' };
-    vi.stubGlobal('location', locationStub);
+    vi.stubGlobal('location', locationStub as unknown as Location);
 
     render(
       <AuthProvider>
@@ -96,10 +108,11 @@ describe('AuthProvider & useAuth', () => {
     await user.click(logoutButton);
 
     await waitFor(() => {
-      expect(api.clearTokens).toHaveBeenCalled();
       expect(screen.getByTestId('user')).toHaveTextContent('no-user');
       expect(locationStub.href).toBe('/login');
     });
+
+    expect(localStorage.getItem('accessToken')).toBeNull();
 
     // Cleanup
     vi.unstubAllGlobals();

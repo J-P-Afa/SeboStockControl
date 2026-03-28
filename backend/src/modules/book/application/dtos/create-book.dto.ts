@@ -1,9 +1,25 @@
-import { IsString, IsOptional, IsNumber, IsEnum, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { EditionType, Condition, Status } from '@prisma/client';
 
 export class CreateBookDto {
   @IsString()
   title: string;
+
+  @IsOptional()
+  @IsString()
+  subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  author?: string;
 
   @IsOptional()
   @IsString()
@@ -13,6 +29,11 @@ export class CreateBookDto {
   @IsString()
   isbn10?: string;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  listPrice?: number;
+
   @IsEnum(EditionType)
   editionType: EditionType;
 
@@ -20,11 +41,34 @@ export class CreateBookDto {
   @IsString()
   volume?: string;
 
+  @IsOptional()
+  @IsString()
+  collection?: string;
+
   @IsEnum(Condition)
   condition: Condition;
 
   @IsEnum(Status)
   status: Status;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1400)
+  @Max(2100)
+  publicationYear?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  pages?: number;
+
+  @IsOptional()
+  @IsString()
+  synopsis?: string;
+
+  @IsOptional()
+  @IsString()
+  dimensions?: string;
 
   @IsNumber()
   @Min(0)
@@ -38,4 +82,8 @@ export class CreateBookDto {
 
   @IsInt()
   genreId: number;
+
+  @IsOptional()
+  @IsInt()
+  classificacaoId?: number;
 }

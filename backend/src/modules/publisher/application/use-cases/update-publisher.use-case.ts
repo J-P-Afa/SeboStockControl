@@ -18,7 +18,7 @@ export class UpdatePublisherUseCase {
     const publisher = await this.publisherRepo.findById(input.id);
 
     if (!publisher) {
-      return { success: false, error: 'Editora não encontrada' };
+      return { success: false, error: 'Publisher não encontrada' };
     }
 
     try {
@@ -34,7 +34,7 @@ export class UpdatePublisherUseCase {
 
       return { success: true, data: updated };
     } catch {
-      return { success: false, error: 'Erro ao atualizar editora' };
+      return { success: false, error: 'Erro ao atualizar publisher' };
     }
   }
 }

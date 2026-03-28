@@ -27,5 +27,6 @@ import { DeletePublisherUseCase } from './application/use-cases/delete-publisher
     UpdatePublisherUseCase,
     DeletePublisherUseCase,
   ],
+  exports: ['PublisherRepository'],
 })
 export class PublisherModule {}

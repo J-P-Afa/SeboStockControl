@@ -4,9 +4,9 @@ import type { GenreRepository } from '../../domain/genre.repository';
 @Injectable()
 export class DeleteGenreUseCase {
   constructor(
-  @Inject('GenreRepository')
-  private readonly genreRepo: GenreRepository
-) {}
+    @Inject('GenreRepository')
+    private readonly genreRepo: GenreRepository,
+  ) {}
 
   async execute(id: number) {
     const exists = await this.genreRepo.findById(id);

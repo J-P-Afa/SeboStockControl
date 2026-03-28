@@ -14,7 +14,7 @@ export class GenreEntity {
   }
 
   public static create(
-    props: Omit<GenreProps, 'id' | 'createdAt' | 'updatedAt'>
+    props: Omit<GenreProps, 'id' | 'createdAt' | 'updatedAt'>,
   ): GenreEntity {
     if (!props.description || props.description.trim().length === 0) {
       throw new Error('Nome do gênero é obrigatório');
@@ -31,11 +31,21 @@ export class GenreEntity {
     return new GenreEntity(props);
   }
 
-  get id(): number | undefined { return this.props.id; }
-  get description(): string { return this.props.description; }
-  get isActive(): boolean { return this.props.isActive; }
-  get createdAt(): Date | undefined { return this.props.createdAt; }
-  get updatedAt(): Date | undefined { return this.props.updatedAt; }
+  get id(): number | undefined {
+    return this.props.id;
+  }
+  get description(): string {
+    return this.props.description;
+  }
+  get isActive(): boolean {
+    return this.props.isActive;
+  }
+  get createdAt(): Date | undefined {
+    return this.props.createdAt;
+  }
+  get updatedAt(): Date | undefined {
+    return this.props.updatedAt;
+  }
 
   public toJSON(): GenreProps {
     return this.props;

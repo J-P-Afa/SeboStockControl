@@ -1,44 +1,48 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { BookRepository } from '../../domain/book.repository';
-import { EditionType, Condition, Status } from '@prisma/client';
+import { Result } from '../../../../common';
+import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
+import type { IBookRepository } from '../../domain/book.repository.interface';
+import { BookResponseDto } from '../dtos/book-response.dto';
+import { UpdateBookDto } from '../dtos/update-book.dto';
+import { Prisma } from '@prisma/client';
 
-interface UpdateBookInput {
-  title?: string;
-  isbn13?: string | null;
-  isbn10?: string | null;
-  editionType?: EditionType;
-  volume?: string | null;
-  condition?: Condition;
-  status?: Status;
-  weight?: number;
-  publisherId?: number;
-  languageId?: number;
-  genreId?: number;
-  isActive?: boolean;
-}
+import { UpdateBookParams } from '../../domain/book.repository.interface';
 
 @Injectable()
 export class UpdateBookUseCase {
   constructor(
-    @Inject('BookRepository')
-    private readonly bookRepo: BookRepository
+    @Inject(BOOK_REPOSITORY)
+    private readonly bookRepo: IBookRepository,
   ) {}
 
-  async execute(id: number, input: UpdateBookInput) {
+  async execute(
+    id: number,
+    input: UpdateBookDto,
+  ): Promise<Result<BookResponseDto>> {
     try {
       const existing = await this.bookRepo.findById(id);
 
       if (!existing) {
-        return { success: false, error: 'Livro não encontrado' };
+        return Result.fail('BOOK_NOT_FOUND', 'Book não encontrado');
       }
 
-      existing.update(input);
+      existing.update({
+        ...input,
+        listPrice: input.listPrice
+          ? new Prisma.Decimal(input.listPrice)
+          : undefined,
+        weight: input.weight ? new Prisma.Decimal(input.weight) : undefined,
+      });
 
-      const updated = await this.bookRepo.update(existing);
+      const updated = await this.bookRepo.update(
+        id,
+        existing.toJSON() as UpdateBookParams,
+      );
 
-      return { success: true, data: updated };
+      return Result.ok(BookResponseDto.fromEntity(updated));
     } catch (error) {
-      return { success: false, error: 'Erro ao atualizar livro' };
+      console.error(error);
+      return Result.fail('UPDATE_BOOK_ERROR', 'Erro ao atualizar book');
     }
   }
 }

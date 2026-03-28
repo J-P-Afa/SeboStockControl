@@ -18,7 +18,7 @@ export class UpdateLanguageUseCase {
     const language = await this.languageRepo.findById(input.id);
 
     if (!language) {
-      return { success: false, error: 'Idioma não encontrado' };
+      return { success: false, error: 'Language não encontrado' };
     }
 
     try {
@@ -34,7 +34,7 @@ export class UpdateLanguageUseCase {
 
       return { success: true, data: updated };
     } catch {
-      return { success: false, error: 'Erro ao atualizar idioma' };
+      return { success: false, error: 'Erro ao atualizar language' };
     }
   }
 }

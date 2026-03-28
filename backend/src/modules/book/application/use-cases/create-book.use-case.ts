@@ -1,30 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { BookRepository } from '../../domain/book.repository';
+import { Result } from '../../../../common';
+import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
+import type { IBookRepository } from '../../domain/book.repository.interface';
 import { BookEntity } from '../../domain/book.entity';
-import { EditionType, Condition, Status } from '@prisma/client';
-
-interface CreateBookInput {
-  title: string;
-  isbn13?: string;
-  isbn10?: string;
-  editionType: EditionType;
-  volume?: string;
-  condition: Condition;
-  status: Status;
-  weight: number;
-  publisherId: number;
-  languageId: number;
-  genreId: number;
-}
+import { BookResponseDto } from '../dtos/book-response.dto';
+import { CreateBookDto } from '../dtos/create-book.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CreateBookUseCase {
   constructor(
-    @Inject('BookRepository')
-    private readonly bookRepo: BookRepository
+    @Inject(BOOK_REPOSITORY)
+    private readonly bookRepo: IBookRepository,
   ) {}
 
-  async execute(input: CreateBookInput) {
+  async execute(input: CreateBookDto): Promise<Result<BookResponseDto>> {
     try {
       if (input.isbn13) {
         const existingByIsbn13 = await this.bookRepo.findByIsbn13AndCondition(
@@ -33,10 +23,10 @@ export class CreateBookUseCase {
         );
 
         if (existingByIsbn13) {
-          return {
-            success: false,
-            error: 'ISBN13 já existe para o mesmo estado do livro',
-          };
+          return Result.fail(
+            'ISBN13_ALREADY_EXISTS',
+            'ISBN13 já existe para o mesmo estado do book',
+          );
         }
       }
 
@@ -47,26 +37,26 @@ export class CreateBookUseCase {
         );
 
         if (existingByIsbn10) {
-          return {
-            success: false,
-            error: 'ISBN10 já existe para o mesmo estado do livro',
-          };
+          return Result.fail(
+            'ISBN10_ALREADY_EXISTS',
+            'ISBN10 já existe para o mesmo estado do book',
+          );
         }
       }
 
       const book = BookEntity.create({
         ...input,
-        isbn13: input.isbn13 ?? null,
-        isbn10: input.isbn10 ?? null,
-        volume: input.volume ?? null,
+        listPrice: input.listPrice ? new Prisma.Decimal(input.listPrice) : null,
+        weight: new Prisma.Decimal(input.weight ?? 0),
         isActive: true,
       });
 
-      const saved = await this.bookRepo.create(book);
+      const saved = await this.bookRepo.create(book.toJSON());
 
-      return { success: true, data: saved };
+      return Result.ok(BookResponseDto.fromEntity(saved));
     } catch (error) {
-      return { success: false, error: 'Erro ao criar livro' };
+      console.error(error);
+      return Result.fail('CREATE_BOOK_ERROR', 'Erro ao criar book');
     }
   }
 }

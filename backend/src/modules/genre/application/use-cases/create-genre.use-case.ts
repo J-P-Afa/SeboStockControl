@@ -9,9 +9,9 @@ interface CreateGenreInput {
 @Injectable()
 export class CreateGenreUseCase {
   constructor(
-  @Inject('GenreRepository')
-  private readonly genreRepo: GenreRepository
-) {}
+    @Inject('GenreRepository')
+    private readonly genreRepo: GenreRepository,
+  ) {}
 
   async execute(input: CreateGenreInput) {
     try {

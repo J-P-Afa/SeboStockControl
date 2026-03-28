@@ -6,18 +6,18 @@ import { RoleResponseDto, PermissionResponseDto } from '../dtos';
 
 @Injectable()
 export class ListRolesUseCase {
-    constructor(
-        @Inject(ROLE_REPOSITORY)
-        private readonly roleRepository: IRoleRepository,
-    ) { }
+  constructor(
+    @Inject(ROLE_REPOSITORY)
+    private readonly roleRepository: IRoleRepository,
+  ) {}
 
-    async execute(): Promise<Result<RoleResponseDto[]>> {
-        const entities = await this.roleRepository.findAll();
-        return Result.ok(entities.map(RoleResponseDto.fromEntity));
-    }
+  async execute(): Promise<Result<RoleResponseDto[]>> {
+    const entities = await this.roleRepository.findAll();
+    return Result.ok(entities.map(RoleResponseDto.fromEntity));
+  }
 
-    async listPermissions(): Promise<Result<PermissionResponseDto[]>> {
-        const entities = await this.roleRepository.findAllPermissions();
-        return Result.ok(entities.map(PermissionResponseDto.fromEntity));
-    }
+  async listPermissions(): Promise<Result<PermissionResponseDto[]>> {
+    const entities = await this.roleRepository.findAllPermissions();
+    return Result.ok(entities.map(PermissionResponseDto.fromEntity));
+  }
 }
