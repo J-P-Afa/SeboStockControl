@@ -1,157 +1,162 @@
-import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import * as bcrypt from 'bcrypt';
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
-const prisma = new PrismaClient({ adapter });
-
-const PERMISSIONS = [
-  { action: 'user:create', description: 'Create users' },
-  { action: 'user:read', description: 'View users' },
-  { action: 'user:update', description: 'Update users' },
-  { action: 'user:delete', description: 'Delete users' },
-  { action: 'book:create', description: 'Create books' },
-  { action: 'book:read', description: 'View books' },
-  { action: 'book:update', description: 'Update books' },
-  { action: 'book:delete', description: 'Delete books' },
-  { action: 'stock:read', description: 'View stock' },
-  { action: 'entrada:create', description: 'Register stock entries' },
-  { action: 'entrada:read', description: 'View stock entries' },
-  { action: 'saida:create', description: 'Register stock exits' },
-  { action: 'saida:read', description: 'View stock exits' },
-];
-
 async function main() {
-  // Permissions & Roles
-  const permissions = await Promise.all(
-    PERMISSIONS.map((p) =>
-      prisma.permission.upsert({
-        where: { action: p.action },
-        update: {},
-        create: p,
-      }),
-    ),
-  );
+  const connectionString = process.env.DATABASE_URL;
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool as any);
+  const prisma = new PrismaClient({ adapter });
 
+  console.log('--- Iniciando Seed ---');
+
+  // 1. Permissions
+  const permissions = [
+    { action: 'user:read', description: 'Ler usuários' },
+    { action: 'user:create', description: 'Criar usuários' },
+    { action: 'user:update', description: 'Atualizar usuários' },
+    { action: 'user:delete', description: 'Deletar usuários' },
+  ];
+
+  const createdPermissions = [];
+  for (const p of permissions) {
+    const perm = await prisma.permission.upsert({
+      where: { action: p.action },
+      update: { description: p.description },
+      create: p,
+    });
+    createdPermissions.push(perm);
+  }
+
+  // 2. Roles
   const adminRole = await prisma.role.upsert({
     where: { name: 'ADMIN' },
     update: {
-      permissions: { set: permissions.map((p) => ({ id: p.id })) },
+      permissions: {
+        set: createdPermissions.map((p) => ({ id: p.id })),
+      },
     },
     create: {
       name: 'ADMIN',
-      permissions: { connect: permissions.map((p) => ({ id: p.id })) },
+      permissions: {
+        connect: createdPermissions.map((p) => ({ id: p.id })),
+      },
     },
   });
 
-  await prisma.role.upsert({
-    where: { name: 'ESTOQUISTA' },
-    update: {},
-    create: { name: 'ESTOQUISTA' },
-  });
-
-  // Admin user
+  // 3. Usuário Admin
   const hashedPassword = await bcrypt.hash('admin123', 10);
+
+  // Criar admin@admin.com (conforme README)
   await prisma.user.upsert({
     where: { email: 'admin@admin.com' },
-    update: {},
+    update: {
+      password: hashedPassword,
+      roleId: adminRole.id,
+    },
     create: {
       name: 'Administrador',
       email: 'admin@admin.com',
       password: hashedPassword,
       roleId: adminRole.id,
+      isActive: true,
     },
   });
 
-  // Classificações
+  // 4. Classificações (com margem alvo)
   const classificacoes = [
-    'Ficção Científica', 'Fantasia', 'Romance', 'Terror', 'HQ / Quadrinhos',
-    'Literatura Brasileira', 'Literatura Estrangeira', 'Infantil', 'Didático',
-    'Autoajuda', 'Biografia', 'História', 'Filosofia', 'Ciências', 'Arte',
+    { descricao: 'Literatura Estrangeira', margemAlvo: 0.4 },
+    { descricao: 'Literatura Nacional', margemAlvo: 0.35 },
+    { descricao: 'Autoajuda', margemAlvo: 0.5 },
+    { descricao: 'Infantil', margemAlvo: 0.3 },
   ];
-  for (const descricao of classificacoes) {
+
+  for (const c of classificacoes) {
     await prisma.classificacao.upsert({
-      where: { descricao },
-      update: {},
-      create: { descricao },
+      where: { descricao: c.descricao },
+      update: { margemAlvo: c.margemAlvo },
+      create: { descricao: c.descricao, margemAlvo: c.margemAlvo },
     });
   }
 
-  // Editoras
-  const editoras = [
-    'Intrínseca', 'Rocco', 'Companhia das Letras', 'Record', 'Darkside',
-    'Panini', 'JBC', 'Aleph', 'Novo Século', 'LeYa', 'Objectiva',
+  // 5. Tipos de Saída
+  const tiposSaida = [
+    { descricao: 'Venda Loja Física', isVenda: true },
+    { descricao: 'Venda Marketplace', isVenda: true },
+    { descricao: 'Avaria/Perda', isVenda: false },
+    { descricao: 'Doação Realizada', isVenda: false },
   ];
-  for (const descricao of editoras) {
-    await prisma.editora.upsert({
-      where: { descricao },
-      update: {},
-      create: { descricao },
-    });
-  }
 
-  // Idiomas
-  const idiomas = ['Português', 'Inglês', 'Espanhol', 'Francês', 'Alemão', 'Japonês'];
-  for (const descricao of idiomas) {
-    await prisma.idioma.upsert({
-      where: { descricao },
-      update: {},
-      create: { descricao },
-    });
-  }
-
-  // Canais de Venda
-  const canaisVenda = [
-    { descricao: 'Shopee', comissao: 0.2000 },
-    { descricao: 'Mercado Livre', comissao: 0.1700 },
-    { descricao: 'Site Próprio', comissao: 0.0000 },
-    { descricao: 'Balcão / Presencial', comissao: 0.0000 },
-    { descricao: 'Instagram', comissao: 0.0000 },
-  ];
-  for (const canal of canaisVenda) {
-    await prisma.canalVenda.upsert({
-      where: { descricao: canal.descricao },
-      update: {},
-      create: canal,
-    });
-  }
-
-  // Formas de Pagamento
-  const formasPagamento = [
-    { descricao: 'Pix', taxa: 0.0000 },
-    { descricao: 'Dinheiro', taxa: 0.0000 },
-    { descricao: 'Cartão Débito', taxa: 0.0200 },
-    { descricao: 'Cartão Crédito 1x', taxa: 0.0360 },
-    { descricao: 'Cartão Crédito 2-6x', taxa: 0.0420 },
-    { descricao: 'Cartão Crédito 7-12x', taxa: 0.0480 },
-  ];
-  for (const forma of formasPagamento) {
-    await prisma.formaPagamento.upsert({
-      where: { descricao: forma.descricao },
-      update: {},
-      create: forma,
-    });
-  }
-
-  // Tipos de Saída — RULE [TPS-01]: apenas um com isVenda = TRUE
-  await prisma.tipoSaida.upsert({
-    where: { descricao: 'Venda' },
-    update: {},
-    create: { descricao: 'Venda', isVenda: true },
-  });
-  const tiposSaidaNaoVenda = ['Perda', 'Avaria', 'Doação', 'Devolução Fornecedor'];
-  for (const descricao of tiposSaidaNaoVenda) {
+  for (const t of tiposSaida) {
     await prisma.tipoSaida.upsert({
-      where: { descricao },
-      update: {},
-      create: { descricao, isVenda: false },
+      where: { descricao: t.descricao },
+      update: { isVenda: t.isVenda },
+      create: t,
     });
   }
 
-  console.log('✅ Seed completed: all lookup tables, roles, and admin user created.');
+  // 6. Canais de Venda (com comissões)
+  const canais = [
+    { descricao: 'Estante Virtual', comissaoFixa: 1.0, comissaoVariavel: 0.12 },
+    { descricao: 'Shopee', comissaoFixa: 3.0, comissaoVariavel: 0.18 },
+    { descricao: 'Mercado Livre', comissaoFixa: 5.0, comissaoVariavel: 0.16 },
+    { descricao: 'Loja Própria', comissaoFixa: 0, comissaoVariavel: 0 },
+  ];
+
+  for (const c of canais) {
+    await prisma.canalVenda.upsert({
+      where: { descricao: c.descricao },
+      update: { comissaoFixa: c.comissaoFixa, comissaoVariavel: c.comissaoVariavel },
+      create: c,
+    });
+  }
+
+  // 7. Formas de Pagamento (com taxas)
+  const formas = [
+    { descricao: 'Dinheiro', taxa: 0 },
+    { descricao: 'Pix', taxa: 0 },
+    { descricao: 'Cartão de Débito', taxa: 0.015 },
+    { descricao: 'Cartão de Crédito', taxa: 0.035 },
+  ];
+
+  for (const f of formas) {
+    await prisma.formaPagamento.upsert({
+      where: { descricao: f.descricao },
+      update: { taxa: f.taxa },
+      create: f,
+    });
+  }
+
+  // 8. Publishers, Languages, Genres
+  const publishers = ['Companhia das Letras', 'Record', 'Rocco', 'Arqueiro'];
+  for (const p of publishers) {
+    await prisma.publisher.upsert({
+      where: { description: p },
+      update: {},
+      create: { description: p },
+    });
+  }
+
+  const languages = ['Português', 'Inglês', 'Espanhol', 'Francês'];
+  for (const l of languages) {
+    await prisma.language.upsert({
+      where: { description: l },
+      update: {},
+      create: { description: l },
+    });
+  }
+
+  const genres = ['Ficção Científica', 'Fantasia', 'Suspense', 'História', 'Biografia'];
+  for (const g of genres) {
+    await prisma.genre.upsert({
+      where: { description: g },
+      update: {},
+      create: { description: g },
+    });
+  }
+
+  console.log('--- Seed Finalizado com Sucesso ---');
 }
 
 main()
@@ -159,4 +164,6 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(() => prisma.$disconnect());
+  .finally(async () => {
+    // Adapter do Prisma cuida do fechamento via pool se necessário
+  });
