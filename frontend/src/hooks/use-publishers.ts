@@ -16,16 +16,26 @@ import {
 } from '@/lib/api';
 import type {
   Publisher,
-  CreatePublisherData,
-  UpdatePublisherData,
+  PaginatedResponse,
+  CreatePublisherPayload,
+  UpdatePublisherPayload,
+  ListPublishersFilters,
 } from '@/types';
 
 export function usePublishers(
-  options?: Omit<UseQueryOptions<Publisher[], Error>, 'queryKey' | 'queryFn'>,
+  page: number = 1,
+  limit: number = 10,
+  sortBy?: string,
+  sortOrder?: 'asc' | 'desc',
+  filters?: ListPublishersFilters,
+  options?: Omit<
+    UseQueryOptions<PaginatedResponse<Publisher>, Error>,
+    'queryKey' | 'queryFn'
+  >
 ) {
-  return useQuery<Publisher[], Error>({
-    queryKey: ['publishers'],
-    queryFn: listPublishers,
+  return useQuery<PaginatedResponse<Publisher>, Error>({
+    queryKey: ['publishers', page, limit, sortBy, sortOrder, filters],
+    queryFn: () => listPublishers(page, limit, sortBy, sortOrder, filters),
     ...options,
   });
 }
@@ -34,9 +44,9 @@ export function useCreatePublisher() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreatePublisherData) => createPublisher(payload),
+    mutationFn: (payload: CreatePublisherPayload) => createPublisher(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['publishers'] });
+      queryClient.invalidateQueries({ queryKey: ['publishers'], exact: false });
       toast.success('Editora criada com sucesso');
     },
     onError: (error) => {
@@ -49,10 +59,16 @@ export function useUpdatePublisher() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: UpdatePublisherData }) =>
-      updatePublisher(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: UpdatePublisherPayload;
+    }) => updatePublisher(id, payload),
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['publishers'] });
+      queryClient.invalidateQueries({ queryKey: ['publishers'], exact: false });
       toast.success('Editora atualizada com sucesso');
     },
     onError: (error) => {
@@ -67,7 +83,7 @@ export function useDeletePublisher() {
   return useMutation({
     mutationFn: (id: number) => deletePublisher(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['publishers'] });
+      queryClient.invalidateQueries({ queryKey: ['publishers'], exact: false });
       toast.success('Editora excluída com sucesso');
     },
     onError: (error) => {

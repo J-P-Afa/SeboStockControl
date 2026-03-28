@@ -106,6 +106,7 @@ export class PrismaBookRepository implements IBookRepository {
         ...(filters?.condition && { condition: filters.condition }),
         ...(filters?.status && { status: filters.status }),
         ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
+        ...(filters?.inStock && { estoque: { quantidade: { gt: 0 } } }),
       },
       include: { estoque: { select: { quantidade: true } } },
       orderBy: { title: 'asc' },

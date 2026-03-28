@@ -15,6 +15,7 @@ import { TipoSaidaModule } from './modules/tipo-saida/tipo-saida.module';
 import { StockModule } from './modules/stock/stock.module';
 import { EntradaModule } from './modules/entrada/entrada.module';
 import { SaidaModule } from './modules/saida/saida.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
@@ -34,6 +35,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     StockModule,
     EntradaModule,
     SaidaModule,
+    DashboardModule,
   ],
   providers: [
     {

@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 
 import { CreatePublisherUseCase } from '../application/use-cases/create-publisher.use-case';
@@ -19,6 +20,7 @@ import { DeletePublisherUseCase } from '../application/use-cases/delete-publishe
 
 import { CreatePublisherDto } from '../application/dtos/create-publisher.dto';
 import { UpdatePublisherDto } from '../application/dtos/update-publisher.dto';
+import { ListPublishersQueryDto } from '../application/dtos/list-publishers-query.dto';
 
 @Controller('publishers')
 export class PublisherController {
@@ -48,8 +50,19 @@ export class PublisherController {
   }
 
   @Get()
-  async findAll() {
-    const result = await this.getPublishers.execute();
+  async list(@Query() query: ListPublishersQueryDto) {
+    const filters = {
+      search: query.search,
+      isActive: query.isActive,
+    };
+
+    const result = await this.getPublishers.execute(
+      query.page!,
+      query.limit!,
+      query.sortBy!,
+      query.sortOrder!,
+      filters,
+    );
 
     return {
       success: true,

@@ -11,7 +11,16 @@ export interface EstoqueWithBook extends EstoqueEntity {
   };
 }
 
+export interface EstoqueHistoryItem {
+  data: Date;
+  tipoTransacao: string;
+  quantidade: number;
+  observacao?: string | null;
+  responsavel: string;
+}
+
 export interface IStockRepository {
   findByBookId(bookId: number): Promise<EstoqueWithBook | null>;
   findAll(): Promise<EstoqueWithBook[]>;
+  getHistory(bookId: number): Promise<EstoqueHistoryItem[]>;
 }

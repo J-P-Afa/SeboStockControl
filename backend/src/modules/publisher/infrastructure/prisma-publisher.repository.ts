@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import { PaginatedResult } from '../../../common';
 import { PrismaService } from '../../database';
 import { PublisherRepository } from '../domain/publisher.repository';
 import { PublisherEntity } from '../domain/publisher.entity';
@@ -60,10 +62,50 @@ export class PrismaPublisherRepository implements PublisherRepository {
     return this.toEntity(found);
   }
 
-  async findAll(): Promise<PublisherEntity[]> {
-    const list = await this.prisma.publisher.findMany();
+  private buildWhereClause(filters?: { search?: string; isActive?: boolean }): Prisma.PublisherWhereInput {
+    const where: Prisma.PublisherWhereInput = {};
 
-    return list.map((item) => this.toEntity(item));
+    if (filters?.search) {
+      where.description = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
+    }
+
+    if (filters?.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+
+    return where;
+  }
+
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+    filters?: { search?: string; isActive?: boolean },
+  ): Promise<PaginatedResult<PublisherEntity>> {
+    const skip = (page - 1) * limit;
+    const where = this.buildWhereClause(filters);
+
+    const [items, total] = await Promise.all([
+      this.prisma.publisher.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+      }),
+      this.prisma.publisher.count({ where }),
+    ]);
+
+    return {
+      items: items.map((item) => this.toEntity(item)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async update(publisher: PublisherEntity): Promise<PublisherEntity> {

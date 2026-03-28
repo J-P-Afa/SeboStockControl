@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import { PaginatedResult } from '../../../common';
 import { PrismaService } from '../../database';
 import { LanguageRepository } from '../domain/language.repository';
 import { LanguageEntity } from '../domain/language.entity';
-
 @Injectable()
 export class PrismaLanguageRepository implements LanguageRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -58,12 +59,51 @@ export class PrismaLanguageRepository implements LanguageRepository {
     return this.toEntity(found);
   }
 
-  async findAll(): Promise<LanguageEntity[]> {
-    const list = await this.prisma.language.findMany();
+  private buildWhereClause(filters?: { search?: string; isActive?: boolean }): Prisma.LanguageWhereInput {
+    const where: Prisma.LanguageWhereInput = {};
 
-    return list.map((item) => this.toEntity(item));
+    if (filters?.search) {
+      where.description = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
+    }
+
+    if (filters?.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+
+    return where;
   }
 
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+    filters?: { search?: string; isActive?: boolean },
+  ): Promise<PaginatedResult<LanguageEntity>> {
+    const skip = (page - 1) * limit;
+    const where = this.buildWhereClause(filters);
+
+    const [items, total] = await Promise.all([
+      this.prisma.language.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+      }),
+      this.prisma.language.count({ where }),
+    ]);
+
+    return {
+      items: items.map((item) => this.toEntity(item)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
   async update(language: LanguageEntity): Promise<LanguageEntity> {
     const updated = await this.prisma.language.update({
       where: { id: language.id },

@@ -64,6 +64,7 @@ export class BookController {
     @Query('status') status?: Status,
     @Query('volume') volume?: string,
     @Query('collection') collection?: string,
+    @Query('inStock') inStock?: string,
   ) {
     const result = await this.listBooksUseCase.execute({
       id: id ? Number(id) : undefined,
@@ -78,6 +79,7 @@ export class BookController {
       status,
       volume,
       collection,
+      inStock: inStock !== undefined ? inStock === 'true' : undefined,
     });
     return { success: true, data: result.data };
   }

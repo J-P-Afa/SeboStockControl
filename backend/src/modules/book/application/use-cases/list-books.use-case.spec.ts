@@ -79,4 +79,14 @@ describe('ListBooksUseCase', () => {
     expect(result.success).toBe(true);
     expect(bookRepository.findAll).toHaveBeenCalledWith(filters);
   });
+
+  it('should list books with inStock filter', async () => {
+    const filters: BookFilters = { inStock: true };
+    bookRepository.findAll.mockResolvedValue([mockBook]);
+
+    const result = await useCase.execute(filters);
+
+    expect(result.success).toBe(true);
+    expect(bookRepository.findAll).toHaveBeenCalledWith(filters);
+  });
 });

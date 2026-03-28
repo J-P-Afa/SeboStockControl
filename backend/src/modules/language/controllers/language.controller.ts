@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 
 import { CreateLanguageUseCase } from '../application/use-cases/create-language.use-case';
@@ -19,6 +20,7 @@ import { DeleteLanguageUseCase } from '../application/use-cases/delete-language.
 
 import { CreateLanguageDto } from '../application/dtos/create-language.dto';
 import { UpdateLanguageDto } from '../application/dtos/update-language.dto';
+import { ListLanguagesQueryDto } from '../application/dtos/list-languages-query.dto';
 
 @Controller('languages')
 export class LanguageController {
@@ -48,8 +50,19 @@ export class LanguageController {
   }
 
   @Get()
-  async findAll() {
-    const result = await this.getLanguages.execute();
+  async list(@Query() query: ListLanguagesQueryDto) {
+    const filters = {
+      search: query.search,
+      isActive: query.isActive,
+    };
+
+    const result = await this.getLanguages.execute(
+      query.page!,
+      query.limit!,
+      query.sortBy!,
+      query.sortOrder!,
+      filters,
+    );
 
     return {
       success: true,

@@ -6,13 +6,6 @@ export interface Language {
   updatedAt: string;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
 
 export interface CreateLanguagePayload {
   description: string;

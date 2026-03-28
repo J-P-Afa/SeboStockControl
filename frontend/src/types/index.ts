@@ -17,11 +17,11 @@ export type {
 } from './books';
 export * from './role';
 export * from './book-enums';
-export type { Genre, CreateGenreData, UpdateGenreData } from './genre';
-export * from './genre';
+export type { Genre } from './genre';
 export * from './language';
 export * from './publisher';
 export * from './tipo-saida';
 export * from './canal-venda';
 export * from './forma-pagamento';
 export * from './saida';
+export * from './estoques';

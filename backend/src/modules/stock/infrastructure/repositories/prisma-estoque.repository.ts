@@ -73,4 +73,35 @@ export class PrismaEstoqueRepository implements IStockRepository {
       },
     }) as EstoqueWithBook;
   }
+
+  async getHistory(bookId: number) {
+    const entradas = await this.prisma.entrada.findMany({
+      where: { bookId },
+      include: { usuario: true },
+    });
+
+    const saidas = await this.prisma.saida.findMany({
+      where: { bookId },
+      include: { usuario: true, tipoSaida: true },
+    });
+
+    const historyItems = [
+      ...entradas.map(e => ({
+        data: e.dataEntrada,
+        tipoTransacao: 'Entrada', // Idealmente pode ter tipo_entrada no futuro
+        quantidade: e.quantidade, // Positivo
+        observacao: e.observacao,
+        responsavel: e.usuario.name,
+      })),
+      ...saidas.map(s => ({
+        data: s.dataSaida,
+        tipoTransacao: s.tipoSaida.descricao,
+        quantidade: -Math.abs(s.quantidade), // Negativo para abater o saldo
+        observacao: s.observacao,
+        responsavel: s.usuario.name,
+      })),
+    ];
+
+    return historyItems.sort((a, b) => a.data.getTime() - b.data.getTime());
+  }
 }

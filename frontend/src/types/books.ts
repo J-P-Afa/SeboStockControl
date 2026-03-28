@@ -80,4 +80,5 @@ export interface ListBooksFilters {
   condition?: Condition;
   status?: Status;
   isActive?: boolean;
+  inStock?: boolean;
 }

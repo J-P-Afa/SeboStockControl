@@ -43,10 +43,8 @@ export {
   getLastCost,
   getBookStock,
 } from './entradas.api';
-export {
-  bulkCreateSaida,
-  listSaidas,
-} from './saidas.api';
+export * from './saidas.api';
+export * from './estoques.api';
 export { listTiposSaida } from './tipo-saida.api';
 export { listCanaisVenda } from './canal-venda.api';
 export { listFormasPagamento } from './forma-pagamento.api';

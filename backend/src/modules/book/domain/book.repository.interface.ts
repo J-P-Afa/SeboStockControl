@@ -69,6 +69,8 @@ export interface BookFilters {
   condition?: Condition;
   status?: Status;
   isActive?: boolean;
+  /** @ai-context Filtro por itens que possuem estoque positivo */
+  inStock?: boolean;
 }
 
 export interface IBookRepository {

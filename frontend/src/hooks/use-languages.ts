@@ -16,16 +16,26 @@ import {
 } from '@/lib/api';
 import type {
   Language,
-  CreateLanguageData,
-  UpdateLanguageData,
+  PaginatedResponse,
+  CreateLanguagePayload,
+  UpdateLanguagePayload,
+  ListLanguagesFilters,
 } from '@/types';
 
 export function useLanguages(
-  options?: Omit<UseQueryOptions<Language[], Error>, 'queryKey' | 'queryFn'>,
+  page: number = 1,
+  limit: number = 10,
+  sortBy?: string,
+  sortOrder?: 'asc' | 'desc',
+  filters?: ListLanguagesFilters,
+  options?: Omit<
+    UseQueryOptions<PaginatedResponse<Language>, Error>,
+    'queryKey' | 'queryFn'
+  >
 ) {
-  return useQuery<Language[], Error>({
-    queryKey: ['languages'],
-    queryFn: listLanguages,
+  return useQuery<PaginatedResponse<Language>, Error>({
+    queryKey: ['languages', page, limit, sortBy, sortOrder, filters],
+    queryFn: () => listLanguages(page, limit, sortBy, sortOrder, filters),
     ...options,
   });
 }
@@ -34,9 +44,9 @@ export function useCreateLanguage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateLanguageData) => createLanguage(payload),
+    mutationFn: (payload: CreateLanguagePayload) => createLanguage(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['languages'] });
+      queryClient.invalidateQueries({ queryKey: ['languages'], exact: false });
       toast.success('Idioma criado com sucesso');
     },
     onError: (error) => {
@@ -49,10 +59,15 @@ export function useUpdateLanguage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: UpdateLanguageData }) =>
-      updateLanguage(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: UpdateLanguagePayload;
+    }) => updateLanguage(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['languages'] });
+      queryClient.invalidateQueries({ queryKey: ['languages'], exact: false });
       toast.success('Idioma atualizado com sucesso');
     },
     onError: (error) => {
@@ -67,7 +82,7 @@ export function useDeleteLanguage() {
   return useMutation({
     mutationFn: (id: number) => deleteLanguage(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['languages'] });
+      queryClient.invalidateQueries({ queryKey: ['languages'], exact: false });
       toast.success('Idioma excluído com sucesso');
     },
     onError: (error) => {
