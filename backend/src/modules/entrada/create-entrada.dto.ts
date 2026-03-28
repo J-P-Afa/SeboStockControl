@@ -2,20 +2,26 @@ import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID
 
 export class CreateEntradaDto {
   @IsInt() @IsNotEmpty()
-  livroId: number;
+  bookId: number;
 
   @IsUUID() @IsNotEmpty()
   usuarioId: string;
 
   @IsDateString()
-  data: string;
+  dataEntrada: string;
 
   @IsInt() @Min(1)
   quantidade: number;
 
   /** Custo unitário. 0 = doação recebida. */
   @IsNumber() @Min(0)
-  valorUnitario: number;
+  custoUnitario: number;
+
+  @IsOptional() @IsString()
+  fornecedor?: string;
+
+  @IsOptional() @IsString()
+  numeroNotaFiscal?: string;
 
   @IsOptional() @IsString()
   observacao?: string;
