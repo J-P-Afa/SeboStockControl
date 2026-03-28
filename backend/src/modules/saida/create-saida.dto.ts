@@ -2,7 +2,7 @@ import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID
 
 export class CreateSaidaDto {
   @IsInt() @IsNotEmpty()
-  livroId: number;
+  bookId: number;
 
   @IsUUID() @IsNotEmpty()
   usuarioId: string;
@@ -19,7 +19,7 @@ export class CreateSaidaDto {
   formaPagamentoId?: number;
 
   @IsDateString()
-  data: string;
+  dataSaida: string;
 
   @IsInt() @Min(1)
   quantidade: number;
