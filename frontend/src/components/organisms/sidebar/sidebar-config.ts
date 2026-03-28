@@ -1,4 +1,4 @@
-import { Users, ShieldCheck, BookOpen, type LucideIcon } from 'lucide-react';
+import { Users, ShieldCheck, BookOpen, Tag, Globe, Archive, type LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -22,5 +22,20 @@ export const menuItems: MenuItem[] = [
     label: 'Livros',
     href: '/books',
     icon: BookOpen,
+  },
+  {
+    label: 'Gêneros',
+    href: '/genres',
+    icon: Tag,
+  },
+  {
+    label: 'Idiomas',
+    href: '/languages',
+    icon: Globe,
+  },
+  {
+    label: 'Editoras',
+    href: '/publishers',
+    icon: Archive,
   },
 ];

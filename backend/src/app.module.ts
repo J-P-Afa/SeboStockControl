@@ -5,6 +5,9 @@ import { DatabaseModule } from './modules/database';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { BookModule } from './modules/book/book.module';
+import { GenreModule } from './modules/genre/genre.module';
+import { LanguageModule } from './modules/language/language.module';
+import { PublisherModule } from './modules/publisher/publisher.module';
 import { JwtAuthGuard } from './common';
 
 @Module({
@@ -13,7 +16,10 @@ import { JwtAuthGuard } from './common';
     DatabaseModule,
     AuthModule,
     UserModule,
-    BookModule
+    BookModule,
+    GenreModule,
+    LanguageModule,
+    PublisherModule
   ],
   providers: [
     {

@@ -12,6 +12,21 @@ enum ThemePreference {
   DARK
 }
 
+enum EditionType{
+  normal
+  variante
+}
+
+enum Condition{
+  novo
+  usado
+}
+
+enum Status{
+  completo
+  em_lancamento
+}
+
 model User {
   id              String           @id @default(uuid())
   name            String
@@ -50,11 +65,61 @@ model Permission {
 }
 
 model Book {
-  id          Int      @id @default(autoincrement())
-  title       String
-  author      String
-  stock       Int      @default(0)
-  price       Float
-  publisher   String?
-  edition     String?
+  id              Int               @id @default(autoincrement())
+  title           String            @db.VarChar(255)
+  isbn13          String?           @db.Char(13)
+  isbn10          String?           @db.Char(10)
+  editionType     EditionType       @default(normal)
+  volume          String?           @db.VarChar(50)
+  condition       Condition
+  status          Status
+  weight          Decimal           @db.Decimal(8,2)
+  publisher       Publisher         @relation(fields: [publisherId], references: [id])
+  publisherId     Int
+  language        Language          @relation(fields: [languageId], references: [id])
+  languageId      Int
+  genre           Genre             @relation(fields: [genreId], references: [id])
+  genreId         Int
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([title])
+  @@index([isbn13])
+  @@index([isbn10])
+  @@index([genreId])
+  @@map("books")
+}
+
+model Genre {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(100)
+  isActive    Boolean   @default(true)
+  books       Book[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("genres")
+}
+
+model Publisher {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(150)
+  isActive    Boolean   @default(true)
+  books       Book[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("publishers")
+}
+
+model Language {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(50)
+  isActive    Boolean   @default(true)
+  books       Book[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("languages")
 }

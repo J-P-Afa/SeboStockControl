@@ -32,6 +32,9 @@ describe('Auth (e2e)', () => {
 describe('Book (e2e)', () => {
   let app: INestApplication<App>;
   let authToken: string;
+  let genreId: number;
+  let languageId: number;
+  let publisherId: number;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -41,22 +44,43 @@ describe('Book (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-);
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
     await app.init();
 
     const loginRes = await request(app.getHttpServer())
-    .post('/api/auth/login')
-    .send({
-      email: 'admin@admin.com',
-      password: 'admin123',
-    });
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@admin.com',
+        password: 'admin123',
+      });
 
-  authToken = loginRes.body.accessToken;
+    authToken = loginRes.body.accessToken;
+
+    const genreRes = await request(app.getHttpServer())
+      .post('/api/genres')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Fantasy' });
+
+    genreId = genreRes.body.genre.id;
+
+    const languageRes = await request(app.getHttpServer())
+      .post('/api/languages')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'English' });
+
+    languageId = languageRes.body.language.id;
+
+    const publisherRes = await request(app.getHttpServer())
+      .post('/api/publishers')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Allen & Unwin' });
+
+    publisherId = publisherRes.body.publisher.id;
   });
 
   afterAll(async () => {
@@ -67,11 +91,13 @@ describe('Book (e2e)', () => {
     it('should add a book with valid data', () => {
       const bookData = {
         title: 'The Lord of the Rings',
-        author: 'J.R.R. Tolkien',
-        stock: 5,
-        price: 29.99,
-        publisher: 'Allen & Unwin',
-        edition: '1st',
+        editionType: 'normal',
+        condition: 'novo',
+        status: 'completo',
+        weight: 1.5,
+        publisherId,
+        languageId,
+        genreId,
       };
 
       return request(app.getHttpServer())
@@ -81,20 +107,27 @@ describe('Book (e2e)', () => {
         .expect(201)
         .expect((res) => {
           expect(res.body.success).toBe(true);
-          expect(res.body.book).toBeDefined();
-          expect(res.body.book.title).toBe(bookData.title);
-          expect(res.body.book.author).toBe(bookData.author);
-          expect(res.body.book.stock).toBe(bookData.stock);
-          expect(res.body.book.price).toBe(bookData.price);
+          expect(res.body.data).toBeDefined();
+          expect(res.body.data.title).toBe(bookData.title);
+          expect(res.body.data.editionType).toBe(bookData.editionType);
+          expect(res.body.data.condition).toBe(bookData.condition);
+          expect(res.body.data.status).toBe(bookData.status);
+          expect(res.body.data.publisherId).toBe(bookData.publisherId);
+          expect(res.body.data.languageId).toBe(bookData.languageId);
+          expect(res.body.data.genreId).toBe(bookData.genreId);
         });
     });
 
     it('should add a book with minimal required data', () => {
       const bookData = {
         title: 'Clean Code',
-        author: 'Robert C. Martin',
-        stock: 3,
-        price: 39.99,
+        editionType: 'normal',
+        condition: 'novo',
+        status: 'completo',
+        weight: 1.2,
+        publisherId,
+        languageId,
+        genreId,
       };
 
       return request(app.getHttpServer())
@@ -104,18 +137,21 @@ describe('Book (e2e)', () => {
         .expect(201)
         .expect((res) => {
           expect(res.body.success).toBe(true);
-          expect(res.body.book).toBeDefined();
-          expect(res.body.book.id).toBeDefined();
-          expect(res.body.book.title).toBe(bookData.title);
-          expect(res.body.book.author).toBe(bookData.author);
+          expect(res.body.data).toBeDefined();
+          expect(res.body.data.id).toBeDefined();
+          expect(res.body.data.title).toBe(bookData.title);
         });
     });
 
     it('should reject book with missing title', () => {
       const bookData = {
-        author: 'J.K. Rowling',
-        stock: 10,
-        price: 24.99,
+        editionType: 'normal',
+        condition: 'novo',
+        status: 'completo',
+        weight: 1.0,
+        publisherId,
+        languageId,
+        genreId,
       };
 
       return request(app.getHttpServer())
@@ -125,11 +161,15 @@ describe('Book (e2e)', () => {
         .expect(400);
     });
 
-    it('should reject book with missing author', () => {
+    it('should reject book with missing publisherId', () => {
       const bookData = {
         title: 'Harry Potter',
-        stock: 10,
-        price: 24.99,
+        editionType: 'normal',
+        condition: 'novo',
+        status: 'completo',
+        weight: 1.0,
+        languageId,
+        genreId,
       };
 
       return request(app.getHttpServer())
@@ -139,41 +179,16 @@ describe('Book (e2e)', () => {
         .expect(400);
     });
 
-    it('should reject book with missing price', () => {
-      const bookData = {
-        title: 'The Hobbit',
-        author: 'J.R.R. Tolkien',
-        stock: 5,
-      };
-
-      return request(app.getHttpServer())
-        .post('/api/books')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(bookData)
-        .expect(400);
-    });
-
-    it('should reject book with negative price', () => {
+    it('should reject book with negative weight', () => {
       const bookData = {
         title: 'Dune',
-        author: 'Frank Herbert',
-        stock: 2,
-        price: -15.99,
-      };
-
-      return request(app.getHttpServer())
-        .post('/api/books')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(bookData)
-        .expect(400);
-    });
-
-    it('should reject book with negative stock', () => {
-      const bookData = {
-        title: 'Foundation',
-        author: 'Isaac Asimov',
-        stock: -1,
-        price: 19.99,
+        editionType: 'normal',
+        condition: 'novo',
+        status: 'completo',
+        weight: -10.5,
+        publisherId,
+        languageId,
+        genreId,
       };
 
       return request(app.getHttpServer())
@@ -192,7 +207,7 @@ describe('Book (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.success).toBe(true);
-          expect(Array.isArray(res.body.books)).toBe(true);
+          expect(Array.isArray(res.body.data)).toBe(true);
         });
     });
   });
@@ -201,12 +216,15 @@ describe('Book (e2e)', () => {
     let bookId: number;
 
     beforeEach(async () => {
-      // Create a book first to test deletion
       const bookData = {
         title: 'Delete Test Book',
-        author: 'Test Author',
-        stock: 5,
-        price: 19.99,
+        editionType: 'normal',
+        condition: 'novo',
+        status: 'completo',
+        weight: 1.0,
+        publisherId,
+        languageId,
+        genreId,
       };
 
       const response = await request(app.getHttpServer())
@@ -214,7 +232,7 @@ describe('Book (e2e)', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send(bookData);
 
-      bookId = response.body.book.id;
+      bookId = response.body.data.id;
     });
 
     it('should successfully delete an existing book', () => {
@@ -241,13 +259,11 @@ describe('Book (e2e)', () => {
     });
 
     it('should handle deletion of already deleted book', async () => {
-      // First deletion
       await request(app.getHttpServer())
         .delete(`/api/books/${bookId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
-      // Second deletion should fail
       return request(app.getHttpServer())
         .delete(`/api/books/${bookId}`)
         .set('Authorization', `Bearer ${authToken}`)
@@ -262,7 +278,317 @@ describe('Book (e2e)', () => {
       return request(app.getHttpServer())
         .delete('/api/books/invalid-id')
         .set('Authorization', `Bearer ${authToken}`)
-        .expect(200);
+        .expect(400);
     });
+
+    it('should allow same ISBN for different conditions', async () => {
+  const isbn = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(-13);
+
+  const book1 = await request(app.getHttpServer())
+    .post('/api/books')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      title: 'Book Novo',
+      isbn13: isbn,
+      editionType: 'normal',
+      condition: 'novo',
+      status: 'completo',
+      weight: 1,
+      publisherId,
+      languageId,
+      genreId,
+    })
+    .expect(201);
+
+  const book2 = await request(app.getHttpServer())
+    .post('/api/books')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      title: 'Book Usado',
+      isbn13: isbn,
+      editionType: 'normal',
+      condition: 'usado',
+      status: 'completo',
+      weight: 1,
+      publisherId,
+      languageId,
+      genreId,
+    })
+    .expect(201);
+
+  expect(book1.body.success).toBe(true);
+  expect(book2.body.success).toBe(true);
+});
+
+it('should NOT allow duplicate ISBN for same condition', async () => {
+  const isbn = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(-13);
+
+  await request(app.getHttpServer())
+    .post('/api/books')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      title: 'Book 1',
+      isbn13: isbn,
+      editionType: 'normal',
+      condition: 'novo',
+      status: 'completo',
+      weight: 1,
+      publisherId,
+      languageId,
+      genreId,
+    })
+    .expect(201);
+
+  await request(app.getHttpServer())
+    .post('/api/books')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      title: 'Book 2',
+      isbn13: isbn,
+      editionType: 'normal',
+      condition: 'novo',
+      status: 'completo',
+      weight: 1,
+      publisherId,
+      languageId,
+      genreId,
+    })
+      .expect(400);
+    });
+
+    it('should filter books by title', async () => {
+  await request(app.getHttpServer())
+    .post('/api/books')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      title: 'Unique Filter Book',
+      editionType: 'normal',
+      condition: 'novo',
+      status: 'completo',
+      weight: 1,
+      publisherId,
+      languageId,
+      genreId,
+    });
+
+  const res = await request(app.getHttpServer())
+    .get('/api/books?title=Unique')
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(200);
+
+  expect(res.body.data.length).toBeGreaterThan(0);
+  expect(res.body.data[0].title).toContain('Unique');
+});
+
+it('should reject invalid enum values', () => {
+  return request(app.getHttpServer())
+    .post('/api/books')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      title: 'Invalid Enum',
+      editionType: 'INVALID',
+      condition: 'novo',
+      status: 'completo',
+      weight: 1,
+      publisherId,
+      languageId,
+      genreId,
+    })
+    .expect(400);
+});
+
+  });
+});
+
+
+describe('Genre (e2e)', () => {
+  let app: INestApplication<App>;
+  let authToken: string;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@admin.com',
+        password: 'admin123',
+      });
+
+    authToken = loginRes.body.accessToken;
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should create a genre', () => {
+    return request(app.getHttpServer())
+      .post('/api/genres')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Science Fiction' })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(res.body.genre).toBeDefined();
+        expect(res.body.genre.description).toBe('Science Fiction');
+      });
+  });
+
+  it('should list genres', async () => {
+    await request(app.getHttpServer())
+      .post('/api/genres')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Mystery' });
+
+    return request(app.getHttpServer())
+      .get('/api/genres')
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(Array.isArray(res.body.genres)).toBe(true);
+      });
+  });
+});
+
+describe('Language (e2e)', () => {
+  let app: INestApplication<App>;
+  let authToken: string;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@admin.com',
+        password: 'admin123',
+      });
+
+    authToken = loginRes.body.accessToken;
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should create a language', () => {
+    return request(app.getHttpServer())
+      .post('/api/languages')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Portuguese' })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(res.body.language).toBeDefined();
+        expect(res.body.language.description).toBe('Portuguese');
+      });
+  });
+
+  it('should list languages', async () => {
+    await request(app.getHttpServer())
+      .post('/api/languages')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Spanish' });
+
+    return request(app.getHttpServer())
+      .get('/api/languages')
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(Array.isArray(res.body.languages)).toBe(true);
+      });
+  });
+});
+
+describe('Publisher (e2e)', () => {
+  let app: INestApplication<App>;
+  let authToken: string;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@admin.com',
+        password: 'admin123',
+      });
+
+    authToken = loginRes.body.accessToken;
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should create a publisher', () => {
+    return request(app.getHttpServer())
+      .post('/api/publishers')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'Penguin Random House' })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(res.body.publisher).toBeDefined();
+        expect(res.body.publisher.description).toBe('Penguin Random House');
+      });
+  });
+
+  it('should list publishers', async () => {
+    await request(app.getHttpServer())
+      .post('/api/publishers')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ description: 'HarperCollins' });
+
+    return request(app.getHttpServer())
+      .get('/api/publishers')
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.success).toBe(true);
+        expect(Array.isArray(res.body.publishers)).toBe(true);
+      });
   });
 });
