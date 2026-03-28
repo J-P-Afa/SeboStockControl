@@ -12,7 +12,7 @@ export async function createGenre(payload: CreateGenreData): Promise<Genre> {
 }
 
 export async function updateGenre(id: number, payload: UpdateGenreData): Promise<Genre> {
-  const { data } = await apiClient.patch<ApiResponse<Genre>>(`/genres/${id}`, payload);
+  const { data } = await apiClient.put<ApiResponse<Genre>>(`/genres/${id}`, payload);
   return data.data;
 }
 
