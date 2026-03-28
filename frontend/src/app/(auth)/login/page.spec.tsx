@@ -5,6 +5,7 @@ import LoginPage from './page';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { axe } from 'jest-axe';
 
 // Mock dependencies
 vi.mock('next/navigation', () => ({
@@ -30,6 +31,12 @@ describe('LoginPage Organism', () => {
     vi.clearAllMocks();
     (useRouter as any).mockReturnValue({ push: mockPush });
     (useAuth as any).mockReturnValue({ login: mockLogin });
+  });
+
+  it('should have no accessibility violations', async () => {
+    const { container } = render(<LoginPage />);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render the login form', () => {
