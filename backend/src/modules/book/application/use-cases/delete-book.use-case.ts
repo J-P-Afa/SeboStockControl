@@ -1,26 +1,29 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { BookRepository } from '../../domain/book.repository';
+import { Result } from '../../../../common';
+import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
+import type { IBookRepository } from '../../domain/book.repository.interface';
 
 @Injectable()
 export class DeleteBookUseCase {
   constructor(
-    @Inject('BookRepository')
-    private readonly bookRepo: BookRepository
+    @Inject(BOOK_REPOSITORY)
+    private readonly bookRepo: IBookRepository
   ) {}
 
-  async execute(id: number) {
+  async execute(id: number): Promise<Result<void>> {
     try {
       const existing = await this.bookRepo.findById(id);
 
       if (!existing) {
-        return { success: false, error: 'Livro não encontrado' };
+        return Result.fail('BOOK_NOT_FOUND', 'Book não encontrado');
       }
 
       await this.bookRepo.delete(id);
 
-      return { success: true };
+      return Result.ok();
     } catch (error) {
-      return { success: false, error: 'Erro ao excluir livro' };
+      console.error(error);
+      return Result.fail('DELETE_BOOK_ERROR', 'Erro ao excluir book');
     }
   }
 }
