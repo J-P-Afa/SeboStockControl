@@ -27,7 +27,11 @@ export class UpdateGenreUseCase {
       }
 
       if (input.isActive !== undefined) {
-        input.isActive ? genre.activate() : genre.deactivate();
+        if (input.isActive) {
+          genre.activate();
+        } else {
+          genre.deactivate();
+        }
       }
 
       const updated = await this.genreRepo.update(genre);

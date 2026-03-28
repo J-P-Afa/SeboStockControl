@@ -27,7 +27,11 @@ export class UpdateLanguageUseCase {
       }
 
       if (input.isActive !== undefined) {
-        input.isActive ? language.activate() : language.deactivate();
+        if (input.isActive) {
+          language.activate();
+        } else {
+          language.deactivate();
+        }
       }
 
       const updated = await this.languageRepo.update(language);

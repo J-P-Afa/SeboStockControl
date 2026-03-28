@@ -13,11 +13,11 @@ export class ListRolesUseCase {
 
   async execute(): Promise<Result<RoleResponseDto[]>> {
     const entities = await this.roleRepository.findAll();
-    return Result.ok(entities.map(RoleResponseDto.fromEntity));
+    return Result.ok(entities.map((e) => RoleResponseDto.fromEntity(e)));
   }
 
   async listPermissions(): Promise<Result<PermissionResponseDto[]>> {
     const entities = await this.roleRepository.findAllPermissions();
-    return Result.ok(entities.map(PermissionResponseDto.fromEntity));
+    return Result.ok(entities.map((e) => PermissionResponseDto.fromEntity(e)));
   }
 }

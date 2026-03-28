@@ -23,7 +23,7 @@ export class CreateGenreUseCase {
       const saved = await this.genreRepo.create(genre);
 
       return { success: true, data: saved };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Erro ao criar gênero' };
     }
   }

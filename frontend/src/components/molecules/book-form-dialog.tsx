@@ -165,7 +165,7 @@ export function BookFormDialog({
       } else {
         toast.info('Nenhum dado encontrado na Open Library para este ISBN');
       }
-    } catch (error) {
+    } catch {
       toast.error('Erro ao buscar dados na Open Library');
     } finally {
       setIsFetching(false);

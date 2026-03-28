@@ -23,7 +23,7 @@ export class CreateLanguageUseCase {
       const saved = await this.languageRepo.create(language);
 
       return { success: true, data: saved };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Erro ao criar language' };
     }
   }

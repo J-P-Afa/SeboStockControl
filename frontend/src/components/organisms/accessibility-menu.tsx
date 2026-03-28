@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Accessibility, Type, Contrast, X } from 'lucide-react';
+import { Accessibility, Type, X } from 'lucide-react';
 import { useAccessibilityStore } from '@/hooks/use-accessibility-store';
 import { Button } from '@/components/atoms/button';
 import { Switch } from '@/components/atoms/switch';
