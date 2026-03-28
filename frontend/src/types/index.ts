@@ -15,7 +15,21 @@ export type {
   ListBooksFilters,
 } from './books';
 export * from './role';
-export type { Genre, CreateGenreData, UpdateGenreData } from './genre';
-export * from './genre';
-export * from './language';
-export * from './publisher';
+export type {
+  Genre,
+  CreateGenrePayload,
+  UpdateGenrePayload,
+  ListGenresFilters,
+} from './genre';
+export type {
+  Language,
+  CreateLanguagePayload,
+  UpdateLanguagePayload,
+  ListLanguagesFilters,
+} from './language';
+export type {
+  Publisher,
+  CreatePublisherPayload,
+  UpdatePublisherPayload,
+  ListPublishersFilters
+} from './publisher';

@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 
 import { CreateGenreUseCase } from '../application/use-cases/create-genre.use-case';
@@ -19,6 +20,7 @@ import { DeleteGenreUseCase } from '../application/use-cases/delete-genre.use-ca
 
 import { CreateGenreDto } from '../application/dtos/create-genre.dto';
 import { UpdateGenreDto } from '../application/dtos/update-genre.dto';
+import { ListGenresQueryDto } from '../application/dtos/list-genres-query.dto';
 
 @Controller('genres')
 export class GenreController {
@@ -50,13 +52,21 @@ export class GenreController {
 
   //LIST
   @Get()
-  async findAll() {
-    const result = await this.getGenres.execute();
-
-    return {
-      success: true,
-      genres: result.data,
+  async list(@Query() query: ListGenresQueryDto) {
+    const filters = {
+      search: query.search,
+      isActive: query.isActive,
     };
+
+    const result = await this.getGenres.execute(
+      query.page!,
+      query.limit!,
+      query.sortBy!,
+      query.sortOrder!,
+      filters,
+    );
+
+    return result.data;
   }
 
   //GET BY ID

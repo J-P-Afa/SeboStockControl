@@ -6,12 +6,25 @@ export interface Genre {
   updatedAt: string;
 }
 
-export interface CreateGenreData {
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CreateGenrePayload {
   description: string;
   isActive?: boolean;
 }
 
-export interface UpdateGenreData {
+export interface UpdateGenrePayload {
   description?: string;
+  isActive?: boolean;
+}
+
+export interface ListGenresFilters {
+  search?: string;
   isActive?: boolean;
 }

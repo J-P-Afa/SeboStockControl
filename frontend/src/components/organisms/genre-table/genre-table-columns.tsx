@@ -1,8 +1,19 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { Pencil, Tag, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, MoreHorizontal } from 'lucide-react';
+
 import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/molecules/dropdown-menu';
+
+import { SortableHeader } from '@/components/molecules/data-table';
 import { formatDate } from '@/lib/formatters';
+
 import type { Genre } from '@/types';
 
 interface GetGenresTableColumnsParams {
@@ -17,27 +28,14 @@ export function getGenresTableColumns({
   return [
     {
       accessorKey: 'description',
-      header: () => (
-        <span className="text-foreground/80 font-semibold">Gênero</span>
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary border border-primary/20">
-            <Tag size={16} />
-          </div>
-          <div className="truncate">
-            <div className="text-foreground font-medium">{row.original.description}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-tighter">
-              ID: {row.original.id}
-            </div>
-          </div>
-        </div>
+      header: ({ column }) => (
+        <SortableHeader column={column}>Descrição</SortableHeader>
       ),
     },
     {
       accessorKey: 'isActive',
-      header: () => (
-        <span className="text-foreground/80 font-semibold">Status</span>
+      header: ({ column }) => (
+        <SortableHeader column={column}>Status</SortableHeader>
       ),
       cell: ({ row }) => (
         <Badge variant={row.original.isActive ? 'success' : 'secondary'}>
@@ -47,35 +45,38 @@ export function getGenresTableColumns({
     },
     {
       accessorKey: 'createdAt',
-      header: () => (
-        <span className="text-foreground/80 font-semibold">Criado em</span>
+      header: ({ column }) => (
+        <SortableHeader column={column}>Criado em</SortableHeader>
       ),
       cell: ({ row }) => formatDate(row.original.createdAt),
     },
     {
       id: 'actions',
-      header: () => (
-        <span className="text-foreground/80 font-semibold text-right block">Ações</span>
-      ),
+      header: () => 'Ações',
       cell: ({ row }) => (
-        <div className="flex justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(row.original)}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={<Button variant="ghost" size="icon" className="h-8 w-8" />}
           >
-            <Pencil size={16} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(row.original)}
-            className="h-8 w-8 text-destructive/60 hover:text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 size={16} />
-          </Button>
-        </div>
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Abrir menu</span>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onEdit(row.original)}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Editar
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => onDelete(row.original)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];
