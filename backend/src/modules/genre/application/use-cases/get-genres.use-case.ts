@@ -30,7 +30,7 @@ export class GetGenresUseCase {
 
     return Result.ok({
       ...result,
-      items: result.items.map(GenreResponseDto.fromEntity),
+      items: result.items.map((item) => GenreResponseDto.fromEntity(item)),
     });
   }
 }

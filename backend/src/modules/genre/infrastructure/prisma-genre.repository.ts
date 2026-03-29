@@ -10,7 +10,13 @@ export class PrismaGenreRepository implements GenreRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   //Mapper: Prisma → Entity
-  private toEntity(data: any): GenreEntity {
+  private toEntity(data: {
+    id: number;
+    description: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): GenreEntity {
     return GenreEntity.restore({
       id: data.id,
       description: data.description,
@@ -92,7 +98,7 @@ export class PrismaGenreRepository implements GenreRepository {
     ]);
 
     return {
-      items: genres.map(this.toEntity),
+      items: genres.map((genre) => this.toEntity(genre)),
       total,
       page,
       limit,
@@ -101,6 +107,10 @@ export class PrismaGenreRepository implements GenreRepository {
   }
 
   async update(genre: GenreEntity): Promise<GenreEntity> {
+    if (!genre.id) {
+      throw new Error('Gênero sem ID não pode ser atualizado');
+    }
+
     const updated = await this.prisma.genre.update({
       where: { id: genre.id },
       data: this.toPrisma(genre),

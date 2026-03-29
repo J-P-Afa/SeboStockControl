@@ -1,0 +1,42 @@
+
+> backend@0.0.1 lint
+> eslint "{src,apps,libs,test}/**/*.ts" --fix
+
+
+/home/jp/projects/SeboStockControl/backend/src/modules/genre/application/dtos/genre-response.dto.ts
+  10:7   error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  10:18  error  Unsafe member access .id on an `any` value           @typescript-eslint/no-unsafe-member-access
+  11:7   error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  11:27  error  Unsafe member access .description on an `any` value  @typescript-eslint/no-unsafe-member-access
+  12:7   error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  12:24  error  Unsafe member access .isActive on an `any` value     @typescript-eslint/no-unsafe-member-access
+  13:7   error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  13:25  error  Unsafe member access .createdAt on an `any` value    @typescript-eslint/no-unsafe-member-access
+  14:7   error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  14:25  error  Unsafe member access .updatedAt on an `any` value    @typescript-eslint/no-unsafe-member-access
+
+/home/jp/projects/SeboStockControl/backend/src/modules/genre/application/dtos/list-genres-query.dto.ts
+  8:3  error  'Max' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/jp/projects/SeboStockControl/backend/src/modules/genre/application/use-cases/get-genres.use-case.ts
+  33:31  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+
+/home/jp/projects/SeboStockControl/backend/src/modules/genre/infrastructure/prisma-genre.repository.ts
+  15:7   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  15:16  error  Unsafe member access .id on an `any` value                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unsafe-member-access
+  16:7   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  16:25  error  Unsafe member access .description on an `any` value                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-member-access
+  17:7   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  17:22  error  Unsafe member access .isActive on an `any` value                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unsafe-member-access
+  18:7   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  18:23  error  Unsafe member access .createdAt on an `any` value                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unsafe-member-access
+  19:7   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  19:23  error  Unsafe member access .updatedAt on an `any` value                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unsafe-member-access
+  95:25  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+
+✖ 23 problems (23 errors, 0 warnings)
+

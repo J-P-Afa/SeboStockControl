@@ -72,7 +72,7 @@ describe('LoginPage Organism', () => {
         email: 'admin@admin.com',
         password: 'admin123',
       });
-      expect(mockPush).toHaveBeenCalledWith('/users');
+      expect(mockPush).toHaveBeenCalledWith('/');
     });
   });
 

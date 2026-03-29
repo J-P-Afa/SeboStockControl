@@ -35,7 +35,7 @@ export class GetKPIsUseCase {
         WHERE ts.is_venda = TRUE
       `;
 
-      const kpiRow = result[0] || {} as RawKPIRow;
+      const kpiRow = result[0] || ({} as RawKPIRow);
 
       const kpis: DashboardKPIs = {
         totalVendas: Number(kpiRow.total_vendas) || 0,

@@ -1,12 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import {
-  IsBoolean,
-  IsOptional,
-  IsString,
-  IsInt,
-  Min,
-  Max,
-} from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsInt, Min } from 'class-validator';
 
 export class ListGenresQueryDto {
   @IsOptional()

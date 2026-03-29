@@ -44,7 +44,7 @@ export default function LoginPage() {
     const start = Date.now();
     try {
       await login(data);
-      router.push('/users');
+      router.push('/');
     } catch (err) {
       const message = getErrorMessage(err, 'Email ou senha inválidos');
       const elapsed = Date.now() - start;
