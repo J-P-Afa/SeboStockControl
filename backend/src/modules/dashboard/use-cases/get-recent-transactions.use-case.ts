@@ -18,14 +18,6 @@ interface RawTransactionRow {
   profit: number;
 }
 
-interface RawRecentTransaction {
-  id: number;
-  book_name: string;
-  date: string;
-  valor_total: number;
-  profit: number;
-}
-
 @Injectable()
 export class GetRecentTransactionsUseCase {
   private readonly logger = new Logger(GetRecentTransactionsUseCase.name);

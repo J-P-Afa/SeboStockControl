@@ -30,7 +30,7 @@ export class GetPublishersUseCase {
 
     return Result.ok({
       ...result,
-      items: result.items.map(PublisherResponseDto.fromEntity),
+      items: result.items.map((item) => PublisherResponseDto.fromEntity(item)),
     });
   }
 }

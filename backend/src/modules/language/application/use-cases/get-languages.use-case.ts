@@ -30,7 +30,7 @@ export class GetLanguagesUseCase {
 
     return Result.ok({
       ...result,
-      items: result.items.map(LanguageResponseDto.fromEntity),
+      items: result.items.map((item) => LanguageResponseDto.fromEntity(item)),
     });
   }
 }

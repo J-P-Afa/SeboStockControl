@@ -9,18 +9,11 @@ export interface DashboardKPIs {
   ticketMedio: number;
 }
 
-interface RawKPI {
+interface RawKPIRow {
   total_vendas: number | null;
   lucro_liquido: number | null;
   margem_lucro: number | null;
   ticket_medio: number | null;
-}
-
-interface RawKPIRow {
-  total_vendas: number;
-  lucro_liquido: number;
-  margem_lucro: number;
-  ticket_medio: number;
 }
 
 @Injectable()
