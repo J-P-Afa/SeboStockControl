@@ -3,8 +3,6 @@ import { EditionType, Condition, Status } from './index';
 export interface Book {
   id: number;
   title: string;
-  subtitle?: string | null;
-  author?: string | null;
   isbn13?: string | null;
   isbn10?: string | null;
   listPrice: number | null;
@@ -49,8 +47,6 @@ export interface ExternalBook {
 
 export interface CreateBookPayload {
   title: string;
-  subtitle?: string | null;
-  author?: string | null;
   isbn13?: string | null;
   isbn10?: string | null;
   listPrice?: number | null;

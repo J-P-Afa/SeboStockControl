@@ -90,8 +90,6 @@ export default function BooksPage() {
   async function handleFormSubmit(formData: BookFormData) {
     const commonPayload = {
       title: formData.title,
-      subtitle: formData.subtitle,
-      author: formData.author,
       isbn13: formData.isbn13,
       isbn10: formData.isbn10,
       listPrice: formData.listPrice,

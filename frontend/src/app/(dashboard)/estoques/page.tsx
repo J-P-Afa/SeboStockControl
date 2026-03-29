@@ -102,8 +102,6 @@ export default function EstoquesPage() {
         id: selectedBook.id, 
         payload: {
           title: formData.title,
-          subtitle: formData.subtitle,
-          author: formData.author,
           isbn13: formData.isbn13,
           isbn10: formData.isbn10,
           listPrice: formData.listPrice,

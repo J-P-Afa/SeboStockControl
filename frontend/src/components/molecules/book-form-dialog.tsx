@@ -31,8 +31,6 @@ import type { ExternalBook } from '@/types/books';
 
 export interface BookFormData {
   title: string;
-  subtitle?: string | null;
-  author?: string | null;
   isbn13?: string | null;
   isbn10?: string | null;
   listPrice?: number | null;
@@ -83,8 +81,6 @@ export function BookFormDialog({
   } = useForm<BookFormData>({
     defaultValues: {
       title: '',
-      subtitle: '',
-      author: '',
       isbn13: '',
       isbn10: '',
       listPrice: 0,
@@ -105,8 +101,6 @@ export function BookFormDialog({
 
   const updateFormWithExternalData = useCallback((ext: ExternalBook) => {
     setValue('title', ext.title, { shouldDirty: true });
-    if (ext.subtitle) setValue('subtitle', ext.subtitle, { shouldDirty: true });
-    if (ext.authors.length > 0) setValue('author', ext.authors.join(', '), { shouldDirty: true });
     if (ext.isbn13) setValue('isbn13', ext.isbn13, { shouldDirty: true });
     if (ext.isbn10) setValue('isbn10', ext.isbn10, { shouldDirty: true });
     if (ext.publicationYear) setValue('publicationYear', ext.publicationYear, { shouldDirty: true });
@@ -122,8 +116,6 @@ export function BookFormDialog({
     if (open) {
       reset({
         title: book?.title ?? externalBook?.title ?? '',
-        subtitle: book?.subtitle ?? externalBook?.subtitle ?? '',
-        author: book?.author ?? externalBook?.authors?.join(', ') ?? '',
         isbn13: book?.isbn13 ?? externalBook?.isbn13 ?? '',
         isbn10: book?.isbn10 ?? externalBook?.isbn10 ?? '',
         listPrice: book?.listPrice ? Number(book.listPrice) : 0,
@@ -208,16 +200,6 @@ export function BookFormDialog({
               </div>
               <Input id="title" {...register('title', { required: 'Obrigatório' })} />
               {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="author">Autor</Label>
-              <Input id="author" {...register('author')} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="subtitle">Subtítulo</Label>
-              <Input id="subtitle" {...register('subtitle')} />
             </div>
 
             <div className="space-y-2">
