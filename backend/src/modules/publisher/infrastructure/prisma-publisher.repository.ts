@@ -62,7 +62,10 @@ export class PrismaPublisherRepository implements PublisherRepository {
     return this.toEntity(found);
   }
 
-  private buildWhereClause(filters?: { search?: string; isActive?: boolean }): Prisma.PublisherWhereInput {
+  private buildWhereClause(filters?: {
+    search?: string;
+    isActive?: boolean;
+  }): Prisma.PublisherWhereInput {
     const where: Prisma.PublisherWhereInput = {};
 
     if (filters?.search) {

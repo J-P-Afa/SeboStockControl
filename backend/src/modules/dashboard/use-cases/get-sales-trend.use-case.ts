@@ -8,6 +8,12 @@ export interface SalesTrendData {
   netProfit: number;
 }
 
+interface RawSalesTrend {
+  date: string;
+  total_vendas: number;
+  lucro_liquido: number;
+}
+
 @Injectable()
 export class GetSalesTrendUseCase {
   private readonly logger = new Logger(GetSalesTrendUseCase.name);
@@ -16,7 +22,7 @@ export class GetSalesTrendUseCase {
 
   async execute(): Promise<Result<SalesTrendData[]>> {
     try {
-      const result: any[] = await this.prisma.$queryRaw`
+      const result = await this.prisma.$queryRaw<RawSalesTrend[]>`
         SELECT 
           TO_CHAR(s.data, 'YYYY-MM-DD') AS date,
           SUM(s.valor_total) AS total_vendas,
@@ -38,8 +44,10 @@ export class GetSalesTrendUseCase {
       return Result.ok(mappedData);
     } catch (error) {
       this.logger.error('Failed to retrieve sales trends', error);
-      return Result.fail('GET_SALES_TREND_ERROR', 'Falha ao processar tendência de vendas.');
+      return Result.fail(
+        'GET_SALES_TREND_ERROR',
+        'Falha ao processar tendência de vendas.',
+      );
     }
   }
 }
-

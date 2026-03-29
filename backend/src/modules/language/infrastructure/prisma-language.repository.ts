@@ -59,7 +59,10 @@ export class PrismaLanguageRepository implements LanguageRepository {
     return this.toEntity(found);
   }
 
-  private buildWhereClause(filters?: { search?: string; isActive?: boolean }): Prisma.LanguageWhereInput {
+  private buildWhereClause(filters?: {
+    search?: string;
+    isActive?: boolean;
+  }): Prisma.LanguageWhereInput {
     const where: Prisma.LanguageWhereInput = {};
 
     if (filters?.search) {

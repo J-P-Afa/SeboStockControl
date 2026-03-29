@@ -1,7 +1,6 @@
 import { PrismaService } from '../../database/prisma.service';
 import { GetKPIsUseCase } from './get-kpis.use-case';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Result } from '../../../common/interfaces/result.interface';
 
 describe('GetKPIsUseCase', () => {
   let useCase: GetKPIsUseCase;
@@ -80,7 +79,9 @@ describe('GetKPIsUseCase', () => {
 
   it('should return a failed Result Pattern if database query throws', async () => {
     // Arrange
-    jest.spyOn(prismaService, '$queryRaw').mockRejectedValue(new Error('DB connection failed'));
+    jest
+      .spyOn(prismaService, '$queryRaw')
+      .mockRejectedValue(new Error('DB connection failed'));
 
     // Act
     const result = await useCase.execute();

@@ -8,6 +8,12 @@ export interface CategoryData {
   netProfit: number;
 }
 
+interface RawCategoryData {
+  category: string;
+  total_vendas: number;
+  lucro_liquido: number;
+}
+
 @Injectable()
 export class GetTopCategoriesUseCase {
   private readonly logger = new Logger(GetTopCategoriesUseCase.name);
@@ -16,7 +22,7 @@ export class GetTopCategoriesUseCase {
 
   async execute(): Promise<Result<CategoryData[]>> {
     try {
-      const result: any[] = await this.prisma.$queryRaw`
+      const result = await this.prisma.$queryRaw<RawCategoryData[]>`
         SELECT 
           c.descricao AS category,
           SUM(s.valor_total) AS total_vendas,
@@ -40,7 +46,10 @@ export class GetTopCategoriesUseCase {
       return Result.ok(mappedData);
     } catch (error) {
       this.logger.error('Failed to retrieve top categories', error);
-      return Result.fail('GET_TOP_CATEGORIES_ERROR', 'Falha ao processar categorias.');
+      return Result.fail(
+        'GET_TOP_CATEGORIES_ERROR',
+        'Falha ao processar categorias.',
+      );
     }
   }
 }

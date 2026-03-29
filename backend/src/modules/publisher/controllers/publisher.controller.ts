@@ -57,10 +57,10 @@ export class PublisherController {
     };
 
     const result = await this.getPublishers.execute(
-      query.page!,
-      query.limit!,
-      query.sortBy!,
-      query.sortOrder!,
+      query.page,
+      query.limit,
+      query.sortBy,
+      query.sortOrder,
       filters,
     );
 

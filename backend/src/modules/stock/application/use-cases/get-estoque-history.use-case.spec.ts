@@ -1,6 +1,9 @@
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { GetEstoqueHistoryUseCase } from './get-estoque-history.use-case';
-import { IStockRepository, EstoqueHistoryItem } from '../../domain/repositories/stock.repository.interface';
+import {
+  IStockRepository,
+  EstoqueHistoryItem,
+} from '../../domain/repositories/stock.repository.interface';
 
 describe('GetEstoqueHistoryUseCase', () => {
   let useCase: GetEstoqueHistoryUseCase;
@@ -18,22 +21,22 @@ describe('GetEstoqueHistoryUseCase', () => {
         tipoTransacao: 'Entrada Inicial',
         quantidade: 10,
         observacao: 'Compra',
-        responsavel: 'Admin'
+        responsavel: 'Admin',
       },
       {
         data: new Date('2023-01-02T10:00:00Z'),
         tipoTransacao: 'Venda',
         quantidade: -2,
         observacao: 'Venda balcão',
-        responsavel: 'Vendedor'
+        responsavel: 'Vendedor',
       },
       {
         data: new Date('2023-01-03T10:00:00Z'),
         tipoTransacao: 'Entrada',
         quantidade: 5,
         observacao: 'Devolução',
-        responsavel: 'Admin'
-      }
+        responsavel: 'Admin',
+      },
     ];
 
     stockRepository.getHistory.mockResolvedValue(mockItems);

@@ -29,9 +29,9 @@ export default function EstoquesPage() {
   
   // Advanced Filters toggle
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [condition, setCondition] = useState<Condition | 'Todos'>('Todos');
-  const [editionType, setEditionType] = useState<EditionType | 'Todos'>('Todos');
-  const [status, setStatus] = useState<Status | 'Todos'>('Todos');
+  const [condition, setCondition] = useState<string>('Todos');
+  const [editionType, setEditionType] = useState<string>('Todos');
+  const [status, setStatus] = useState<string>('Todos');
   const [isActiveOnly, setIsActiveOnly] = useState(true);
   const [publisherId, setPublisherId] = useState<string>('Todos');
   const [languageId, setLanguageId] = useState<string>('Todos');
@@ -46,9 +46,9 @@ export default function EstoquesPage() {
     () => ({
       search: search || undefined,
       inStock: inStockOnly || undefined,
-      condition: condition !== 'Todos' ? condition : undefined,
-      editionType: editionType !== 'Todos' ? editionType : undefined,
-      status: status !== 'Todos' ? status : undefined,
+      condition: (condition !== 'Todos' ? condition : undefined) as Condition | undefined,
+      editionType: (editionType !== 'Todos' ? editionType : undefined) as EditionType | undefined,
+      status: (status !== 'Todos' ? status : undefined) as Status | undefined,
       isActive: isActiveOnly,
       publisherId: publisherId !== 'Todos' ? Number(publisherId) : undefined,
       languageId: languageId !== 'Todos' ? Number(languageId) : undefined,
@@ -206,7 +206,7 @@ export default function EstoquesPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 bg-muted/20 p-4 rounded-2xl border border-border/40 animate-in slide-in-from-top-4 fade-in duration-200">
             <div className="space-y-1">
               <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Condição</Label>
-              <Select value={condition} onValueChange={(v: any) => { setCondition(v); setPage(1); }}>
+              <Select value={condition} onValueChange={(v) => { if (v) { setCondition(v); setPage(1); } }}>
                 <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todos</SelectItem>
@@ -218,7 +218,7 @@ export default function EstoquesPage() {
             
             <div className="space-y-1">
               <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Edição</Label>
-              <Select value={editionType} onValueChange={(v: any) => { setEditionType(v); setPage(1); }}>
+              <Select value={editionType} onValueChange={(v) => { if (v) { setEditionType(v); setPage(1); } }}>
                 <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todos</SelectItem>
@@ -230,22 +230,22 @@ export default function EstoquesPage() {
 
             <div className="space-y-1">
               <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Editora</Label>
-              <Select value={publisherId} onValueChange={(v: any) => { setPublisherId(v || 'Todos'); setPage(1); }}>
+              <Select value={publisherId} onValueChange={(v) => { setPublisherId(v || 'Todos'); setPage(1); }}>
                 <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todas</SelectItem>
-                  {publishers?.map(p => <SelectItem key={p.id} value={p.id.toString()}>{p.description}</SelectItem>)}
+                  {publishers?.items?.map(p => <SelectItem key={p.id} value={p.id.toString()}>{p.description}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-1">
               <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Idioma</Label>
-              <Select value={languageId} onValueChange={(v: any) => { setLanguageId(v || 'Todos'); setPage(1); }}>
+              <Select value={languageId} onValueChange={(v) => { setLanguageId(v || 'Todos'); setPage(1); }}>
                 <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todos</SelectItem>
-                  {languages?.map(l => <SelectItem key={l.id} value={l.id.toString()}>{l.description}</SelectItem>)}
+                  {languages?.items?.map(l => <SelectItem key={l.id} value={l.id.toString()}>{l.description}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

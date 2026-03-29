@@ -28,7 +28,10 @@ export class PrismaGenreRepository implements GenreRepository {
     };
   }
 
-  private buildWhereClause(filters?: { search?: string; isActive?: boolean }): Prisma.GenreWhereInput {
+  private buildWhereClause(filters?: {
+    search?: string;
+    isActive?: boolean;
+  }): Prisma.GenreWhereInput {
     const where: Prisma.GenreWhereInput = {};
 
     if (filters?.search) {

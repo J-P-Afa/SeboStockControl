@@ -17,7 +17,7 @@ export type {
 } from './books';
 export * from './role';
 export * from './book-enums';
-export type { Genre } from './genre';
+export * from './genre';
 export * from './language';
 export * from './publisher';
 export * from './tipo-saida';

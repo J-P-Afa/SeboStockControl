@@ -86,14 +86,14 @@ export class PrismaEstoqueRepository implements IStockRepository {
     });
 
     const historyItems = [
-      ...entradas.map(e => ({
+      ...entradas.map((e) => ({
         data: e.dataEntrada,
         tipoTransacao: 'Entrada', // Idealmente pode ter tipo_entrada no futuro
         quantidade: e.quantidade, // Positivo
         observacao: e.observacao,
         responsavel: e.usuario.name,
       })),
-      ...saidas.map(s => ({
+      ...saidas.map((s) => ({
         data: s.dataSaida,
         tipoTransacao: s.tipoSaida.descricao,
         quantidade: -Math.abs(s.quantidade), // Negativo para abater o saldo

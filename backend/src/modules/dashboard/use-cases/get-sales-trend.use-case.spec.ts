@@ -43,7 +43,9 @@ describe('GetSalesTrendUseCase', () => {
   });
 
   it('should return error if query fails', async () => {
-    jest.spyOn(prismaService, '$queryRaw').mockRejectedValue(new Error('DB Error'));
+    jest
+      .spyOn(prismaService, '$queryRaw')
+      .mockRejectedValue(new Error('DB Error'));
 
     const result = await useCase.execute();
 

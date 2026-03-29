@@ -48,3 +48,4 @@ export * from './estoques.api';
 export { listTiposSaida } from './tipo-saida.api';
 export { listCanaisVenda } from './canal-venda.api';
 export { listFormasPagamento } from './forma-pagamento.api';
+export { dashboardApi } from './dashboard.api';

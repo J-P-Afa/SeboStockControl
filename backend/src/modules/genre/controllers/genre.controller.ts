@@ -59,10 +59,10 @@ export class GenreController {
     };
 
     const result = await this.getGenres.execute(
-      query.page!,
-      query.limit!,
-      query.sortBy!,
-      query.sortOrder!,
+      query.page,
+      query.limit,
+      query.sortBy,
+      query.sortOrder,
       filters,
     );
 

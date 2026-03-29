@@ -57,10 +57,10 @@ export class LanguageController {
     };
 
     const result = await this.getLanguages.execute(
-      query.page!,
-      query.limit!,
-      query.sortBy!,
-      query.sortOrder!,
+      query.page,
+      query.limit,
+      query.sortBy,
+      query.sortOrder,
       filters,
     );
 

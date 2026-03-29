@@ -25,7 +25,11 @@ describe('GetTopCategoriesUseCase', () => {
 
   it('should return top categories aggregated by profit and sales', async () => {
     jest.spyOn(prismaService, '$queryRaw').mockResolvedValue([
-      { category: 'Ficção Científica', total_vendas: 1200.0, lucro_liquido: 500.0 },
+      {
+        category: 'Ficção Científica',
+        total_vendas: 1200.0,
+        lucro_liquido: 500.0,
+      },
       { category: 'Terror', total_vendas: 800.0, lucro_liquido: 300.0 },
     ]);
 

@@ -22,7 +22,6 @@ import {
 
 import type { Genre, ListGenresFilters } from '@/types';
 import type {
-  CreateGenrePayload,
   UpdateGenrePayload,
 } from '@/types';
 

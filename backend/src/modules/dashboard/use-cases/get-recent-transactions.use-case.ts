@@ -10,6 +10,22 @@ export interface RecentTransactionData {
   profit: number;
 }
 
+interface RawTransactionRow {
+  id: number;
+  book_name: string;
+  date: string;
+  valor_total: number;
+  profit: number;
+}
+
+interface RawRecentTransaction {
+  id: number;
+  book_name: string;
+  date: string;
+  valor_total: number;
+  profit: number;
+}
+
 @Injectable()
 export class GetRecentTransactionsUseCase {
   private readonly logger = new Logger(GetRecentTransactionsUseCase.name);
@@ -18,7 +34,7 @@ export class GetRecentTransactionsUseCase {
 
   async execute(): Promise<Result<RecentTransactionData[]>> {
     try {
-      const result: any[] = await this.prisma.$queryRaw`
+      const result = await this.prisma.$queryRaw<RawTransactionRow[]>`
         SELECT 
           s.id,
           l.descricao AS book_name,
@@ -44,7 +60,10 @@ export class GetRecentTransactionsUseCase {
       return Result.ok(mappedData);
     } catch (error) {
       this.logger.error('Failed to retrieve recent transactions', error);
-      return Result.fail('GET_RECENT_TRANSACTIONS_ERROR', 'Falha ao recuperar transações recentes.');
+      return Result.fail(
+        'GET_RECENT_TRANSACTIONS_ERROR',
+        'Falha ao recuperar transações recentes.',
+      );
     }
   }
 }

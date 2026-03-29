@@ -9,6 +9,20 @@ export interface DashboardKPIs {
   ticketMedio: number;
 }
 
+interface RawKPI {
+  total_vendas: number | null;
+  lucro_liquido: number | null;
+  margem_lucro: number | null;
+  ticket_medio: number | null;
+}
+
+interface RawKPIRow {
+  total_vendas: number;
+  lucro_liquido: number;
+  margem_lucro: number;
+  ticket_medio: number;
+}
+
 @Injectable()
 export class GetKPIsUseCase {
   private readonly logger = new Logger(GetKPIsUseCase.name);
@@ -17,7 +31,7 @@ export class GetKPIsUseCase {
 
   async execute(): Promise<Result<DashboardKPIs>> {
     try {
-      const result: any[] = await this.prisma.$queryRaw`
+      const result = await this.prisma.$queryRaw<RawKPIRow[]>`
         SELECT 
           SUM(s.valor_total) AS total_vendas,
           SUM(s.lucro_venda) AS lucro_liquido,
@@ -28,8 +42,8 @@ export class GetKPIsUseCase {
         WHERE ts.is_venda = TRUE
       `;
 
-      const kpiRow = result[0] || {};
-      
+      const kpiRow = result[0] || {} as RawKPIRow;
+
       const kpis: DashboardKPIs = {
         totalVendas: Number(kpiRow.total_vendas) || 0,
         lucroLiquido: Number(kpiRow.lucro_liquido) || 0,
@@ -40,8 +54,10 @@ export class GetKPIsUseCase {
       return Result.ok(kpis);
     } catch (error) {
       this.logger.error('Failed to retrieve KPIs', error);
-      return Result.fail('GET_KPIS_ERROR', 'Falha ao processar indicadores gerais.');
+      return Result.fail(
+        'GET_KPIS_ERROR',
+        'Falha ao processar indicadores gerais.',
+      );
     }
   }
 }
-
