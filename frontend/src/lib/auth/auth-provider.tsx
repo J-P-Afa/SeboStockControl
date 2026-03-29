@@ -44,9 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = getAccessToken();
     if (token) {
       const parsedUser = parseJwtPayload(token);
-      setUser(parsedUser);
+      requestAnimationFrame(() => {
+        setUser(parsedUser);
+        setIsLoading(false);
+      });
+    } else {
+      requestAnimationFrame(() => {
+        setIsLoading(false);
+      });
     }
-    setIsLoading(false);
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {

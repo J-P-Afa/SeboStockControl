@@ -159,9 +159,11 @@ export function BookSearchAutocomplete({
                     {book.condition}
                   </span>
                 </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{book.author || 'Autor desconhecido'}</span>
-                  <span>ISBN: {book.isbn13 || book.isbn10 || '-'}</span>
+                <div className="flex flex-col text-xs text-muted-foreground gap-0.5 mt-1 border-t pt-1 border-dashed">
+                  <div className="flex justify-between items-center text-[10px] tracking-tight">
+                    <span>ISBN: {book.isbn13 || book.isbn10 || '-'}</span>
+                    <span>Volume: {book.volume || '-'}</span>
+                  </div>
                 </div>
               </li>
             ))

@@ -31,17 +31,8 @@ export function getBooksTableColumns({
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium">{row.original.title}</span>
-          {row.original.subtitle && (
-            <span className="text-xs text-muted-foreground">{row.original.subtitle}</span>
-          )}
         </div>
       )
-    },
-    {
-      accessorKey: 'author',
-      header: ({ column }) => (        <SortableHeader column={column}>Autor</SortableHeader>
-      ),
-      cell: ({ row }) => row.original.author || '-',
     },
     {
       accessorKey: 'isbn13',

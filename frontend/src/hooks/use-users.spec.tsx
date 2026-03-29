@@ -36,8 +36,8 @@ describe('useUsers hook', () => {
 
   it('should fetch users successfully', async () => {
     const mockUsers = [
-      { id: '1', name: 'User 1', email: 'user1@example.com', role: 'ADMIN' },
-      { id: '2', name: 'User 2', email: 'user2@example.com', role: 'USER' },
+      { id: '1', name: 'User 1', email: 'user1@example.com', roleId: '1', roleName: 'ADMIN' },
+      { id: '2', name: 'User 2', email: 'user2@example.com', roleId: '2', roleName: 'USER' },
     ];
 
     server.use(
@@ -77,7 +77,7 @@ describe('useUsers hook', () => {
   });
 
   it('should create a user successfully', async () => {
-    const newUser: CreateUserPayload = { name: 'New User', email: 'new@example.com', role: 'USER', password: 'password' };
+    const newUser: CreateUserPayload = { name: 'New User', email: 'new@example.com', roleId: '2', password: 'password' };
     
     server.use(
       http.post(`${API_URL}/users`, async () => {
@@ -105,7 +105,7 @@ describe('useUsers hook', () => {
 
     const { result } = renderHook(() => useCreateUser(), { wrapper });
 
-    result.current.mutate({ name: 'Error', email: 'error@example.com', role: 'USER', password: 'password' } as CreateUserPayload);
+    result.current.mutate({ name: 'Error', email: 'error@example.com', roleId: '2', password: 'password' } as CreateUserPayload);
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toast.error).toHaveBeenCalled();

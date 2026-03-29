@@ -40,7 +40,9 @@ export function useAutocomplete<T>({
   }, [onClose]);
 
   useEffect(() => {
-    setHighlightedIndex(-1);
+    requestAnimationFrame(() => {
+      setHighlightedIndex(-1);
+    });
   }, [items]);
 
   useEffect(() => {

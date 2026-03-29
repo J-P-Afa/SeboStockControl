@@ -36,9 +36,6 @@ export function getEstoquesTableColumns({
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium text-foreground">{row.original.title}</span>
-          {row.original.author && (
-            <span className="text-xs text-muted-foreground">{row.original.author}</span>
-          )}
         </div>
       ),
       enableSorting: true,

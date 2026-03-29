@@ -12,10 +12,14 @@ export interface CreateGenrePayload {
   isActive?: boolean;
 }
 
+export type CreateGenreData = CreateGenrePayload;
+
 export interface UpdateGenrePayload {
   description?: string;
   isActive?: boolean;
 }
+
+export type UpdateGenreData = UpdateGenrePayload;
 
 export interface ListGenresFilters {
   search?: string;

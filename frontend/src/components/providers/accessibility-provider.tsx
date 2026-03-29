@@ -8,7 +8,9 @@ export function AccessibilityProvider() {
   const { highContrast, fontSize } = useAccessibilityStore();
 
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => {
+      setMounted(true);
+    });
   }, []);
 
   useEffect(() => {

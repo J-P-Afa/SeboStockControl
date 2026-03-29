@@ -16,7 +16,9 @@ export function AccessibilityMenu() {
 
   // Prevents hydration mismatch mapping server HTML vs client JS state
   useEffect(() => {
-    setMounted(true);
+    requestAnimationFrame(() => {
+      setMounted(true);
+    });
   }, []);
 
   if (!mounted) return null;
