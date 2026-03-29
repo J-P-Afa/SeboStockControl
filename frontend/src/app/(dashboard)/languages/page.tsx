@@ -20,7 +20,7 @@ import {
   useDeleteLanguage,
 } from '@/hooks/use-languages';
 
-import type { Language, ListLanguagesFilters } from '@/types';
+import type { Language, ListLanguagesFilters, UpdateLanguagePayload } from '@/types';
 import type { LanguageFormData } from '@/lib/validations/language.schema';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -107,14 +107,27 @@ export default function LanguagesPage() {
 
   async function handleFormSubmit(formData: LanguageFormData) {
     if (selectedLanguage) {
+      // Update: monta o payload manualmente
+      const payload: UpdateLanguagePayload = {};
+
+      if (formData.description)
+        payload.description = formData.description;
+
+      if (formData.isActive !== undefined)
+        payload.isActive = formData.isActive;
+
       await updateMutation.mutateAsync({
         id: selectedLanguage.id,
-        payload: formData,
+        payload,
       });
     } else {
-      await createMutation.mutateAsync(formData);
-    }
+      // Create: envia só os campos que o backend espera
+      await createMutation.mutateAsync({
+        description: formData.description,
+        // não envia isActive se o backend não espera
+    });
   }
+}
 
   async function handleDeleteConfirm() {
     if (selectedLanguage) {

@@ -28,7 +28,7 @@ export async function createPublisher(payload: CreatePublisherPayload): Promise<
 }
 
 export async function updatePublisher(id: number, payload: UpdatePublisherPayload): Promise<Publisher> {
-  const { data } = await apiClient.patch<ApiResponse<Publisher>>(`/publishers/${id}`, payload);
+  const { data } = await apiClient.put<ApiResponse<Publisher>>(`/publishers/${id}`, payload);
   return data.data;
 }
 

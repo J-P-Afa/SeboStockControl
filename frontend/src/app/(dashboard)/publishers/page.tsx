@@ -20,7 +20,7 @@ import {
   useDeletePublisher,
 } from '@/hooks/use-publishers';
 
-import type { Publisher, ListPublishersFilters } from '@/types';
+import type { Publisher, ListPublishersFilters, UpdatePublisherPayload } from '@/types';
 import type { PublisherFormData } from '@/lib/validations/publisher.schema';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -107,12 +107,22 @@ export default function PublishersPage() {
 
   async function handleFormSubmit(formData: PublisherFormData) {
     if (selectedPublisher) {
+      // Update: monta o payload manualmente
+      const payload: UpdatePublisherPayload = {};
+
+      if (formData.description) payload.description = formData.description;
+      if (formData.isActive !== undefined) payload.isActive = formData.isActive;
+
       await updateMutation.mutateAsync({
         id: selectedPublisher.id,
-        payload: formData,
+        payload,
       });
     } else {
-      await createMutation.mutateAsync(formData);
+      // Create: envia só os campos que o backend espera
+      await createMutation.mutateAsync({
+        description: formData.description,
+        // não envie isActive se o backend não espera
+      });
     }
   }
 

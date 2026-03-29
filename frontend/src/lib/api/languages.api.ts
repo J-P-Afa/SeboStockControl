@@ -28,7 +28,7 @@ export async function createLanguage(payload: CreateLanguagePayload): Promise<La
 }
 
 export async function updateLanguage(id: number, payload: UpdateLanguagePayload): Promise<Language> {
-  const { data } = await apiClient.patch<ApiResponse<Language>>(`/languages/${id}`, payload);
+  const { data } = await apiClient.put<ApiResponse<Language>>(`/languages/${id}`, payload);
   return data.data;
 }
 
