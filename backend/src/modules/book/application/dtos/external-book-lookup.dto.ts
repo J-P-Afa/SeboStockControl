@@ -1,7 +1,6 @@
 export class ExternalBookLookupDto {
   title: string;
   subtitle?: string | null;
-  authors: string[];
   publisher?: string | null;
   publisherId?: number | null;
   language?: string | null;

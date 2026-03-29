@@ -17,7 +17,6 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('RoleMultiSelect', () => {
   it('should not crash when roles is not an array', () => {
-    // @ts-expect-error - Testing resilience to bad API response
     vi.mocked(useRoles).mockReturnValue({ data: { success: true, data: [] } as unknown as Role[] } as unknown as UseQueryResult<Role[], Error>);
 
     expect(() => {

@@ -33,7 +33,7 @@ export function BookSearchAutocomplete({
   onSelect,
   onClear,
   onAddNew,
-  placeholder = "Buscar por ISBN, título ou autor...",
+  placeholder = "Buscar por ISBN ou título...",
   className,
 }: BookSearchAutocompleteProps) {
   const [inputValue, setInputValue] = useState(value);

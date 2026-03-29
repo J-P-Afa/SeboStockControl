@@ -85,8 +85,6 @@ export class OpenLibraryService implements IExternalBookService {
       const dto = new ExternalBookLookupDto();
       dto.title = data.title;
       dto.subtitle = data.subtitle || null;
-      dto.authors = []; // No detalhes vem em chaves, teria que buscar autores separadamente
-
       // Editora
       dto.publisher = data.publishers ? data.publishers[0] : null;
 
@@ -129,7 +127,6 @@ export class OpenLibraryService implements IExternalBookService {
     const dto = new ExternalBookLookupDto();
     dto.title = data.title;
     dto.subtitle = data.subtitle || null;
-    dto.authors = data.authors ? data.authors.map((a) => a.name) : [];
     dto.publisher = data.publishers ? data.publishers[0]?.name : null;
     dto.language = data.languages ? data.languages[0]?.name : null;
 
@@ -158,7 +155,6 @@ export class OpenLibraryService implements IExternalBookService {
 interface OpenLibraryData {
   title: string;
   subtitle?: string;
-  authors?: Array<{ name: string }>;
   publishers?: Array<{ name: string }>;
   languages?: Array<{ name: string }>;
   identifiers?: {

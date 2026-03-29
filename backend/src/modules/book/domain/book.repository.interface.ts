@@ -7,7 +7,6 @@ export const BOOK_REPOSITORY = Symbol('BOOK_REPOSITORY');
 export interface CreateBookParams {
   title: string;
   subtitle?: string | null;
-  author?: string | null;
   isbn13?: string | null;
   isbn10?: string | null;
   listPrice?: Prisma.Decimal | null;
@@ -31,7 +30,6 @@ export interface CreateBookParams {
 export interface UpdateBookParams {
   title?: string;
   subtitle?: string | null;
-  author?: string | null;
   isbn13?: string | null;
   isbn10?: string | null;
   listPrice?: Prisma.Decimal | null;

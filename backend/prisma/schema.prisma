@@ -76,7 +76,6 @@ model Book {
   id              Int               @id @default(autoincrement())
   title           String            @db.VarChar(255)
   subtitle        String?           @db.VarChar(255)
-  author          String?           @db.VarChar(150)
   isbn13          String?           @db.Char(13)
   isbn10          String?           @db.Char(10)
   listPrice       Decimal?          @db.Decimal(10, 2) @map("list_price")

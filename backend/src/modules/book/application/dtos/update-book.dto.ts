@@ -21,10 +21,6 @@ export class UpdateBookDto {
 
   @IsOptional()
   @IsString()
-  author?: string;
-
-  @IsOptional()
-  @IsString()
   isbn13?: string;
 
   @IsOptional()

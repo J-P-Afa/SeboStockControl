@@ -35,6 +35,13 @@ export function getBooksTableColumns({
       )
     },
     {
+      accessorKey: 'volume',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Volume</SortableHeader>
+      ),
+      cell: ({ row }) => row.original.volume || '-',
+    },
+    {
       accessorKey: 'isbn13',
       header: ({ column }) => (
         <SortableHeader column={column}>ISBN-13</SortableHeader>

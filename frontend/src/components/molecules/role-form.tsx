@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { roleSchema, type RoleFormData } from "@/lib/validations/role.schema";
@@ -9,7 +10,6 @@ import { Label } from "@/components/atoms/label";
 import { Checkbox } from "@/components/atoms/checkbox";
 import { Permission } from "@/types";
 import { cn } from "@/lib/utils";
-import { useToggleSet } from "@/hooks/use-toggle-set";
 
 interface RoleFormProps {
     initialData?: Partial<RoleFormData>;
@@ -30,6 +30,7 @@ export function RoleForm({
         register,
         handleSubmit,
         setValue,
+        getValues,
         watch,
         formState: { errors },
     } = useForm<RoleFormData>({
@@ -42,10 +43,13 @@ export function RoleForm({
 
     const selectedPermissions = watch("permissionIds");
 
-    const { toggleItem: togglePermission } = useToggleSet<string>(
-        selectedPermissions,
-        (ids) => setValue("permissionIds", ids, { shouldValidate: true })
-    );
+    const handleTogglePermission = useCallback((id: string) => {
+        const current = getValues("permissionIds");
+        const next = current.includes(id)
+            ? current.filter(item => item !== id)
+            : [...current, id];
+        setValue("permissionIds", next, { shouldValidate: true });
+    }, [getValues, setValue]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -73,7 +77,7 @@ export function RoleForm({
                             key={permission.id}
                             permission={permission}
                             isSelected={selectedPermissions.includes(permission.id)}
-                            onToggle={togglePermission}
+                            onToggle={handleTogglePermission}
                         />
                     ))}
                 </div>

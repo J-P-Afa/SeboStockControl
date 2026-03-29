@@ -157,7 +157,7 @@ export default function BooksPage() {
               id="book-search"
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
-              placeholder="Título ou autor"
+              placeholder="Título ou ISBN"
               className="min-w-[220px]"
             />
           </div>

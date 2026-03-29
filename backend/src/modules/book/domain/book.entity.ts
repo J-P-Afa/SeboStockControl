@@ -10,7 +10,6 @@ export interface BookProps {
   id: number;
   title: string;
   subtitle?: string | null;
-  author?: string | null;
   isbn13?: string | null;
   isbn10?: string | null;
   listPrice?: Prisma.Decimal | null;
@@ -83,9 +82,6 @@ export class BookEntity {
   }
   get subtitle(): string | null | undefined {
     return this.props.subtitle;
-  }
-  get author(): string | null | undefined {
-    return this.props.author;
   }
   get isbn13(): string | null | undefined {
     return this.props.isbn13;

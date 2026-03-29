@@ -19,10 +19,6 @@ export class CreateBookDto {
 
   @IsOptional()
   @IsString()
-  author?: string;
-
-  @IsOptional()
-  @IsString()
   isbn13?: string;
 
   @IsOptional()

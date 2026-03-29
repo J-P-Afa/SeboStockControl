@@ -24,7 +24,6 @@ describe('OpenLibraryService', () => {
     const mockResponse = {
       [bibkey]: {
         title: 'Fantastic Mr. Fox',
-        authors: [{ name: 'Roald Dahl' }],
         publishers: [{ name: 'Puffin' }],
         identifiers: {
           isbn_13: ['9780140328721'],
@@ -48,7 +47,6 @@ describe('OpenLibraryService', () => {
     // Assert
     expect(result).not.toBeNull();
     expect(result?.title).toBe('Fantastic Mr. Fox');
-    expect(result?.authors).toEqual(['Roald Dahl']);
     expect(result?.publisher).toBe('Puffin');
     expect(result?.isbn13).toBe('9780140328721');
     expect(result?.isbn10).toBe('0140328726');

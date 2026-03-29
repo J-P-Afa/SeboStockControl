@@ -25,7 +25,6 @@ export class PrismaBookRepository implements IBookRepository {
       id: prisma.id,
       title: prisma.title,
       subtitle: prisma.subtitle,
-      author: prisma.author,
       isbn13: prisma.isbn13,
       isbn10: prisma.isbn10,
       listPrice: prisma.listPrice,
@@ -85,7 +84,6 @@ export class PrismaBookRepository implements IBookRepository {
         ...(filters?.search && {
           OR: [
             { title: { contains: filters.search, mode: 'insensitive' } },
-            { author: { contains: filters.search, mode: 'insensitive' } },
             { isbn13: { contains: filters.search } },
             { isbn10: { contains: filters.search } },
           ],
@@ -145,7 +143,6 @@ export class PrismaBookRepository implements IBookRepository {
         data: {
           title: data.title,
           subtitle: data.subtitle,
-          author: data.author,
           isbn13: data.isbn13,
           isbn10: data.isbn10,
           listPrice: data.listPrice,

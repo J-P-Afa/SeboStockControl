@@ -75,7 +75,6 @@ export function EstoqueHistoryModal({ open, onOpenChange, book }: EstoqueHistory
             <div className="flex flex-col col-span-2">
               <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Obra</span>
               <span className="font-medium line-clamp-1" title={book.title}>{book.title}</span>
-              <span className="text-xs text-muted-foreground line-clamp-1">{book.author}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Estoque Atual</span>

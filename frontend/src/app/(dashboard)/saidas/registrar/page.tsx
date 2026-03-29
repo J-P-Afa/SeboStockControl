@@ -109,14 +109,18 @@ export default function RegistrarSaidaPage() {
   useEffect(() => {
     if (tiposSaida.length > 0 && !tipoSaidaId) {
       const vendaTipo = tiposSaida.find(t => t.isVenda) || tiposSaida[0];
-      setTipoSaidaId(vendaTipo.id);
+      requestAnimationFrame(() => {
+        setTipoSaidaId(vendaTipo.id);
+      });
     }
   }, [tiposSaida, tipoSaidaId]);
 
   // Adjust price if not venda
   useEffect(() => {
     if (!isVenda) {
-      setValorUnitario(0);
+      requestAnimationFrame(() => {
+        setValorUnitario(0);
+      });
     }
   }, [isVenda]);
 

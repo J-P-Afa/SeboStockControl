@@ -15,10 +15,9 @@ describe('LookupExternalBookUseCase', () => {
   let genreRepository: MockProxy<GenreRepository>;
 
   const mockExternalBook: ExternalBookLookupDto = {
-    title: 'Fantastic Mr. Fox',
-    authors: ['Roald Dahl'],
-    publisher: 'Puffin',
-    isbn13: '9780140328721',
+    title: 'Fantastic Mr Fox',
+    subtitle: 'A Play',
+    isbn13: '9780141311333',
     publicationYear: 1988,
     pages: 96,
     subjects: ['Foxes', 'Juvenile fiction'],

@@ -37,8 +37,8 @@ describe('useBooks hook', () => {
 
   it('should fetch books successfully', async () => {
     const mockBooks = [
-      { id: 1, title: 'Book 1', author: 'Author 1', isbn: '123' },
-      { id: 2, title: 'Book 2', author: 'Author 2', isbn: '456' },
+      { id: 1, title: 'Book 1', isbn: '123' },
+      { id: 2, title: 'Book 2', isbn: '456' },
     ];
 
     server.use(
@@ -64,7 +64,6 @@ describe('useBooks hook', () => {
   it('should create a book successfully', async () => {
     const newBook: CreateBookPayload = { 
       title: 'New Book', 
-      author: 'New Author', 
       isbn13: '1234567890123',
       editionType: EditionType.NORMAL,
       condition: Condition.NOVO,

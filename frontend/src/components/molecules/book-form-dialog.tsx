@@ -255,6 +255,11 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="volume">Volume</Label>
+              <Input id="volume" {...register('volume')} />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="weight">Peso (g) *</Label>
               <Input id="weight" type="number" {...register('weight', { valueAsNumber: true, required: 'Obrigatório' })} />
             </div>

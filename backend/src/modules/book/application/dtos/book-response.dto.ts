@@ -6,7 +6,6 @@ export class BookResponseDto {
   id: number;
   title: string;
   subtitle: string | null | undefined;
-  author: string | null | undefined;
   isbn13: string | null | undefined;
   isbn10: string | null | undefined;
   listPrice: Prisma.Decimal | null | undefined;
@@ -35,7 +34,6 @@ export class BookResponseDto {
     dto.id = entity.id;
     dto.title = entity.title;
     dto.subtitle = entity.subtitle;
-    dto.author = entity.author;
     dto.isbn13 = entity.isbn13;
     dto.isbn10 = entity.isbn10;
     dto.listPrice = entity.listPrice;
