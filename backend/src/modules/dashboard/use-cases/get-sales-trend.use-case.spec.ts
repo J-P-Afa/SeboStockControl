@@ -1,6 +1,7 @@
 import { PrismaService } from '../../database/prisma.service';
 import { GetSalesTrendUseCase } from './get-sales-trend.use-case';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
 
 describe('GetSalesTrendUseCase', () => {
   let useCase: GetSalesTrendUseCase;
@@ -21,6 +22,9 @@ describe('GetSalesTrendUseCase', () => {
 
     useCase = module.get<GetSalesTrendUseCase>(GetSalesTrendUseCase);
     prismaService = module.get<PrismaService>(PrismaService);
+
+    // Suppress Logger error output for expected failures
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
   });
 
   it('should be defined', () => {

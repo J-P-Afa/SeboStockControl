@@ -1,4 +1,5 @@
 import { OpenLibraryService } from './open-library.service';
+import { Logger } from '@nestjs/common';
 
 describe('OpenLibraryService', () => {
   let service: OpenLibraryService;
@@ -6,6 +7,10 @@ describe('OpenLibraryService', () => {
   beforeEach(() => {
     service = new OpenLibraryService();
     global.fetch = jest.fn();
+
+    // Suppress Logger output for expected failures/missing data
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'debug').mockImplementation(() => {});
   });
 
   afterEach(() => {

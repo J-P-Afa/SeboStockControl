@@ -67,10 +67,10 @@ export class BookEntity {
     isbn13?: string | null,
     isbn10?: string | null,
   ): void {
-    if (isbn13 !== null && isbn13 !== undefined && !/^\d{13}$/.test(isbn13)) {
+    if (isbn13 && !/^\d{13}$/.test(isbn13)) {
       throw new Error('ISBN-13 deve conter exatamente 13 dígitos numéricos');
     }
-    if (isbn10 !== null && isbn10 !== undefined && !/^\d{10}$/.test(isbn10)) {
+    if (isbn10 && !/^\d{10}$/.test(isbn10)) {
       throw new Error('ISBN-10 deve conter exatamente 10 dígitos numéricos');
     }
   }
