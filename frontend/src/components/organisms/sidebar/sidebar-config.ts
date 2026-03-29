@@ -1,4 +1,4 @@
-import { Users, ShieldCheck, BookOpen, Tag, Globe, Archive, PackagePlus, PackageMinus, Boxes, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, BookOpen, Tag, Globe, Archive, PackagePlus, PackageMinus, Boxes, type LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -8,6 +8,11 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
+  {
+    label: 'Dashboard',
+    href: '/',
+    icon: LayoutDashboard,
+  },
   {
     label: 'Livros',
     href: '/books',
