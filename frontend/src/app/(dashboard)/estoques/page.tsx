@@ -36,8 +36,8 @@ export default function EstoquesPage() {
   const [publisherId, setPublisherId] = useState<string>('Todos');
   const [languageId, setLanguageId] = useState<string>('Todos');
 
-  const { data: publishers } = usePublishers();
-  const { data: languages } = useLanguages();
+  const { data: publishers } = usePublishers(1, 100);
+  const { data: languages } = useLanguages(1, 100);
 
   const sortBy = sorting[0]?.id;
   const sortOrder = sorting[0]?.desc ? 'desc' as const : 'asc' as const;

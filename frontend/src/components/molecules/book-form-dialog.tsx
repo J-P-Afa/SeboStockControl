@@ -67,9 +67,9 @@ export function BookFormDialog({
   onSubmit,
   isLoading,
 }: BookFormDialogProps) {
-  const { data: publishers, refetch: refetchPublishers } = usePublishers();
-  const { data: languages, refetch: refetchLanguages } = useLanguages();
-  const { data: genres, refetch: refetchGenres } = useGenres();
+  const { data: publishers, refetch: refetchPublishers } = usePublishers(1, 100);
+  const { data: languages, refetch: refetchLanguages } = useLanguages(1, 100);
+  const { data: genres, refetch: refetchGenres } = useGenres(1, 100);
   const [isFetching, setIsFetching] = useState(false);
 
   const {
@@ -292,11 +292,11 @@ export function BookFormDialog({
                   <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione">
-                        {publishers?.find(p => p.id.toString() === field.value)?.description}
+                        {publishers?.items.find(p => p.id.toString() === field.value)?.description}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {publishers?.map(p => (
+                      {publishers?.items.map(p => (
                         <SelectItem key={p.id} value={p.id.toString()}>
                           {p.description}
                         </SelectItem>
@@ -317,11 +317,11 @@ export function BookFormDialog({
                   <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione">
-                        {languages?.find(l => l.id.toString() === field.value)?.description}
+                        {languages?.items.find(l => l.id.toString() === field.value)?.description}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {languages?.map(l => (
+                      {languages?.items.map(l => (
                         <SelectItem key={l.id} value={l.id.toString()}>
                           {l.description}
                         </SelectItem>
@@ -342,11 +342,11 @@ export function BookFormDialog({
                   <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione">
-                        {genres?.find(g => g.id.toString() === field.value)?.description}
+                        {genres?.items.find(g => g.id.toString() === field.value)?.description}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {genres?.map(g => (
+                      {genres?.items.map(g => (
                         <SelectItem key={g.id} value={g.id.toString()}>
                           {g.description}
                         </SelectItem>
