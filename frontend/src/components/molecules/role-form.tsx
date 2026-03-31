@@ -41,6 +41,7 @@ export function RoleForm({
         },
     });
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const selectedPermissions = watch("permissionIds");
 
     const handleTogglePermission = useCallback((id: string) => {

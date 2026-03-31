@@ -3,7 +3,6 @@
 import {
   createContext,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -37,19 +36,16 @@ function parseJwtPayload(token: string): AuthUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (typeof window === 'undefined') return null;
     const token = getAccessToken();
-    if (token) {
-      const parsedUser = parseJwtPayload(token);
-      setUser(parsedUser);
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
+    return token ? parseJwtPayload(token) : null;
+  });
+
+  const [isLoading] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return false;
+  });
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     const tokens = await apiLogin(credentials);
