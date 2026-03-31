@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Result } from '../../../../common/interfaces/result.interface';
-import { DashboardRepository, SalesTrendData } from '../../domain/dashboard.repository';
+import type { DashboardRepository } from '../../domain/dashboard.repository';
+import { SalesTrendData } from '../../domain/dashboard.repository';
 
 @Injectable()
 export class GetSalesTrendUseCase {
