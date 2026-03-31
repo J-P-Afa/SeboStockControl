@@ -10,7 +10,12 @@ import {
 import { Type } from 'class-transformer';
 import { CreateEntradaDto } from './create-entrada.dto';
 
-export class BulkCreateEntradaItemDto extends CreateEntradaDto {}
+import { OmitType } from '@nestjs/swagger';
+
+export class BulkCreateEntradaItemDto extends OmitType(CreateEntradaDto, [
+  'usuarioId',
+  'dataEntrada',
+] as const) {}
 
 export class BulkCreateEntradaDto {
   @IsUUID()
@@ -34,6 +39,6 @@ export class BulkCreateEntradaDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateEntradaDto)
-  items: CreateEntradaDto[];
+  @Type(() => BulkCreateEntradaItemDto)
+  items: BulkCreateEntradaItemDto[];
 }
