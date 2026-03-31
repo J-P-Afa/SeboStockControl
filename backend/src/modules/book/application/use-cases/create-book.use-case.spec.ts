@@ -1,110 +1,149 @@
-import { mockDeep, MockProxy } from 'jest-mock-extended';
+import { Test, TestingModule } from '@nestjs/testing';
 import { CreateBookUseCase } from './create-book.use-case';
-import { IBookRepository } from '../../domain/book.repository.interface';
-import { CreateBookDto } from '../dtos';
-import { BookEntity } from '../../domain/book.entity';
+import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
+import { CreateBookDto } from '../dtos/create-book.dto';
 import { Condition, Status, EditionType, Prisma } from '@prisma/client';
+import { InMemoryBookRepository } from '../../infrastructure/in-memory-book.repository';
+import { CreateBookParams } from '../../domain/book.repository.interface';
 
 describe('CreateBookUseCase', () => {
   let useCase: CreateBookUseCase;
-  let bookRepository: MockProxy<IBookRepository>;
+  let bookRepository: InMemoryBookRepository;
 
-  const mockDto: CreateBookDto = {
-    classificacaoId: 1,
-    publisherId: 1,
-    languageId: 1,
-    genreId: 1,
+  const getBaseDto = (): CreateBookDto => ({
     title: 'Dom Quixote',
     condition: Condition.usado,
     status: Status.completo,
     editionType: EditionType.normal,
     isbn13: '9788535913033',
+    isbn10: '8535913033',
     weight: 500,
-  };
-
-  const mockBook = BookEntity.restore({
-    id: 1,
     classificacaoId: 1,
     publisherId: 1,
     languageId: 1,
     genreId: 1,
-    title: 'Dom Quixote',
-    condition: Condition.usado,
-    status: Status.completo,
-    editionType: EditionType.normal,
-    isActive: true,
-    isbn13: '9788535913033',
-    isbn10: null,
-    volume: null,
-    weight: new Prisma.Decimal(500),
-    listPrice: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
   });
 
-  beforeEach(() => {
-    bookRepository = mockDeep<IBookRepository>();
-    useCase = new CreateBookUseCase(bookRepository);
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    // 1. Configurando o módulo de teste do NestJS com In-Memory Repo
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CreateBookUseCase,
+        {
+          provide: BOOK_REPOSITORY,
+          useClass: InMemoryBookRepository,
+        },
+      ],
+    }).compile();
+
+    useCase = module.get<CreateBookUseCase>(CreateBookUseCase);
+    bookRepository = module.get<InMemoryBookRepository>(BOOK_REPOSITORY);
   });
 
-  it('should create a book successfully when ISBN13 is unique for the given weight', async () => {
+  it('should create a book successfully (Happy Path)', async () => {
     // Arrange
-    bookRepository.findByIsbn13AndCondition.mockResolvedValue(null);
-    bookRepository.create.mockResolvedValue(mockBook);
+    const dto = getBaseDto();
 
     // Act
-    const result = await useCase.execute(mockDto);
+    const result = await useCase.execute(dto);
 
     // Assert
     expect(result.success).toBe(true);
-    expect(result.data?.title).toBe(mockDto.title);
-    expect(bookRepository.findByIsbn13AndCondition).toHaveBeenCalledWith(
-      mockDto.isbn13,
-      mockDto.condition,
-    );
-    expect(bookRepository.create).toHaveBeenCalledTimes(1);
+    expect(result.data).toBeDefined();
+    expect(result.data?.title).toStrictEqual(dto.title);
+    expect(result.data?.id).toStrictEqual(1);
+
+    // Validando o estado do repositório em memória
+    expect(bookRepository.items.length).toBe(1);
+    expect(bookRepository.items[0].isbn13).toBe(dto.isbn13);
   });
 
-  it('should fail if ISBN13 already exists for the same condition', async () => {
-    // Arrange
-    bookRepository.findByIsbn13AndCondition.mockResolvedValue(mockBook);
+  it('should create successfully when ISBN exists for a DIFFERENT condition (Edge case)', async () => {
+    // Arrange: Adiciona no repositório um livro USADO
+    await bookRepository.create({
+      ...getBaseDto(),
+      condition: Condition.usado,
+      isActive: true,
+      weight: new Prisma.Decimal(500),
+    } as CreateBookParams);
 
-    // Act
-    const result = await useCase.execute(mockDto);
-
-    // Assert
-    expect(result.success).toBe(false);
-    expect(result.error?.code).toBe('ISBN13_ALREADY_EXISTS');
-    expect(bookRepository.create).not.toHaveBeenCalled();
-  });
-
-  it('should create successfully when ISBN13 exists for a DIFFERENT condition', async () => {
-    // Arrange — mesmo ISBN mas estado diferente (novo vs usado) é permitido
-    const novoDto = { ...mockDto, condition: Condition.novo } as CreateBookDto;
-    bookRepository.findByIsbn13AndCondition.mockResolvedValue(null);
-    bookRepository.create.mockResolvedValue({
-      ...mockBook,
-      condition: Condition.novo,
-    } as unknown as BookEntity);
-
-    // Act
+    // Act: Tenta criar outro livro com mesmo ISBN, mas NOVO
+    const novoDto = { ...getBaseDto(), condition: Condition.novo };
     const result = await useCase.execute(novoDto);
 
     // Assert
     expect(result.success).toBe(true);
+    expect(bookRepository.items.length).toBe(2);
   });
 
-  it('should create successfully when no ISBN is provided', async () => {
+  it('should create successfully when no ISBN is provided (Edge case)', async () => {
     // Arrange
-    const dtoSemIsbn = { ...mockDto, isbn13: undefined } as CreateBookDto;
-    bookRepository.create.mockResolvedValue(mockBook);
+    const dto = { ...getBaseDto(), isbn13: undefined, isbn10: undefined };
 
     // Act
-    const result = await useCase.execute(dtoSemIsbn);
+    const result = await useCase.execute(dto);
 
     // Assert
     expect(result.success).toBe(true);
-    expect(bookRepository.findByIsbn13AndCondition).not.toHaveBeenCalled();
+  });
+
+  it('should fail if ISBN13 already exists for the same condition (Error case)', async () => {
+    // Arrange: Adiciona livro no repositório
+    await bookRepository.create({
+      ...getBaseDto(),
+      isActive: true,
+      weight: new Prisma.Decimal(500),
+    } as CreateBookParams);
+
+    // Act: Tenta criar exato mesmo livro
+    const result = await useCase.execute(getBaseDto());
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toStrictEqual({
+      code: 'ISBN13_ALREADY_EXISTS',
+      message: 'ISBN13 já existe para o mesmo estado do book',
+    });
+    // O sistema não deve ter criado duplicada
+    expect(bookRepository.items.length).toBe(1);
+  });
+
+  it('should fail if ISBN10 already exists for the same condition (Error case)', async () => {
+    // Arrange: Adiciona livro sem ISBN13, mas com ISBN10 no DB
+    const dto = getBaseDto();
+    await bookRepository.create({
+      ...dto,
+      isbn13: undefined,
+      isActive: true,
+      weight: new Prisma.Decimal(500),
+    } as CreateBookParams);
+
+    // Act: Tenta criar apenas mandando ISBN10
+    const novoDto = { ...dto, isbn13: undefined };
+    const result = await useCase.execute(novoDto);
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toStrictEqual({
+      code: 'ISBN10_ALREADY_EXISTS',
+      message: 'ISBN10 já existe para o mesmo estado do book',
+    });
+  });
+
+  it('should fail elegantly returning CREATE_BOOK_ERROR when repository throws exception (Exception edge case)', async () => {
+    // Arrange: Simula uma falha inesperada (ex: erro de banco de dados/conexão caindo)
+    jest
+      .spyOn(bookRepository, 'create')
+      .mockRejectedValueOnce(new Error('Banco offline'));
+
+    // Act
+    const result = await useCase.execute(getBaseDto());
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toStrictEqual({
+      code: 'CREATE_BOOK_ERROR',
+      message: 'Erro ao criar book',
+    });
   });
 });

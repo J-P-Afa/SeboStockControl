@@ -19,7 +19,12 @@ export class ListBooksUseCase {
   ) {}
 
   async execute(filters?: BookFilters): Promise<Result<BookResponseDto[]>> {
-    const books = await this.bookRepository.findAll(filters);
-    return Result.ok(books.map((b) => BookResponseDto.fromEntity(b)));
+    try {
+      const books = await this.bookRepository.findAll(filters);
+      return Result.ok(books.map((b) => BookResponseDto.fromEntity(b)));
+    } catch (error) {
+      console.error(error);
+      return Result.fail('LIST_BOOKS_ERROR', 'Erro ao listar books');
+    }
   }
 }
