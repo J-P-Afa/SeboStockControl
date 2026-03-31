@@ -70,14 +70,17 @@ export class CreateBookDto {
   @Min(0)
   weight: number;
 
+  @IsOptional()
   @IsInt()
-  publisherId: number;
+  publisherId?: number;
 
+  @IsOptional()
   @IsInt()
-  languageId: number;
+  languageId?: number;
 
+  @IsOptional()
   @IsInt()
-  genreId: number;
+  genreId?: number;
 
   @IsOptional()
   @IsInt()
