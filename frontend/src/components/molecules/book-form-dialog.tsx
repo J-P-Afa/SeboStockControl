@@ -232,6 +232,7 @@ export function BookFormDialog({
                   </Select>
                 )}
               />
+              {errors.condition && <p className="text-xs text-destructive">Obrigatório</p>}
             </div>
 
             <div className="space-y-2">
@@ -252,6 +253,7 @@ export function BookFormDialog({
                   </Select>
                 )}
               />
+              {errors.editionType && <p className="text-xs text-destructive">Obrigatório</p>}
             </div>
 
             <div className="space-y-2">
@@ -262,6 +264,7 @@ export function BookFormDialog({
             <div className="space-y-2">
               <Label htmlFor="weight">Peso (g) *</Label>
               <Input id="weight" type="number" {...register('weight', { valueAsNumber: true, required: 'Obrigatório' })} />
+              {errors.weight && <p className="text-xs text-destructive">{errors.weight.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -270,11 +273,10 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Editora *</Label>
+              <Label>Editora</Label>
               <Controller
                 name="publisherId"
                 control={control}
-                rules={{ required: 'Obrigatório' }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger>
@@ -295,11 +297,10 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Idioma *</Label>
+              <Label>Idioma</Label>
               <Controller
                 name="languageId"
                 control={control}
-                rules={{ required: 'Obrigatório' }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger>
@@ -320,11 +321,10 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Gênero *</Label>
+              <Label>Gênero</Label>
               <Controller
                 name="genreId"
                 control={control}
-                rules={{ required: 'Obrigatório' }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger>
@@ -362,6 +362,7 @@ export function BookFormDialog({
                   </Select>
                 )}
               />
+              {errors.status && <p className="text-xs text-destructive">Obrigatório</p>}
             </div>
           </div>
 
