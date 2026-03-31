@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useBooks, useCreateBook } from './use-books';
+import { useBooks, useCreateBook, useUpdateBook, useDeleteBook } from './use-books';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/lib/api/mocks/server';
 import { toast } from 'sonner';
-import type { CreateBookPayload } from '@/types';
+import type { CreateBookPayload, UpdateBookPayload } from '@/types';
 import { EditionType, Condition, Status } from '@/types';
 
 const API_URL = 'http://localhost:3001/api';
@@ -102,4 +102,67 @@ describe('useBooks hook', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toast.error).toHaveBeenCalled();
   });
+
+  it('should update a book successfully', async () => {
+    const updatedBook: UpdateBookPayload = { title: 'Updated Book' };
+    
+    server.use(
+      http.patch(`${API_URL}/books/1`, () => {
+        return HttpResponse.json({ id: 1, title: 'Updated Book' });
+      })
+    );
+
+    const { result } = renderHook(() => useUpdateBook(), { wrapper });
+
+    result.current.mutate({ id: 1, payload: updatedBook });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(toast.success).toHaveBeenCalledWith('Livro atualizado com sucesso');
+  });
+
+  it('should handle update book error', async () => {
+    server.use(
+      http.patch(`${API_URL}/books/1`, () => {
+        return HttpResponse.json({ message: 'Update failed' }, { status: 400 });
+      })
+    );
+
+    const { result } = renderHook(() => useUpdateBook(), { wrapper });
+
+    result.current.mutate({ id: 1, payload: { title: 'Error' } });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).toHaveBeenCalled();
+  });
+
+  it('should delete a book successfully', async () => {
+    server.use(
+      http.delete(`${API_URL}/books/1`, () => {
+        return HttpResponse.json({ id: 1 });
+      })
+    );
+
+    const { result } = renderHook(() => useDeleteBook(), { wrapper });
+
+    result.current.mutate(1);
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(toast.success).toHaveBeenCalledWith('Livro excluído com sucesso');
+  });
+
+  it('should handle delete book error', async () => {
+    server.use(
+      http.delete(`${API_URL}/books/1`, () => {
+        return HttpResponse.json({ message: 'Delete failed' }, { status: 400 });
+      })
+    );
+
+    const { result } = renderHook(() => useDeleteBook(), { wrapper });
+
+    result.current.mutate(1);
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).toHaveBeenCalled();
+  });
 });
+
