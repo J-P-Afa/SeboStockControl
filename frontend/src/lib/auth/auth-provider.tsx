@@ -44,14 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = getAccessToken();
     if (token) {
       const parsedUser = parseJwtPayload(token);
-      requestAnimationFrame(() => {
-        setUser(parsedUser);
-        setIsLoading(false);
-      });
+      setUser(parsedUser);
+      setIsLoading(false);
     } else {
-      requestAnimationFrame(() => {
-        setIsLoading(false);
-      });
+      setIsLoading(false);
     }
   }, []);
 

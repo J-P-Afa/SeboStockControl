@@ -34,8 +34,10 @@ describe('AuthProvider & useAuth', () => {
       </AuthProvider>
     );
 
-    expect(screen.getByTestId('loading')).toHaveTextContent('ready');
-    expect(screen.getByTestId('user')).toHaveTextContent('no-user');
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('ready');
+      expect(screen.getByTestId('user')).toHaveTextContent('no-user');
+    });
   });
 
   it('should restore user if token exists in localStorage on mount', async () => {
@@ -48,7 +50,9 @@ describe('AuthProvider & useAuth', () => {
       </AuthProvider>
     );
 
-    expect(screen.getByTestId('user')).toHaveTextContent('stored@test.com');
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent('stored@test.com');
+    });
   });
 
   it('should login successfully and update user state', async () => {
