@@ -185,9 +185,7 @@ export class PrismaBookRepository implements IBookRepository {
   async update(id: number, data: UpdateBookParams): Promise<BookEntity> {
     const updated = await this.prisma.book.update({
       where: { id },
-      data: {
-        ...data,
-      } as any, // Cast temporário para lidar com mismatch de tipos complexos do Prisma em campos opcionais/nulos
+      data: data,
       include: { estoque: { select: { quantidade: true } } },
     });
     return this.toEntity(updated);

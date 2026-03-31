@@ -1,9 +1,9 @@
-import { 
-  DashboardRepository, 
-  DashboardKPIs, 
-  CategoryData, 
-  RecentTransactionData, 
-  SalesTrendData 
+import {
+  DashboardRepository,
+  DashboardKPIs,
+  CategoryData,
+  RecentTransactionData,
+  SalesTrendData,
 } from '../domain/dashboard.repository';
 
 export class InMemoryDashboardRepository implements DashboardRepository {
@@ -11,25 +11,25 @@ export class InMemoryDashboardRepository implements DashboardRepository {
     totalVendas: 0,
     lucroLiquido: 0,
     margemLucro: 0,
-    ticketMedio: 0
+    ticketMedio: 0,
   };
   public categories: CategoryData[] = [];
   public transactions: RecentTransactionData[] = [];
   public trends: SalesTrendData[] = [];
 
-  async getKPIs(): Promise<DashboardKPIs> {
-    return this.kpis;
+  getKPIs(): Promise<DashboardKPIs> {
+    return Promise.resolve(this.kpis);
   }
 
-  async getTopCategories(limit?: number): Promise<CategoryData[]> {
-    return this.categories.slice(0, limit);
+  getTopCategories(limit?: number): Promise<CategoryData[]> {
+    return Promise.resolve(this.categories.slice(0, limit));
   }
 
-  async getRecentTransactions(limit?: number): Promise<RecentTransactionData[]> {
-    return this.transactions.slice(0, limit);
+  getRecentTransactions(limit?: number): Promise<RecentTransactionData[]> {
+    return Promise.resolve(this.transactions.slice(0, limit));
   }
 
-  async getSalesTrend(days?: number): Promise<SalesTrendData[]> {
-    return this.trends;
+  getSalesTrend(): Promise<SalesTrendData[]> {
+    return Promise.resolve(this.trends);
   }
 }

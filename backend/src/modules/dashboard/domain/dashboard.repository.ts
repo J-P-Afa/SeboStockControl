@@ -1,5 +1,3 @@
-import { Result } from '../../../common/interfaces/result.interface';
-
 export interface DashboardKPIs {
   totalVendas: number;
   lucroLiquido: number;
