@@ -20,9 +20,9 @@ export interface CreateBookParams {
   synopsis?: string | null;
   dimensions?: string | null;
   weight: Prisma.Decimal;
-  publisherId: number;
-  languageId: number;
-  genreId: number;
+  publisherId?: number | null;
+  languageId?: number | null;
+  genreId?: number | null;
   classificacaoId?: number | null;
   isActive?: boolean;
 }
@@ -43,9 +43,9 @@ export interface UpdateBookParams {
   synopsis?: string | null;
   dimensions?: string | null;
   weight?: Prisma.Decimal;
-  publisherId?: number;
-  languageId?: number;
-  genreId?: number;
+  publisherId?: number | null;
+  languageId?: number | null;
+  genreId?: number | null;
   classificacaoId?: number | null;
   isActive?: boolean;
 }

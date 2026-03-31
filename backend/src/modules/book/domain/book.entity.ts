@@ -23,9 +23,9 @@ export interface BookProps {
   synopsis?: string | null;
   dimensions?: string | null;
   weight: Prisma.Decimal;
-  publisherId: number;
-  languageId: number;
-  genreId: number;
+  publisherId?: number | null;
+  languageId?: number | null;
+  genreId?: number | null;
   classificacaoId?: number | null;
   isActive: boolean;
   createdAt: Date;
@@ -34,7 +34,7 @@ export interface BookProps {
    * @ai-context Campo de read-model — populado via join pelo repositório de infraestrutura.
    * Não participa de invariantes de domínio. Usar apenas para exibição/DTO.
    */
-  estoqueQuantidade?: number | null;
+  stock?: number | null;
 }
 
 export class BookEntity {
@@ -122,13 +122,13 @@ export class BookEntity {
   get weight(): Prisma.Decimal {
     return this.props.weight;
   }
-  get publisherId(): number {
+  get publisherId(): number | null | undefined {
     return this.props.publisherId;
   }
-  get languageId(): number {
+  get languageId(): number | null | undefined {
     return this.props.languageId;
   }
-  get genreId(): number {
+  get genreId(): number | null | undefined {
     return this.props.genreId;
   }
   get classificacaoId(): number | null | undefined {
@@ -143,8 +143,8 @@ export class BookEntity {
   get updatedAt(): Date {
     return this.props.updatedAt;
   }
-  get estoqueQuantidade(): number | null | undefined {
-    return this.props.estoqueQuantidade;
+  get stock(): number | null | undefined {
+    return this.props.stock;
   }
 
   public update(

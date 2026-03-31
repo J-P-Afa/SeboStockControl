@@ -19,15 +19,15 @@ export class BookResponseDto {
   synopsis: string | null | undefined;
   dimensions: string | null | undefined;
   weight: Prisma.Decimal;
-  publisherId: number;
-  languageId: number;
-  genreId: number;
+  publisherId: number | null | undefined;
+  languageId: number | null | undefined;
+  genreId: number | null | undefined;
   classificacaoId: number | null | undefined;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   /** @ai-context Quantidade atual em estoque — join 1:1 via Estoque. Null se o estoque ainda não foi criado. */
-  estoqueQuantidade: number | null | undefined;
+  stock: number | null | undefined;
 
   static fromEntity(entity: BookEntity): BookResponseDto {
     const dto = new BookResponseDto();
@@ -54,7 +54,7 @@ export class BookResponseDto {
     dto.isActive = entity.isActive;
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;
-    dto.estoqueQuantidade = entity.estoqueQuantidade;
+    dto.stock = entity.stock;
     return dto;
   }
 }

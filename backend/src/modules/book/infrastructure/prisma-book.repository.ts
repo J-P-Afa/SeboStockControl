@@ -46,7 +46,7 @@ export class PrismaBookRepository implements IBookRepository {
       createdAt: prisma.createdAt,
       updatedAt: prisma.updatedAt,
       // @ai-context: campo de infra enriquecido via join; não pertence ao domínio puro
-      estoqueQuantidade: prisma.estoque?.quantidade ?? null,
+      stock: prisma.estoque?.quantidade ?? null,
     };
     return BookEntity.restore(props);
   }
@@ -156,10 +156,10 @@ export class PrismaBookRepository implements IBookRepository {
           synopsis: data.synopsis,
           dimensions: data.dimensions,
           weight: data.weight,
-          publisherId: data.publisherId,
-          languageId: data.languageId,
-          genreId: data.genreId,
-          classificacaoId: data.classificacaoId,
+          publisherId: data.publisherId ?? undefined,
+          languageId: data.languageId ?? undefined,
+          genreId: data.genreId ?? undefined,
+          classificacaoId: data.classificacaoId ?? undefined,
           isActive: data.isActive ?? true,
         },
       });
@@ -187,7 +187,7 @@ export class PrismaBookRepository implements IBookRepository {
       where: { id },
       data: {
         ...data,
-      },
+      } as any, // Cast temporário para lidar com mismatch de tipos complexos do Prisma em campos opcionais/nulos
       include: { estoque: { select: { quantidade: true } } },
     });
     return this.toEntity(updated);

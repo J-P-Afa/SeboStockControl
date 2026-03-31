@@ -14,6 +14,7 @@ import {
   Eraser,
   Loader2
 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/atoms/button';
@@ -62,6 +63,7 @@ interface EntradaItem {
 
 export default function EntradasPage() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
   // Header State
   const [tipoEntrada, setTipoEntrada] = useState<TipoEntrada>(TipoEntrada.COMPRA);
@@ -236,6 +238,7 @@ export default function EntradasPage() {
       });
 
       toast.success('Entrada processada com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['books'] });
       resetForm();
     } catch {
       toast.error('Erro ao processar entrada');

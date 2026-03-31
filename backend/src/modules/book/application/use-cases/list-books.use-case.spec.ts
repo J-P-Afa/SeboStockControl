@@ -30,7 +30,7 @@ describe('ListBooksUseCase', () => {
     listPrice: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-    estoqueQuantidade: 10,
+    stock: 10,
   });
 
   beforeEach(() => {
