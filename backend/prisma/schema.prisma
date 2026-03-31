@@ -15,20 +15,20 @@ enum ThemePreference {
 }
 
 model User {
-  id              String           @id @default(uuid())
+  id              String          @id @default(uuid())
   name            String
-  email           String           @unique
+  email           String          @unique
   password        String
-  isActive        Boolean          @default(true)
-  themePreference ThemePreference  @default(SYSTEM)
-  role            Role             @relation(fields: [roleId], references: [id])
+  isActive        Boolean         @default(true)
+  themePreference ThemePreference @default(SYSTEM)
+  role            Role            @relation(fields: [roleId], references: [id])
   roleId          String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
   // Relations to Stock Module
-  entradas        Entrada[]
-  saidas          Saida[]
+  entradas Entrada[]
+  saidas   Saida[]
 
   @@map("users")
 }
@@ -73,81 +73,81 @@ enum Status {
 }
 
 model Book {
-  id              Int               @id @default(autoincrement())
-  title           String            @db.VarChar(255)
-  subtitle        String?           @db.VarChar(255)
-  isbn13          String?           @db.Char(13)
-  isbn10          String?           @db.Char(10)
-  listPrice       Decimal?          @db.Decimal(10, 2) @map("list_price")
-  editionType     EditionType       @default(normal)
-  volume          String?           @db.VarChar(50)
-  collection      String?           @db.VarChar(255)
+  id              Int         @id @default(autoincrement())
+  title           String      @db.VarChar(255)
+  subtitle        String?     @db.VarChar(255)
+  isbn13          String?     @db.Char(13)
+  isbn10          String?     @db.Char(10)
+  listPrice       Decimal?    @map("list_price") @db.Decimal(10, 2)
+  editionType     EditionType @default(normal)
+  volume          String?     @db.VarChar(50)
+  collection      String?     @db.VarChar(255)
   condition       Condition
   status          Status
-  publicationYear Int?              @map("publication_year")
+  publicationYear Int?        @map("publication_year")
   pages           Int?
-  synopsis        String?           @db.VarChar(1000)
-  dimensions      String?           @db.VarChar(50)
-  weight          Decimal           @db.Decimal(8, 2)
-  
-  publisher       Publisher         @relation(fields: [publisherId], references: [id])
-  publisherId     Int               @map("publisher_id")
-  language        Language          @relation(fields: [languageId], references: [id])
-  languageId      Int               @map("language_id")
-  genre           Genre             @relation(fields: [genreId], references: [id])
-  genreId         Int               @map("genre_id")
-  
-  // Custom: Classificacao from Stock Module
-  classificacao   Classificacao?    @relation(fields: [classificacaoId], references: [id])
-  classificacaoId Int?              @map("classificacao_id")
+  synopsis        String?     @db.VarChar(1000)
+  dimensions      String?     @db.VarChar(50)
+  weight          Decimal     @db.Decimal(8, 2)
 
-  isActive        Boolean           @default(true)
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  publisher   Publisher? @relation(fields: [publisherId], references: [id])
+  publisherId Int?       @map("publisher_id")
+  language    Language?  @relation(fields: [languageId], references: [id])
+  languageId  Int?       @map("language_id")
+  genre       Genre?     @relation(fields: [genreId], references: [id])
+  genreId     Int?       @map("genre_id")
+
+  // Custom: Classificacao from Stock Module
+  classificacao   Classificacao? @relation(fields: [classificacaoId], references: [id])
+  classificacaoId Int?           @map("classificacao_id")
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Stock tracking relations
-  estoque         Estoque?
-  entradas        Entrada[]
-  saidas          Saida[]
+  estoque  Estoque?
+  entradas Entrada[]
+  saidas   Saida[]
 
+  @@unique([isbn13, condition])
+  @@unique([isbn10, condition])
   @@index([title])
   @@index([isbn13])
   @@index([isbn10])
   @@index([genreId])
-  @@unique([isbn13, condition])
-  @@unique([isbn10, condition])
   @@map("books")
 }
 
 model Genre {
-  id          Int       @id @default(autoincrement())
-  description String    @unique @db.VarChar(100)
-  isActive    Boolean   @default(true)
+  id          Int      @id @default(autoincrement())
+  description String   @unique @db.VarChar(100)
+  isActive    Boolean  @default(true)
   books       Book[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("genres")
 }
 
 model Publisher {
-  id          Int       @id @default(autoincrement())
-  description String    @unique @db.VarChar(150)
-  isActive    Boolean   @default(true)
+  id          Int      @id @default(autoincrement())
+  description String   @unique @db.VarChar(150)
+  isActive    Boolean  @default(true)
   books       Book[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("publishers")
 }
 
 model Language {
-  id          Int       @id @default(autoincrement())
-  description String    @unique @db.VarChar(50)
-  isActive    Boolean   @default(true)
+  id          Int      @id @default(autoincrement())
+  description String   @unique @db.VarChar(50)
+  isActive    Boolean  @default(true)
   books       Book[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("languages")
 }
@@ -155,116 +155,116 @@ model Language {
 // ─── Módulo de Estoque e Margem (Minha Task) ──────────────────────────────────
 
 model Classificacao {
-  id          Int      @id @default(autoincrement())
-  descricao   String   @unique @db.VarChar(50)
-  margemAlvo  Decimal  @db.Decimal(5, 4) @map("margem_alvo")
-  isActive    Boolean  @default(true) @map("is_active")
-  books       Book[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         Int      @id @default(autoincrement())
+  descricao  String   @unique @db.VarChar(50)
+  margemAlvo Decimal  @map("margem_alvo") @db.Decimal(5, 4)
+  isActive   Boolean  @default(true) @map("is_active")
+  books      Book[]
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("classificacao")
 }
 
 model CanalVenda {
-  id                Int      @id @default(autoincrement())
-  descricao         String   @unique @db.VarChar(50)
-  comissaoFixa      Decimal  @default(0.0) @db.Decimal(10, 2) @map("comissao_fixa")
-  comissaoVariavel  Decimal  @default(0.0) @db.Decimal(5, 4) @map("comissao_variavel")
-  isActive          Boolean  @default(true) @map("is_active")
-  saidas            Saida[]
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id               Int      @id @default(autoincrement())
+  descricao        String   @unique @db.VarChar(50)
+  comissaoFixa     Decimal  @default(0.0) @map("comissao_fixa") @db.Decimal(10, 2)
+  comissaoVariavel Decimal  @default(0.0) @map("comissao_variavel") @db.Decimal(5, 4)
+  isActive         Boolean  @default(true) @map("is_active")
+  saidas           Saida[]
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("canal_venda")
 }
 
 model FormaPagamento {
-  id          Int      @id @default(autoincrement())
-  descricao   String   @unique @db.VarChar(50)
-  taxa        Decimal  @default(0.0) @db.Decimal(5, 4)
-  isActive    Boolean  @default(true) @map("is_active")
-  saidas      Saida[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(50)
+  taxa      Decimal  @default(0.0) @db.Decimal(5, 4)
+  isActive  Boolean  @default(true) @map("is_active")
+  saidas    Saida[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("forma_pagamento")
 }
 
 model TipoSaida {
-  id          Int      @id @default(autoincrement())
-  descricao   String   @unique @db.VarChar(50)
-  isVenda     Boolean  @default(true) @map("is_venda")
-  isActive    Boolean  @default(true) @map("is_active")
-  saidas      Saida[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id        Int      @id @default(autoincrement())
+  descricao String   @unique @db.VarChar(50)
+  isVenda   Boolean  @default(true) @map("is_venda")
+  isActive  Boolean  @default(true) @map("is_active")
+  saidas    Saida[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("tipo_saida")
 }
 
 model Estoque {
-  id                Int      @id @default(autoincrement())
-  book              Book     @relation(fields: [bookId], references: [id])
-  bookId            Int      @unique @map("book_id")
-  quantidade        Int      @default(0)
-  custoMedio        Decimal  @default(0.0) @db.Decimal(14, 4) @map("custo_medio")
+  id                Int       @id @default(autoincrement())
+  book              Book      @relation(fields: [bookId], references: [id])
+  bookId            Int       @unique @map("book_id")
+  quantidade        Int       @default(0)
+  custoMedio        Decimal   @default(0.0) @map("custo_medio") @db.Decimal(14, 4)
   dataUltimaEntrada DateTime? @map("data_ultima_entrada")
   dataUltimaSaida   DateTime? @map("data_ultima_saida")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   @@map("estoque")
 }
 
 model Entrada {
-  id              Int      @id @default(autoincrement())
-  book            Book     @relation(fields: [bookId], references: [id])
-  bookId          Int      @map("book_id")
-  usuario         User     @relation(fields: [usuarioId], references: [id])
-  usuarioId       String   @map("usuario_id")
-  quantidade      Int
-  custoUnitario   Decimal  @db.Decimal(14, 4) @map("custo_unitario")
-  valorTotal      Decimal  @db.Decimal(14, 4) @map("valor_total")
-  dataEntrada     DateTime @default(now()) @map("data_entrada")
-  fornecedor      String?  @db.VarChar(150)
-  numeroNotaFiscal String?  @db.VarChar(50) @map("numero_nota_fiscal")
-  observacao      String?
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id               Int      @id @default(autoincrement())
+  book             Book     @relation(fields: [bookId], references: [id])
+  bookId           Int      @map("book_id")
+  usuario          User     @relation(fields: [usuarioId], references: [id])
+  usuarioId        String   @map("usuario_id")
+  quantidade       Int
+  custoUnitario    Decimal  @map("custo_unitario") @db.Decimal(14, 4)
+  valorTotal       Decimal  @map("valor_total") @db.Decimal(14, 4)
+  dataEntrada      DateTime @default(now()) @map("data_entrada")
+  fornecedor       String?  @db.VarChar(150)
+  numeroNotaFiscal String?  @map("numero_nota_fiscal") @db.VarChar(50)
+  observacao       String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("entrada")
 }
 
 model Saida {
-  id                        Int             @id @default(autoincrement())
-  book                      Book            @relation(fields: [bookId], references: [id])
-  bookId                    Int             @map("book_id")
-  usuario                   User            @relation(fields: [usuarioId], references: [id])
-  usuarioId                 String          @map("usuario_id")
-  tipoSaida                 TipoSaida       @relation(fields: [tipoSaidaId], references: [id])
-  tipoSaidaId               Int             @map("tipo_saida_id")
-  canalVenda                CanalVenda?     @relation(fields: [canalVendaId], references: [id])
-  canalVendaId              Int?            @map("canal_venda_id")
-  formaPagamento            FormaPagamento? @relation(fields: [formaPagamentoId], references: [id])
-  formaPagamentoId          Int?            @map("forma_pagamento_id")
-  quantidade                Int
-  valorUnitario             Decimal         @db.Decimal(14, 4) @map("valor_unitario")
-  valorTotal                Decimal         @db.Decimal(14, 4) @map("valor_total")
-  dataSaida                 DateTime        @default(now()) @map("data_saida")
-  
+  id               Int             @id @default(autoincrement())
+  book             Book            @relation(fields: [bookId], references: [id])
+  bookId           Int             @map("book_id")
+  usuario          User            @relation(fields: [usuarioId], references: [id])
+  usuarioId        String          @map("usuario_id")
+  tipoSaida        TipoSaida       @relation(fields: [tipoSaidaId], references: [id])
+  tipoSaidaId      Int             @map("tipo_saida_id")
+  canalVenda       CanalVenda?     @relation(fields: [canalVendaId], references: [id])
+  canalVendaId     Int?            @map("canal_venda_id")
+  formaPagamento   FormaPagamento? @relation(fields: [formaPagamentoId], references: [id])
+  formaPagamentoId Int?            @map("forma_pagamento_id")
+  quantidade       Int
+  valorUnitario    Decimal         @map("valor_unitario") @db.Decimal(14, 4)
+  valorTotal       Decimal         @map("valor_total") @db.Decimal(14, 4)
+  dataSaida        DateTime        @default(now()) @map("data_saida")
+
   // Snapshots para auditoria e histórico (imutabilidade)
-  snapshotCustoUnitario     Decimal         @db.Decimal(14, 4) @map("snapshot_custo_unitario")
-  snapshotCustoTotal        Decimal         @db.Decimal(14, 4) @map("snapshot_custo_total")
-  snapshotComissaoPlataforma Decimal        @default(0.0) @db.Decimal(5, 4) @map("snapshot_comissao_plataforma")
-  valorComissaoPlataforma   Decimal         @db.Decimal(14, 4) @map("valor_comissao_plataforma")
-  snapshotTaxaPagamento     Decimal        @default(0.0) @db.Decimal(5, 4) @map("snapshot_taxa_pagamento")
-  valorTaxaPagamento        Decimal         @db.Decimal(14, 4) @map("valor_taxa_pagamento")
-  lucroVenda                Decimal         @db.Decimal(14, 4) @map("lucro_venda")
-  
-  observacao                String?
-  createdAt                 DateTime        @default(now()) @map("created_at")
-  updatedAt                 DateTime        @updatedAt @map("updated_at")
+  snapshotCustoUnitario      Decimal @map("snapshot_custo_unitario") @db.Decimal(14, 4)
+  snapshotCustoTotal         Decimal @map("snapshot_custo_total") @db.Decimal(14, 4)
+  snapshotComissaoPlataforma Decimal @default(0.0) @map("snapshot_comissao_plataforma") @db.Decimal(5, 4)
+  valorComissaoPlataforma    Decimal @map("valor_comissao_plataforma") @db.Decimal(14, 4)
+  snapshotTaxaPagamento      Decimal @default(0.0) @map("snapshot_taxa_pagamento") @db.Decimal(5, 4)
+  valorTaxaPagamento         Decimal @map("valor_taxa_pagamento") @db.Decimal(14, 4)
+  lucroVenda                 Decimal @map("lucro_venda") @db.Decimal(14, 4)
+
+  observacao String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("saida")
 }
