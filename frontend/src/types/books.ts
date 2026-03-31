@@ -15,9 +15,9 @@ export interface Book {
   synopsis?: string | null;
   dimensions?: string | null;
   weight: number;
-  publisherId: number;
-  languageId: number;
-  genreId: number;
+  publisherId?: number | null;
+  languageId?: number | null;
+  genreId?: number | null;
   classificacaoId?: number | null;
   isActive: boolean;
   createdAt: string;
@@ -58,9 +58,9 @@ export interface CreateBookPayload {
   synopsis?: string | null;
   dimensions?: string | null;
   weight: number;
-  publisherId: number;
-  languageId: number;
-  genreId: number;
+  publisherId?: number | null;
+  languageId?: number | null;
+  genreId?: number | null;
   classificacaoId?: number | null;
 }
 
