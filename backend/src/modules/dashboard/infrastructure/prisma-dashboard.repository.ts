@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { 
-  DashboardRepository, 
-  DashboardKPIs, 
-  CategoryData, 
-  RecentTransactionData, 
-  SalesTrendData 
+import {
+  DashboardRepository,
+  DashboardKPIs,
+  CategoryData,
+  RecentTransactionData,
+  SalesTrendData,
 } from '../domain/dashboard.repository';
 
 interface RawKPIRow {

@@ -21,7 +21,13 @@ describe('GetRecentTransactionsUseCase', () => {
   it('should return recent transactions correctly', async () => {
     // Arrange
     repository.transactions = [
-      { id: 1, bookName: 'Livro A', date: '2026-03-31', totalValue: 50, profit: 20 },
+      {
+        id: 1,
+        bookName: 'Livro A',
+        date: '2026-03-31',
+        totalValue: 50,
+        profit: 20,
+      },
     ];
 
     // Act
@@ -30,13 +36,21 @@ describe('GetRecentTransactionsUseCase', () => {
     // Assert
     expect(result.success).toBe(true);
     expect(result.data).toEqual([
-      { id: 1, bookName: 'Livro A', date: '2026-03-31', totalValue: 50, profit: 20 },
+      {
+        id: 1,
+        bookName: 'Livro A',
+        date: '2026-03-31',
+        totalValue: 50,
+        profit: 20,
+      },
     ]);
   });
 
   it('should return error if repository fails', async () => {
     // Arrange
-    jest.spyOn(repository, 'getRecentTransactions').mockRejectedValue(new Error('DB Error'));
+    jest
+      .spyOn(repository, 'getRecentTransactions')
+      .mockRejectedValue(new Error('DB Error'));
 
     // Act
     const result = await useCase.execute();

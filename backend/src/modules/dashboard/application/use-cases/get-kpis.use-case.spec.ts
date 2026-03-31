@@ -43,7 +43,9 @@ describe('GetKPIsUseCase', () => {
 
   it('should return a failed Result Pattern if repository throws', async () => {
     // Arrange: Force failure in repository
-    jest.spyOn(repository, 'getKPIs').mockRejectedValue(new Error('DB failure'));
+    jest
+      .spyOn(repository, 'getKPIs')
+      .mockRejectedValue(new Error('DB failure'));
 
     // Act
     const result = await useCase.execute();

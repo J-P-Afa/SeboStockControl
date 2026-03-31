@@ -36,7 +36,9 @@ describe('GetTopCategoriesUseCase', () => {
 
   it('should return error if repository fails', async () => {
     // Arrange
-    jest.spyOn(repository, 'getTopCategories').mockRejectedValue(new Error('DB Error'));
+    jest
+      .spyOn(repository, 'getTopCategories')
+      .mockRejectedValue(new Error('DB Error'));
 
     // Act
     const result = await useCase.execute();
