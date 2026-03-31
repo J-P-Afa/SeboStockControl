@@ -1,8 +1,8 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { GetKPIsUseCase } from './use-cases/get-kpis.use-case';
-import { GetSalesTrendUseCase } from './use-cases/get-sales-trend.use-case';
-import { GetTopCategoriesUseCase } from './use-cases/get-top-categories.use-case';
-import { GetRecentTransactionsUseCase } from './use-cases/get-recent-transactions.use-case';
+import { GetKPIsUseCase } from './application/use-cases/get-kpis.use-case';
+import { GetSalesTrendUseCase } from './application/use-cases/get-sales-trend.use-case';
+import { GetTopCategoriesUseCase } from './application/use-cases/get-top-categories.use-case';
+import { GetRecentTransactionsUseCase } from './application/use-cases/get-recent-transactions.use-case';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { RequirePermission } from '../../common/decorators/require-permission.decorator';
