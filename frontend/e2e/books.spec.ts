@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/msw.fixture';
 
 test.describe('Book Management', () => {
   test.beforeEach(async ({ page }) => {

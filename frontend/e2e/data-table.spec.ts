@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/msw.fixture';
 
 test.describe('Data Table Interactions', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,7 +7,7 @@ test.describe('Data Table Interactions', () => {
 
   test('should sort books by title', async ({ page }) => {
     // Locate the sortable header for "Título"
-    const titleHeader = page.getByRole('button', { name: /Título/i });
+    const titleHeader = page.getByRole('columnheader', { name: /Título/i }).getByRole('button');
     
     // Check initial state
     await expect(titleHeader).toBeVisible();
@@ -25,7 +25,7 @@ test.describe('Data Table Interactions', () => {
 
     // Check if pagination exists and click the next button
     // The pagination buttons are usually "Seguinte" or "Anterior" in Portuguese based on the UI.
-    const nextButton = page.getByRole('button', { name: /Próxima/i }).or(page.getByRole('button', { name: /Next/i }));
+    const nextButton = page.locator('nav[aria-label="Paginação"]').getByRole('button', { name: /Próxima/i }).or(page.getByRole('button', { name: /Next/i }));
     
     if (await nextButton.isVisible()) {
       await nextButton.click();

@@ -1,4 +1,4 @@
-import { test as setup } from '@playwright/test';
+import { test as setup } from '../fixtures/msw.fixture';
 
 const authFile = 'playwright/.auth/user.json';
 

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/msw.fixture';
 
 // Reset storage state for login tests as we want to start logged out
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -22,7 +22,7 @@ test.describe('Login Flow', () => {
 
     // Check for error toast or alert
     // Based on unit tests, there should be an alert or toast with "Email ou senha inválidos"
-    await expect(page.getByText(/Email ou senha inválidos/i)).toBeVisible();
+    await expect(page.getByRole('alert').filter({ hasText: /Email ou senha inválidos/i })).toBeVisible();
   });
 
   test('should successfully login and redirect', async ({ page }) => {
