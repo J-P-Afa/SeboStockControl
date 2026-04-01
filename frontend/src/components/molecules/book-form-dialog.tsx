@@ -215,14 +215,14 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Estado *</Label>
+              <Label htmlFor="condition">Estado *</Label>
               <Controller
                 name="condition"
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
+                    <SelectTrigger id="condition">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -236,14 +236,14 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Edição *</Label>
+              <Label htmlFor="editionType">Edição *</Label>
               <Controller
                 name="editionType"
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
+                    <SelectTrigger id="editionType">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -273,13 +273,13 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Editora</Label>
+              <Label htmlFor="publisherId">Editora</Label>
               <Controller
                 name="publisherId"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value || ''}>
-                    <SelectTrigger>
+                    <SelectTrigger id="publisherId">
                       <SelectValue placeholder="Selecione">
                         {publishers?.items.find(p => p.id.toString() === field.value)?.description}
                       </SelectValue>
@@ -297,13 +297,13 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Idioma</Label>
+              <Label htmlFor="languageId">Idioma</Label>
               <Controller
                 name="languageId"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value || ''}>
-                    <SelectTrigger>
+                    <SelectTrigger id="languageId">
                       <SelectValue placeholder="Selecione">
                         {languages?.items.find(l => l.id.toString() === field.value)?.description}
                       </SelectValue>
@@ -321,13 +321,13 @@ export function BookFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Gênero</Label>
+              <Label htmlFor="genreId">Gênero</Label>
               <Controller
                 name="genreId"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value || ''}>
-                    <SelectTrigger>
+                    <SelectTrigger id="genreId">
                       <SelectValue placeholder="Selecione">
                         {genres?.items.find(g => g.id.toString() === field.value)?.description}
                       </SelectValue>
@@ -345,14 +345,14 @@ export function BookFormDialog({
             </div>
             
             <div className="space-y-2">
-              <Label>Status *</Label>
+              <Label htmlFor="status">Status *</Label>
               <Controller
                 name="status"
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
+                    <SelectTrigger id="status">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>

@@ -1,5 +1,3 @@
-'use client';
-
 import { Sidebar } from '@/components/organisms/sidebar/sidebar';
 import { AuthGuard } from '@/lib/auth/auth-guard';
 

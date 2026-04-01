@@ -76,13 +76,16 @@ export const test = base.extend<{
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            items: [
-              { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', status: 'COMPLETO', stockQuantity: 10, weight: 500 },
-              { id: '2', title: 'Dom Casmurro', author: 'Machado de Assis', status: 'PENDENTE', stockQuantity: 5, weight: 300 },
-            ],
-            total: 2,
-            totalPages: 1,
-            page: 1,
+            success: true,
+            data: {
+              items: [
+                { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', status: 'COMPLETO', stockQuantity: 10, weight: 500 },
+                { id: '2', title: 'Dom Casmurro', author: 'Machado de Assis', status: 'PENDENTE', stockQuantity: 5, weight: 300 },
+              ],
+              total: 2,
+              totalPages: 1,
+              page: 1,
+            },
           }),
         });
       }
@@ -92,9 +95,12 @@ export const test = base.extend<{
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            items: [{ id: 'admin-id', name: 'Admin User', email: 'admin@admin.com', role: 'ADMIN' }],
-            total: 1,
-            totalPages: 1,
+            success: true,
+            data: {
+              items: [{ id: 'admin-id', name: 'Admin User', email: 'admin@admin.com', role: 'ADMIN' }],
+              total: 1,
+              totalPages: 1,
+            },
           }),
         });
       }
@@ -103,9 +109,12 @@ export const test = base.extend<{
         return route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([
-            { id: '1', name: 'ADMIN', permissions: [] },
-          ]),
+          body: JSON.stringify({
+            success: true,
+            data: [
+              { id: '1', name: 'ADMIN', permissions: [] },
+            ],
+          }),
         });
       }
       
@@ -114,7 +123,15 @@ export const test = base.extend<{
         return route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ items: [], data: [], total: 0, totalPages: 0 }),
+          body: JSON.stringify({
+            success: true,
+            data: {
+              items: [],
+              data: [],
+              total: 0,
+              totalPages: 0,
+            },
+          }),
         });
       }
 

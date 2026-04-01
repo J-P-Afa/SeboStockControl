@@ -9,7 +9,7 @@ test.describe('User and Role Management', () => {
 
   test('should search for a user', async ({ page }) => {
     await page.goto('/users');
-    const searchInput = page.getByPlaceholder(/Buscar por nome ou email/i);
+    const searchInput = page.getByPlaceholder(/Buscar por nome ou e-mail/i);
     await searchInput.fill('Admin');
     // Verify search input value
     await expect(searchInput).toHaveValue('Admin');
