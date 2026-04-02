@@ -6,6 +6,10 @@ import { PublisherModule } from '../publisher/publisher.module';
 import { GenreModule } from '../genre/genre.module';
 import { PrismaBookRepository } from './infrastructure/prisma-book.repository';
 import { OpenLibraryService } from './infrastructure/open-library.service';
+import { OpenBDService } from './infrastructure/openbd.service';
+import { GoogleBooksService } from './infrastructure/google-books.service';
+import { BrasilApiService } from './infrastructure/brasil-api.service';
+import { CompositeExternalBookService } from './infrastructure/composite-external-book.service';
 import { BOOK_REPOSITORY } from './domain/book.repository.interface';
 import { EXTERNAL_BOOK_SERVICE } from './domain/external-book-service.interface';
 import {
@@ -23,13 +27,17 @@ import {
   controllers: [BookController],
   providers: [
     PrismaService,
+    OpenBDService,
+    GoogleBooksService,
+    BrasilApiService,
+    OpenLibraryService,
     {
       provide: BOOK_REPOSITORY,
       useClass: PrismaBookRepository,
     },
     {
       provide: EXTERNAL_BOOK_SERVICE,
-      useClass: OpenLibraryService,
+      useClass: CompositeExternalBookService,
     },
     CreateBookUseCase,
     UpdateBookUseCase,
