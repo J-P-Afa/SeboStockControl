@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Result } from '../../../../common';
 import { BOOK_REPOSITORY } from '../../domain/book.repository.interface';
 import type { IBookRepository } from '../../domain/book.repository.interface';
@@ -9,6 +9,8 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CreateBookUseCase {
+  private readonly logger = new Logger(CreateBookUseCase.name);
+
   constructor(
     @Inject(BOOK_REPOSITORY)
     private readonly bookRepo: IBookRepository,
@@ -54,8 +56,14 @@ export class CreateBookUseCase {
       const saved = await this.bookRepo.create(book.toJSON());
 
       return Result.ok(BookResponseDto.fromEntity(saved));
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      this.logger.error('Failed to create book', error.stack);
+
+      // Se for um erro de domínio (lançado pelo BookEntity), retornamos a mensagem específica
+      if (error instanceof Error && error.name === 'Error') {
+        return Result.fail('BOOK_VALIDATION_ERROR', error.message);
+      }
+
       return Result.fail('CREATE_BOOK_ERROR', 'Erro ao criar book');
     }
   }
