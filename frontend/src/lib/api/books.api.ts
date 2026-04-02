@@ -46,6 +46,9 @@ export async function listBooks(
 
 export async function createBook(payload: CreateBookPayload): Promise<Book> {
   const { data } = await apiClient.post<ApiResponse<Book>>('/books', payload);
+  if (!data.success) {
+    throw data.error || { message: 'Erro desconhecido ao criar livro' };
+  }
   return data.data;
 }
 
@@ -54,6 +57,9 @@ export async function updateBook(
   payload: UpdateBookPayload,
 ): Promise<Book> {
   const { data } = await apiClient.patch<ApiResponse<Book>>(`/books/${id}`, payload);
+  if (!data.success) {
+    throw data.error || { message: 'Erro desconhecido ao atualizar livro' };
+  }
   return data.data;
 }
 
