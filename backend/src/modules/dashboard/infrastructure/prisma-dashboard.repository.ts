@@ -47,7 +47,7 @@ export class PrismaDashboardRepository implements DashboardRepository {
         CASE WHEN SUM(s.valor_total) > 0 THEN (SUM(s.lucro_venda) / SUM(s.valor_total)) * 100 ELSE 0 END AS margem_lucro,
         CASE WHEN COUNT(s.id) > 0 THEN SUM(s.valor_total) / COUNT(s.id) ELSE 0 END AS ticket_medio
       FROM saida s
-      INNER JOIN tipo_saida ts ON s.id_tipo_saida = ts.id
+      INNER JOIN tipo_saida ts ON s.tipo_saida_id = ts.id
       WHERE ts.is_venda = TRUE
     `;
 
@@ -68,9 +68,9 @@ export class PrismaDashboardRepository implements DashboardRepository {
         SUM(s.valor_total) AS total_vendas,
         SUM(s.lucro_venda) AS lucro_liquido
       FROM saida s
-      INNER JOIN tipo_saida ts ON s.id_tipo_saida = ts.id
-      INNER JOIN livro l ON s.id_livro = l.id
-      INNER JOIN classificacao c ON l.id_classificacao = c.id
+      INNER JOIN tipo_saida ts ON s.tipo_saida_id = ts.id
+      INNER JOIN books l ON s.book_id = l.id
+      INNER JOIN classificacao c ON l.classificacao_id = c.id
       WHERE ts.is_venda = TRUE
       GROUP BY c.id, c.descricao
       ORDER BY total_vendas DESC
@@ -88,15 +88,15 @@ export class PrismaDashboardRepository implements DashboardRepository {
     const result = await this.prisma.$queryRaw<RawTransactionRow[]>`
       SELECT 
         s.id,
-        l.descricao AS book_name,
-        TO_CHAR(s.data, 'YYYY-MM-DD') AS date,
+        l.title AS book_name,
+        TO_CHAR(s.data_saida, 'YYYY-MM-DD') AS date,
         s.valor_total,
         s.lucro_venda AS profit
       FROM saida s
-      INNER JOIN tipo_saida ts ON s.id_tipo_saida = ts.id
-      INNER JOIN livro l ON s.id_livro = l.id
+      INNER JOIN tipo_saida ts ON s.tipo_saida_id = ts.id
+      INNER JOIN books l ON s.book_id = l.id
       WHERE ts.is_venda = TRUE
-      ORDER BY s.data DESC, s.created_at DESC
+      ORDER BY s.data_saida DESC, s.created_at DESC
       LIMIT ${limit}
     `;
 
@@ -112,21 +112,21 @@ export class PrismaDashboardRepository implements DashboardRepository {
   async getSalesTrend(days = 30): Promise<SalesTrendData[]> {
     const result = await this.prisma.$queryRaw<RawSalesTrend[]>`
       SELECT 
-        TO_CHAR(s.data, 'YYYY-MM-DD') AS date,
+        TO_CHAR(s.data_saida, 'YYYY-MM-DD') AS date,
         SUM(s.valor_total) AS total_vendas,
         SUM(s.lucro_venda) AS lucro_liquido
       FROM saida s
-      INNER JOIN tipo_saida ts ON s.id_tipo_saida = ts.id
+      INNER JOIN tipo_saida ts ON s.tipo_saida_id = ts.id
       WHERE ts.is_venda = TRUE
-        AND s.data >= CURRENT_DATE - CAST(${days} || ' days' AS INTERVAL)
-      GROUP BY s.data
-      ORDER BY s.data ASC
+        AND s.data_saida >= CURRENT_DATE - CAST(${days} || ' days' AS INTERVAL)
+      GROUP BY TO_CHAR(s.data_saida, 'YYYY-MM-DD')
+      ORDER BY date ASC
     `;
 
     return result.map((row) => ({
       date: String(row.date),
       totalSales: Number(row.total_vendas) || 0,
-      profit: Number(row.lucro_liquido) || 0,
+      netProfit: Number(row.lucro_liquido) || 0,
     }));
   }
 }

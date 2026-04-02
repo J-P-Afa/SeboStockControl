@@ -21,8 +21,8 @@ describe('GetSalesTrendUseCase', () => {
   it('should aggregate sales by date correctly', async () => {
     // Arrange
     repository.trends = [
-      { date: '2026-03-25', totalSales: 150.0, profit: 50.0 },
-      { date: '2026-03-26', totalSales: 300.0, profit: 100.0 },
+      { date: '2026-03-25', totalSales: 150.0, netProfit: 50.0 },
+      { date: '2026-03-26', totalSales: 300.0, netProfit: 100.0 },
     ];
 
     // Act
@@ -31,8 +31,8 @@ describe('GetSalesTrendUseCase', () => {
     // Assert
     expect(result.success).toBe(true);
     expect(result.data).toEqual([
-      { date: '2026-03-25', totalSales: 150.0, profit: 50.0 },
-      { date: '2026-03-26', totalSales: 300.0, profit: 100.0 },
+      { date: '2026-03-25', totalSales: 150.0, netProfit: 50.0 },
+      { date: '2026-03-26', totalSales: 300.0, netProfit: 100.0 },
     ]);
   });
 

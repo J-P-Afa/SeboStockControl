@@ -13,10 +13,33 @@ async function main() {
 
   // 1. Permissions
   const permissions = [
+    // Dashboard
+    { action: 'dashboard:read', description: 'Visualizar dashboard' },
+
+    // Usuários
     { action: 'user:read', description: 'Ler usuários' },
     { action: 'user:create', description: 'Criar usuários' },
     { action: 'user:update', description: 'Atualizar usuários' },
     { action: 'user:delete', description: 'Deletar usuários' },
+
+    // Livros
+    { action: 'book:read', description: 'Ler livros' },
+    { action: 'book:create', description: 'Criar livros' },
+    { action: 'book:update', description: 'Atualizar livros' },
+    { action: 'book:delete', description: 'Deletar livros' },
+
+    // Estoque
+    { action: 'stock:read', description: 'Ler estoque' },
+
+    // Entradas e Saídas
+    { action: 'entrada:read', description: 'Ler entradas de estoque' },
+    { action: 'entrada:create', description: 'Registrar entradas de estoque' },
+    { action: 'saida:read', description: 'Ler saídas de estoque' },
+    { action: 'saida:create', description: 'Registrar saídas de estoque' },
+
+    // Configurações e Auxiliares
+    { action: 'config:read', description: 'Ler configurações auxiliares' },
+    { action: 'config:manage', description: 'Gerenciar configurações auxiliares' },
   ];
 
   const createdPermissions = [];

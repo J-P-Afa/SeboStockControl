@@ -68,6 +68,9 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
             <Tooltip
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
+                  const salesData = payload.find((p) => p.dataKey === "totalSales")
+                  const profitData = payload.find((p) => p.dataKey === "netProfit")
+
                   return (
                     <div className="rounded-lg border border-neutral-800 bg-surface-container-highest p-3 shadow-xl backdrop-blur-md">
                       <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
@@ -84,7 +87,7 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
                             Vendas
                           </span>
                           <span className="text-xs font-mono font-bold text-white">
-                            {formatCurrency(Number(payload[0].value))}
+                            {formatCurrency(Number(salesData?.value ?? 0))}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-4">
@@ -93,7 +96,7 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
                             Lucro
                           </span>
                           <span className="text-xs font-mono font-bold text-white">
-                            {formatCurrency(Number(payload[1].value))}
+                            {formatCurrency(Number(profitData?.value ?? 0))}
                           </span>
                         </div>
                       </div>

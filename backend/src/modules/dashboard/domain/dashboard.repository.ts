@@ -22,7 +22,7 @@ export interface RecentTransactionData {
 export interface SalesTrendData {
   date: string;
   totalSales: number;
-  profit: number;
+  netProfit: number;
 }
 
 export interface DashboardRepository {

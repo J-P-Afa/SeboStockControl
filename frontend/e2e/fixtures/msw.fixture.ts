@@ -5,7 +5,8 @@ import { test as base } from '@playwright/test';
  */
 function generateFakeJwt(payload: object) {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payloadBase64 = btoa(JSON.stringify(payload)).replace(/=/g, '');
+  const payloadBase64 = btoa(JSON.stringify(payload));
+  // Keep padding as atob can be strict in some browsers
   return `${header}.${payloadBase64}.signature`;
 }
 
@@ -62,10 +63,13 @@ export const test = base.extend<{
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            id: 'admin-id',
-            email: 'admin@admin.com',
-            name: 'Admin User',
-            role: 'ADMIN',
+            success: true,
+            data: {
+              id: 'admin-id',
+              email: 'admin@admin.com',
+              name: 'Admin User',
+              role: 'ADMIN',
+            },
           }),
         });
       }
@@ -77,15 +81,10 @@ export const test = base.extend<{
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: {
-              items: [
-                { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', status: 'COMPLETO', stockQuantity: 10, weight: 500 },
-                { id: '2', title: 'Dom Casmurro', author: 'Machado de Assis', status: 'PENDENTE', stockQuantity: 5, weight: 300 },
-              ],
-              total: 2,
-              totalPages: 1,
-              page: 1,
-            },
+            data: [
+              { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', status: 'COMPLETO', stockQuantity: 10, weight: 500 },
+              { id: '2', title: 'Dom Casmurro', author: 'Machado de Assis', status: 'PENDENTE', stockQuantity: 5, weight: 300 },
+            ],
           }),
         });
       }
@@ -100,6 +99,8 @@ export const test = base.extend<{
               items: [{ id: 'admin-id', name: 'Admin User', email: 'admin@admin.com', role: 'ADMIN' }],
               total: 1,
               totalPages: 1,
+              page: 1,
+              limit: 10,
             },
           }),
         });
@@ -127,9 +128,10 @@ export const test = base.extend<{
             success: true,
             data: {
               items: [],
-              data: [],
               total: 0,
               totalPages: 0,
+              page: 1,
+              limit: 10,
             },
           }),
         });

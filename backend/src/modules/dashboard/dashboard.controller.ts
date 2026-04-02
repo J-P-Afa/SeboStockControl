@@ -9,7 +9,7 @@ import { RequirePermission } from '../../common/decorators/require-permission.de
 
 @Controller('dashboard')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
-@RequirePermission('admin:dashboard:read')
+@RequirePermission('dashboard:read')
 export class DashboardController {
   constructor(
     private readonly getKPIsUseCase: GetKPIsUseCase,
