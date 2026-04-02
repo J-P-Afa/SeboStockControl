@@ -11,7 +11,7 @@ import {
 } from '../application/use-cases';
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { Result } from '../../../common';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { Condition, EditionType, Status } from '@prisma/client';
 import { BookResponseDto } from '../application/dtos';
 
@@ -66,14 +66,20 @@ describe('BookController', () => {
       expect(createBookUseCase.execute).toHaveBeenCalledWith(dto);
     });
 
-    it('should forward fail as { success, error } without throwing HTTP exception', async () => {
+    it('should throw ConflictException on ISBN collision', async () => {
       const dto: any = { title: 'New Book' };
-      const err = { code: 'ERR', message: 'Fail' };
+      createBookUseCase.execute.mockResolvedValue(
+        Result.fail('ISBN13_ALREADY_EXISTS', 'ISBN already exists'),
+      );
+
+      await expect(controller.create(dto)).rejects.toThrow(ConflictException);
+    });
+
+    it('should throw BadRequestException on other failures', async () => {
+      const dto: any = { title: 'New Book' };
       createBookUseCase.execute.mockResolvedValue(Result.fail('ERR', 'Fail'));
 
-      const response = await controller.create(dto);
-
-      expect(response).toStrictEqual({ success: false, error: err });
+      await expect(controller.create(dto)).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -184,12 +190,24 @@ describe('BookController', () => {
       expect(response).toStrictEqual({ success: true, data: mockBookDto });
     });
 
-    it('should return error object on failed update', async () => {
-      updateBookUseCase.execute.mockResolvedValue(Result.fail('BA', 'Bad request'));
+    it('should throw NotFoundException when book not found', async () => {
+      updateBookUseCase.execute.mockResolvedValue(
+        Result.fail('BOOK_NOT_FOUND', 'Not found'),
+      );
 
-      const response = await controller.update(1, {} as any);
+      await expect(controller.update(1, {} as any)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
 
-      expect(response).toStrictEqual({ success: false, error: { code: 'BA', message: 'Bad request' } });
+    it('should throw BadRequestException on failed update', async () => {
+      updateBookUseCase.execute.mockResolvedValue(
+        Result.fail('BA', 'Bad request'),
+      );
+
+      await expect(controller.update(1, {} as any)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

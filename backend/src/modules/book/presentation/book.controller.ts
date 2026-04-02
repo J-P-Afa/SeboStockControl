@@ -11,6 +11,8 @@ import {
   NotFoundException,
   HttpCode,
   HttpStatus,
+  BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import {
   CreateBookUseCase,
@@ -39,7 +41,15 @@ export class BookController {
   @Post()
   async create(@Body() dto: CreateBookDto) {
     const result = await this.createBookUseCase.execute(dto);
-    if (!result.success) return { success: false, error: result.error };
+    if (!result.success) {
+      if (
+        result.error?.code === 'ISBN13_ALREADY_EXISTS' ||
+        result.error?.code === 'ISBN10_ALREADY_EXISTS'
+      ) {
+        throw new ConflictException(result.error);
+      }
+      throw new BadRequestException(result.error);
+    }
     return { success: true, data: result.data };
   }
 
@@ -115,7 +125,12 @@ export class BookController {
     @Body() dto: UpdateBookDto,
   ) {
     const result = await this.updateBookUseCase.execute(id, dto);
-    if (!result.success) return { success: false, error: result.error };
+    if (!result.success) {
+      if (result.error?.code === 'BOOK_NOT_FOUND') {
+        throw new NotFoundException(result.error);
+      }
+      throw new BadRequestException(result.error);
+    }
     return { success: true, data: result.data };
   }
 
