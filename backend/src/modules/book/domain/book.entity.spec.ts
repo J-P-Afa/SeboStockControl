@@ -47,22 +47,40 @@ describe('BookEntity', () => {
       expect(book.isbn13).toBe(null);
     });
 
-    it('should throw error with invalid 13-digit ISBN (wrong length)', () => {
-      expect(() => {
-        BookEntity.create({
-          ...validProps,
-          isbn13: '123',
-        });
-      }).toThrow('ISBN-13 deve conter exatamente 13 dígitos numéricos');
+    it('should create a book with a valid 10-digit ISBN ending in X', () => {
+      const book = BookEntity.create({
+        ...validProps,
+        isbn10: '853591303X',
+      });
+      expect(book.isbn10).toBe('853591303X');
     });
 
-    it('should throw error with invalid 13-digit ISBN (non-numeric)', () => {
+    it('should clean ISBNs with hyphens and dots', () => {
+      const book = BookEntity.create({
+        ...validProps,
+        isbn13: '978-85.359-1303-3',
+        isbn10: '85-359.1303-X',
+      });
+      expect(book.isbn13).toBe('9788535913033');
+      expect(book.isbn10).toBe('853591303X');
+    });
+
+    it('should throw error with invalid 10-digit ISBN (wrong length)', () => {
       expect(() => {
         BookEntity.create({
           ...validProps,
-          isbn13: '978853591303A',
+          isbn10: '123',
         });
-      }).toThrow('ISBN-13 deve conter exatamente 13 dígitos numéricos');
+      }).toThrow('ISBN-10 deve conter exatamente 10 caracteres');
+    });
+
+    it('should throw error with invalid 10-digit ISBN (non-numeric except last)', () => {
+      expect(() => {
+        BookEntity.create({
+          ...validProps,
+          isbn10: '85359A3032',
+        });
+      }).toThrow('ISBN-10 deve conter exatamente 10 caracteres');
     });
   });
 });

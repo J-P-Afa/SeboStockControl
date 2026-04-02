@@ -48,8 +48,18 @@ export class BookEntity {
     props: Omit<BookProps, 'id' | 'createdAt' | 'updatedAt'>,
   ): BookEntity {
     BookEntity.validateIsbn(props.isbn13, props.isbn10);
+
+    const cleanIsbn13 = props.isbn13
+      ? props.isbn13.replace(/[^0-9]/g, '')
+      : props.isbn13;
+    const cleanIsbn10 = props.isbn10
+      ? props.isbn10.replace(/[^0-9X]/gi, '').toUpperCase()
+      : props.isbn10;
+
     return new BookEntity({
       ...props,
+      isbn13: cleanIsbn13,
+      isbn10: cleanIsbn10,
       id: 0,
       isActive: props.isActive ?? true,
       createdAt: new Date(),
@@ -61,16 +71,24 @@ export class BookEntity {
     return new BookEntity(props);
   }
 
-  /** @ai-context RULE [LIV-02]: ISBN deve ter exatamente 13 ou 10 dígitos numéricos. */
+  /** @ai-context RULE [LIV-02]: ISBN deve ter exatamente 13 ou 10 dígitos numéricos (ISBN-10 pode terminar em X). */
   private static validateIsbn(
     isbn13?: string | null,
     isbn10?: string | null,
   ): void {
-    if (isbn13 && !/^\d{13}$/.test(isbn13)) {
-      throw new Error('ISBN-13 deve conter exatamente 13 dígitos numéricos');
+    if (isbn13) {
+      const clean13 = isbn13.replace(/[^0-9]/g, '');
+      if (clean13.length !== 13) {
+        throw new Error('ISBN-13 deve conter exatamente 13 dígitos numéricos');
+      }
     }
-    if (isbn10 && !/^\d{10}$/.test(isbn10)) {
-      throw new Error('ISBN-10 deve conter exatamente 10 dígitos numéricos');
+    if (isbn10) {
+      const clean10 = isbn10.replace(/[^0-9X]/gi, '');
+      if (!/^\d{9}[0-9X]$/i.test(clean10)) {
+        throw new Error(
+          'ISBN-10 deve conter exatamente 10 caracteres (9 dígitos + dígito verificador 0-9 ou X)',
+        );
+      }
     }
   }
 
@@ -156,9 +174,19 @@ export class BookEntity {
         props.isbn10 !== undefined ? props.isbn10 : this.props.isbn10,
       );
     }
+
+    const cleanIsbn13 = props.isbn13 !== undefined
+      ? (props.isbn13 ? props.isbn13.replace(/[^0-9]/g, '') : props.isbn13)
+      : undefined;
+    const cleanIsbn10 = props.isbn10 !== undefined
+      ? (props.isbn10 ? props.isbn10.replace(/[^0-9X]/gi, '').toUpperCase() : props.isbn10)
+      : undefined;
+
     this.props = {
       ...this.props,
       ...props,
+      ...(cleanIsbn13 !== undefined && { isbn13: cleanIsbn13 }),
+      ...(cleanIsbn10 !== undefined && { isbn10: cleanIsbn10 }),
       updatedAt: new Date(),
     };
   }
