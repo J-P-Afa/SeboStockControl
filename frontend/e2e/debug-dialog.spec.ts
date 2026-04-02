@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures/msw.fixture';
+import { test } from './fixtures/msw.fixture';
 
 test('debug dialog roles', async ({ page }) => {
   page.on('console', msg => {

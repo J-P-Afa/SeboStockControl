@@ -1,19 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { useIsMounted } from '@/hooks/use-is-mounted';
 import type { ReactNode } from 'react';
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const router = useRouter();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (mounted && !isLoading && !user) {

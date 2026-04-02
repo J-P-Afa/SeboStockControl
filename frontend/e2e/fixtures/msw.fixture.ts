@@ -6,7 +6,7 @@ import { test as base } from '@playwright/test';
 function generateFakeJwt(payload: object) {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const payloadBase64 = btoa(JSON.stringify(payload)).replace(/=/g, '');
-  return `header.${payloadBase64}.signature`;
+  return `${header}.${payloadBase64}.signature`;
 }
 
 const FAKE_ADMIN_TOKEN = generateFakeJwt({
