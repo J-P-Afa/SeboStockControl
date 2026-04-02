@@ -38,7 +38,7 @@ import {
 } from '@/components/molecules/select';
 import { BookSearchAutocomplete } from '@/components/molecules/book-search-autocomplete';
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
-import { bulkCreateEntrada, getLastCost, getBookStock, createBook } from '@/lib/api';
+import { bulkCreateEntrada, getLastCost, getBookStock, createBook, getErrorMessage } from '@/lib/api';
 import { lookupExternalBook } from '@/lib/api/books.api';
 import { formatCurrency } from '@/lib/formatters';
 import { Condition, type Book, type ExternalBook, type CreateBookPayload } from '@/types';
@@ -121,6 +121,11 @@ export default function EntradasPage() {
       if (data) {
         setExternalBookData(data);
         toast.success('Dados encontrados na Open Library!');
+        
+        // Ensure auxiliary data is updated as external lookup might have created new ones
+        queryClient.invalidateQueries({ queryKey: ['publishers'] });
+        queryClient.invalidateQueries({ queryKey: ['languages'] });
+        queryClient.invalidateQueries({ queryKey: ['genres'] });
       } else {
         setExternalBookData(null);
         toast.warning('Livro não encontrado na Open Library. Preencha manualmente.');
@@ -263,10 +268,14 @@ export default function EntradasPage() {
       } as CreateBookPayload);
       
       setBookFormOpen(false);
-      handleBookSelect(book);
-      toast.success('Livro cadastrado e selecionado');
-    } catch {
-      toast.error('Erro ao cadastrar livro');
+      if (book) {
+        handleBookSelect(book);
+        toast.success('Livro cadastrado e selecionado');
+      } else {
+        toast.warning('Livro cadastrado mas não retornou dados. Tente pesquisar novamente.');
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Erro ao cadastrar livro'));
     }
   };
 
