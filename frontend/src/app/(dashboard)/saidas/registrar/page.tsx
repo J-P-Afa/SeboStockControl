@@ -42,6 +42,7 @@ import {
   bulkCreateSaida, 
   getBookStock, 
   createBook,
+  getErrorMessage,
 } from '@/lib/api';
 import { useTiposSaida } from '@/hooks/use-tipos-saida';
 import { useCanaisVenda } from '@/hooks/use-canais-venda';
@@ -285,10 +286,14 @@ export default function RegistrarSaidaPage() {
       } as CreateBookPayload);
       
       setBookFormOpen(false);
-      handleBookSelect(book);
-      toast.success('Livro cadastrado e selecionado');
-    } catch {
-      toast.error('Erro ao cadastrar livro');
+      if (book) {
+        handleBookSelect(book);
+        toast.success('Livro cadastrado e selecionado');
+      } else {
+        toast.warning('Livro cadastrado mas não retornou dados. Tente pesquisar novamente.');
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Erro ao cadastrar livro'));
     }
   };
 
