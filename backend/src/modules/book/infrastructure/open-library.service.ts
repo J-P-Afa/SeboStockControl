@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { IExternalBookService } from '../domain/external-book-service.interface';
 import { ExternalBookLookupDto } from '../application/dtos/external-book-lookup.dto';
+import { IsbnUtils } from '../domain/isbn-utils';
 
 @Injectable()
 export class OpenLibraryService implements IExternalBookService {
@@ -9,20 +10,29 @@ export class OpenLibraryService implements IExternalBookService {
   private readonly detailsUrl = 'https://openlibrary.org/isbn';
 
   async lookupByIsbn(isbn: string): Promise<ExternalBookLookupDto | null> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout (OpenLibrary is often slow)
+
     try {
-      const bibkey = `ISBN:${isbn}`;
+      const cleanIsbn = isbn.replace(/[^0-9X]/gi, '');
+      const bibkey = `ISBN:${cleanIsbn}`;
       const url = `${this.dataUrl}?bibkeys=${bibkey}&format=json&jscmd=data`;
 
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: {
           'User-Agent': 'SeboStockControl/1.0 (sebo-stock-control@example.com)',
         },
       });
 
       if (!response.ok) {
-        this.logger.error(
-          `Open Library Data API error: ${response.status} ${response.statusText}`,
-        );
+        if (response.status === 429) {
+          this.logger.warn(`Open Library API quota exceeded (429).`);
+        } else {
+          this.logger.error(
+            `Open Library Data API error: ${response.status} ${response.statusText}`,
+          );
+        }
         return null;
       }
 
@@ -33,18 +43,17 @@ export class OpenLibraryService implements IExternalBookService {
         this.logger.debug(
           `Book with ISBN ${isbn} not found in Open Library Data API`,
         );
-        return this.tryFetchFromDetails(isbn);
+        return this.tryFetchFromDetails(cleanIsbn);
       }
 
-      const dto = this.mapToDto(bookData, isbn);
+      const dto = this.mapToDto(bookData, cleanIsbn);
 
       // --- Fallback para Idioma ou Editora se estiverem vazios ---
       if (!dto.language || !dto.publisher) {
-        const extraData = await this.tryFetchFromDetails(isbn);
+        const extraData = await this.tryFetchFromDetails(cleanIsbn);
         if (extraData) {
           if (!dto.language) dto.language = extraData.language;
           if (!dto.publisher) dto.publisher = extraData.publisher;
-          // Se não tiver gênero, tenta pegar do fallback
           if (
             dto.subjects?.length === 0 &&
             extraData.subjects?.length &&
@@ -56,22 +65,31 @@ export class OpenLibraryService implements IExternalBookService {
       }
 
       return dto;
-    } catch (error) {
-      this.logger.error(`Failed to lookup book by ISBN ${isbn}`, error);
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        this.logger.warn(`Open Library lookup timed out for ISBN ${isbn}`);
+      } else {
+        this.logger.error(`Failed to lookup book by ISBN ${isbn} on Open Library`, error);
+      }
       return null;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
   /**
    * Tenta buscar dados diretamente do JSON da ISBN (detalhes da edição)
-   * Útil quando a API de Dados (jscmd=data) retorna um registro muito reduzido.
    */
   private async tryFetchFromDetails(
     isbn: string,
   ): Promise<ExternalBookLookupDto | null> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
     try {
       const url = `${this.detailsUrl}/${isbn}.json`;
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: {
           'User-Agent': 'SeboStockControl/1.0 (sebo-stock-control@example.com)',
         },
@@ -85,10 +103,8 @@ export class OpenLibraryService implements IExternalBookService {
       const dto = new ExternalBookLookupDto();
       dto.title = data.title;
       dto.subtitle = data.subtitle || null;
-      // Editora
       dto.publisher = data.publishers ? data.publishers[0] : null;
 
-      // Idioma (Mapeamento de chaves comuns)
       if (data.languages && data.languages.length > 0) {
         const langKey = data.languages[0].key;
         if (langKey.includes('/por')) dto.language = 'Português';
@@ -97,16 +113,13 @@ export class OpenLibraryService implements IExternalBookService {
         else if (langKey.includes('/fre')) dto.language = 'Francês';
       }
 
-      dto.isbn10 = data.isbn_10
-        ? data.isbn_10[0]
-        : isbn.length === 10
-          ? isbn
-          : null;
-      dto.isbn13 = data.isbn_13
-        ? data.isbn_13[0]
-        : isbn.length === 13
-          ? isbn
-          : null;
+      // ISBNs
+      const isbn10FromApi = data.isbn_10?.[0];
+      const isbn13FromApi = data.isbn_13?.[0];
+      const baseIsbn = isbn13FromApi || isbn10FromApi || isbn;
+      const isbns = IsbnUtils.populateBoth(baseIsbn);
+      dto.isbn10 = isbns.isbn10;
+      dto.isbn13 = isbns.isbn13;
 
       if (data.publish_date) {
         const yearMatch = data.publish_date.match(/\d{4}/);
@@ -117,6 +130,8 @@ export class OpenLibraryService implements IExternalBookService {
       return dto;
     } catch {
       return null;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -130,11 +145,13 @@ export class OpenLibraryService implements IExternalBookService {
     dto.publisher = data.publishers ? data.publishers[0]?.name : null;
     dto.language = data.languages ? data.languages[0]?.name : null;
 
-    dto.isbn10 = data.identifiers?.isbn_10 ? data.identifiers.isbn_10[0] : null;
-    dto.isbn13 = data.identifiers?.isbn_13 ? data.identifiers.isbn_13[0] : null;
-
-    if (!dto.isbn10 && originalIsbn.length === 10) dto.isbn10 = originalIsbn;
-    if (!dto.isbn13 && originalIsbn.length === 13) dto.isbn13 = originalIsbn;
+    // ISBNs
+    const isbn10FromApi = data.identifiers?.isbn_10?.[0];
+    const isbn13FromApi = data.identifiers?.isbn_13?.[0];
+    const baseIsbn = isbn13FromApi || isbn10FromApi || originalIsbn;
+    const isbns = IsbnUtils.populateBoth(baseIsbn);
+    dto.isbn10 = isbns.isbn10;
+    dto.isbn13 = isbns.isbn13;
 
     if (data.publish_date) {
       const yearMatch = data.publish_date.match(/\d{4}/);
