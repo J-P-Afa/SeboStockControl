@@ -113,6 +113,16 @@ export function BookFormDialog({
   }, [setValue]);
 
   useEffect(() => {
+    if (open && externalBook) {
+      // If we have external book data, ensure we have the latest auxiliary lists
+      // as the backend might have just created new publishers/genres/languages
+      Promise.all([
+        refetchPublishers(),
+        refetchLanguages(),
+        refetchGenres()
+      ]);
+    }
+
     if (open) {
       reset({
         title: book?.title ?? externalBook?.title ?? '',
@@ -133,7 +143,7 @@ export function BookFormDialog({
         dimensions: book?.dimensions ?? '',
       });
     }
-  }, [book, externalBook, open, reset]);
+  }, [book, externalBook, open, reset, refetchPublishers, refetchLanguages, refetchGenres]);
 
   const handleExternalLookup = async () => {
     const isbn = getValues('isbn13') || getValues('isbn10');
@@ -210,7 +220,7 @@ export function BookFormDialog({
 
             <div className="space-y-2">
               <Label htmlFor="isbn10">ISBN-10</Label>
-              <Input id="isbn10" {...register('isbn10', { pattern: { value: /^\d{10}$/, message: '10 dígitos' } })} />
+              <Input id="isbn10" {...register('isbn10', { pattern: { value: /^\d{9}[\dX]$/i, message: '10 dígitos (pode terminar em X)' } })} />
               {errors.isbn10 && <p className="text-xs text-destructive">{errors.isbn10.message}</p>}
             </div>
 
