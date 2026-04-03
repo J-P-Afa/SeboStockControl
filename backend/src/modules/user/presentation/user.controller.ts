@@ -5,12 +5,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Patch,
   Post,
   Query,
-  ConflictException,
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
@@ -74,15 +72,13 @@ export class UserController {
       filters.isActive = query.isActive;
     }
 
-    const result = await this.listUsersUseCase.execute(
+    return this.listUsersUseCase.execute(
       query.page,
       query.limit,
       query.sortBy,
       query.sortOrder,
       filters,
     );
-
-    return { success: true, data: result.data };
   }
 
   @Post()
@@ -94,13 +90,7 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'Usuário criado com sucesso.' })
   @ApiResponse({ status: 409, description: 'E-mail já cadastrado.' })
   async create(@Body() dto: CreateUserDto) {
-    const result = await this.createUserUseCase.execute(dto);
-
-    if (!result.success) {
-      throw new ConflictException(result.error);
-    }
-
-    return { success: true, data: result.data };
+    return this.createUserUseCase.execute(dto);
   }
 
   @Patch(':id')
@@ -115,32 +105,19 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateUserDto,
   ) {
-    const result = await this.updateUserUseCase.execute(id, dto);
-
-    if (!result.success) {
-      if (result.error?.code === 'USER_NOT_FOUND') {
-        throw new NotFoundException(result.error);
-      }
-      throw new ConflictException(result.error);
-    }
-
-    return { success: true, data: result.data };
+    return this.updateUserUseCase.execute(id, dto);
   }
 
   @Delete(':id')
   @RequirePermission('user:delete')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Excluir usuário',
     description: 'Remove um usuário do sistema.',
   })
-  @ApiResponse({ status: 204, description: 'Usuário excluído com sucesso.' })
+  @ApiResponse({ status: 200, description: 'Usuário excluído com sucesso.' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado.' })
   async delete(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.deleteUserUseCase.execute(id);
-
-    if (!result.success) {
-      throw new NotFoundException(result.error);
-    }
+    return this.deleteUserUseCase.execute(id);
   }
 }
