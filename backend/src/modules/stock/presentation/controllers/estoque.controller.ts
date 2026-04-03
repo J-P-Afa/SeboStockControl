@@ -1,14 +1,8 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  NotFoundException,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Inject } from '@nestjs/common';
 import { ESTOQUE_REPOSITORY } from '../../domain/repositories/stock.repository.interface';
 import type { IStockRepository } from '../../domain/repositories/stock.repository.interface';
 import { GetEstoqueHistoryUseCase } from '../../application/use-cases/get-estoque-history.use-case';
+import { Result } from '../../../../common';
 
 @Controller('estoques')
 export class EstoqueController {
@@ -20,21 +14,23 @@ export class EstoqueController {
 
   @Get()
   async findAll() {
-    return { success: true, data: await this.repo.findAll() };
+    return this.repo.findAll();
   }
 
   @Get('book/:bookId')
   async findByBook(@Param('bookId', ParseIntPipe) bookId: number) {
     const item = await this.repo.findByBookId(bookId);
-    if (!item)
-      throw new NotFoundException('Estoque não encontrado para este book');
-    return { success: true, data: item };
+    if (!item) {
+      return Result.fail(
+        'STOCK_NOT_FOUND',
+        'Estoque não encontrado para este book',
+      );
+    }
+    return item;
   }
 
   @Get('book/:bookId/history')
   async getHistory(@Param('bookId', ParseIntPipe) bookId: number) {
-    const result = await this.getEstoqueHistoryUseCase.execute(bookId);
-    if (!result.success) throw new NotFoundException(result.error?.message);
-    return { success: true, data: result.data };
+    return this.getEstoqueHistoryUseCase.execute(bookId);
   }
 }
