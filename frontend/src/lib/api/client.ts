@@ -54,7 +54,18 @@ function processQueue(error: unknown, token: string | null) {
 }
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const { data } = response;
+    // Handle Result Pattern from the backend
+    if (data && typeof data === 'object' && 'success' in data) {
+      if (data.success) {
+        return { ...response, data: data.data };
+      } else {
+        return Promise.reject(data.error || { message: 'Erro desconhecido' });
+      }
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -63,6 +74,16 @@ apiClient.interceptors.response.use(
       originalRequest._retry ||
       originalRequest.url?.includes('/auth/login')
     ) {
+      // If the response follows the Result pattern, extract the error field
+      if (
+        error.response?.data &&
+        typeof error.response.data === 'object' &&
+        'success' in error.response.data
+      ) {
+        return Promise.reject(
+          error.response.data.error || { message: 'Erro desconhecido' },
+        );
+      }
       return Promise.reject(error);
     }
 
