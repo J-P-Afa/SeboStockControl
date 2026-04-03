@@ -47,14 +47,14 @@ export class ResultInterceptor<T> implements NestInterceptor<T, any> {
   }
 
   private throwException(error: ResultError | string): never {
-    let code = 'INTERNAL_ERROR';
-    let message = 'Erro interno do servidor';
+    let code = 'BAD_REQUEST';
+    let message = 'Erro de requisição';
 
     if (typeof error === 'string') {
       message = error;
     } else if (error && typeof error === 'object') {
-      code = error.code || 'INTERNAL_ERROR';
-      message = error.message || 'Erro interno do servidor';
+      code = error.code || 'BAD_REQUEST';
+      message = error.message || 'Erro de requisição';
     }
 
     const errorObj = { code, message };

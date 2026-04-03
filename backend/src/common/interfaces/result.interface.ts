@@ -18,12 +18,21 @@ export const Result = {
     return { success: true, data };
   },
 
-  fail<T = never>(code: string, message: string): Result<T> {
+  fail<T = never>(
+    codeOrError: string | ResultError,
+    message?: string,
+  ): Result<T> {
+    if (typeof codeOrError === 'object') {
+      return {
+        success: false,
+        error: codeOrError,
+      };
+    }
     return {
       success: false,
       error: {
-        code,
-        message,
+        code: codeOrError,
+        message: message || 'Erro desconhecido',
       },
     };
   },
