@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { HttpExceptionFilter, ResultInterceptor } from '../src/common';
 
 describe('Dashboard (e2e)', () => {
   let app: INestApplication<App>;
@@ -22,6 +23,8 @@ describe('Dashboard (e2e)', () => {
         transform: true,
       }),
     );
+    app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalInterceptors(new ResultInterceptor());
     await app.init();
 
     // Login to get token (permissions should be in token)
@@ -32,7 +35,7 @@ describe('Dashboard (e2e)', () => {
         password: 'admin123',
       });
 
-    authToken = loginRes.body.accessToken;
+    authToken = loginRes.body.data.accessToken;
   });
 
   afterAll(async () => {
