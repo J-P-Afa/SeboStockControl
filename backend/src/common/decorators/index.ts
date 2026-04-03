@@ -3,3 +3,4 @@ export {
   PERMISSIONS_KEY,
 } from './require-permission.decorator';
 export { Public, IS_PUBLIC_KEY } from './public.decorator';
+export { CurrentUser } from './current-user.decorator';
