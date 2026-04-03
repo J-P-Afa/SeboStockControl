@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { CreateLanguageUseCase } from '../application/use-cases/create-language.use-case';
@@ -21,8 +22,10 @@ import { DeleteLanguageUseCase } from '../application/use-cases/delete-language.
 import { CreateLanguageDto } from '../application/dtos/create-language.dto';
 import { UpdateLanguageDto } from '../application/dtos/update-language.dto';
 import { ListLanguagesQueryDto } from '../application/dtos/list-languages-query.dto';
+import { PermissionsGuard, RequirePermission } from '../../../common';
 
 @Controller('languages')
+@UseGuards(PermissionsGuard)
 export class LanguageController {
   constructor(
     private readonly createLanguage: CreateLanguageUseCase,
@@ -33,11 +36,13 @@ export class LanguageController {
   ) {}
 
   @Post()
+  @RequirePermission('language:write')
   async create(@Body() dto: CreateLanguageDto) {
     return this.createLanguage.execute(dto);
   }
 
   @Get()
+  @RequirePermission('language:read')
   async list(@Query() query: ListLanguagesQueryDto) {
     const filters = {
       search: query.search,
@@ -54,11 +59,13 @@ export class LanguageController {
   }
 
   @Get(':id')
+  @RequirePermission('language:read')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.getLanguageById.execute(id);
   }
 
   @Put(':id')
+  @RequirePermission('language:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateLanguageDto,
@@ -71,6 +78,7 @@ export class LanguageController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @RequirePermission('language:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.deleteLanguage.execute(id);
   }

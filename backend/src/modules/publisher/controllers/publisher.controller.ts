@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { CreatePublisherUseCase } from '../application/use-cases/create-publisher.use-case';
@@ -21,8 +22,10 @@ import { DeletePublisherUseCase } from '../application/use-cases/delete-publishe
 import { CreatePublisherDto } from '../application/dtos/create-publisher.dto';
 import { UpdatePublisherDto } from '../application/dtos/update-publisher.dto';
 import { ListPublishersQueryDto } from '../application/dtos/list-publishers-query.dto';
+import { PermissionsGuard, RequirePermission } from '../../../common';
 
 @Controller('publishers')
+@UseGuards(PermissionsGuard)
 export class PublisherController {
   constructor(
     private readonly createPublisher: CreatePublisherUseCase,
@@ -33,11 +36,13 @@ export class PublisherController {
   ) {}
 
   @Post()
+  @RequirePermission('publisher:write')
   async create(@Body() dto: CreatePublisherDto) {
     return this.createPublisher.execute(dto);
   }
 
   @Get()
+  @RequirePermission('publisher:read')
   async list(@Query() query: ListPublishersQueryDto) {
     const filters = {
       search: query.search,
@@ -54,11 +59,13 @@ export class PublisherController {
   }
 
   @Get(':id')
+  @RequirePermission('publisher:read')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.getPublisherById.execute(id);
   }
 
   @Put(':id')
+  @RequirePermission('publisher:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdatePublisherDto,
@@ -71,6 +78,7 @@ export class PublisherController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @RequirePermission('publisher:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.deletePublisher.execute(id);
   }

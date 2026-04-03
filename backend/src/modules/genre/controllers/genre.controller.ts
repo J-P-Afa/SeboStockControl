@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { CreateGenreUseCase } from '../application/use-cases/create-genre.use-case';
@@ -21,8 +22,10 @@ import { DeleteGenreUseCase } from '../application/use-cases/delete-genre.use-ca
 import { CreateGenreDto } from '../application/dtos/create-genre.dto';
 import { UpdateGenreDto } from '../application/dtos/update-genre.dto';
 import { ListGenresQueryDto } from '../application/dtos/list-genres-query.dto';
+import { PermissionsGuard, RequirePermission } from '../../../common';
 
 @Controller('genres')
+@UseGuards(PermissionsGuard)
 export class GenreController {
   constructor(
     private readonly createGenre: CreateGenreUseCase,
@@ -34,12 +37,14 @@ export class GenreController {
 
   //CREATE
   @Post()
+  @RequirePermission('genre:write')
   async create(@Body() dto: CreateGenreDto) {
     return this.createGenre.execute(dto);
   }
 
   //LIST
   @Get()
+  @RequirePermission('genre:read')
   async list(@Query() query: ListGenresQueryDto) {
     const filters = {
       search: query.search,
@@ -57,12 +62,14 @@ export class GenreController {
 
   //GET BY ID
   @Get(':id')
+  @RequirePermission('genre:read')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.getGenreById.execute(id);
   }
 
   //UPDATE
   @Put(':id')
+  @RequirePermission('genre:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateGenreDto,
@@ -76,6 +83,7 @@ export class GenreController {
   //DELETE
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @RequirePermission('genre:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.deleteGenre.execute(id);
   }
