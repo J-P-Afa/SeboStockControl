@@ -11,13 +11,15 @@ import {
   HttpStatus,
   Inject,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateLookupDto, UpdateLookupDto } from '../../common/dtos/lookup.dto';
 import { PrismaClassificacaoRepository } from './prisma-classificacao.repository';
 import { CLASSIFICACAO_REPOSITORY } from './constants';
-import { Result } from '../../common';
+import { Result, PermissionsGuard, RequirePermission } from '../../common';
 
 @Controller('classificacoes')
+@UseGuards(PermissionsGuard)
 export class ClassificacaoController {
   constructor(
     @Inject(CLASSIFICACAO_REPOSITORY)
@@ -25,11 +27,13 @@ export class ClassificacaoController {
   ) {}
 
   @Get()
+  @RequirePermission('classificacao:read')
   async findAll(@Query('all') all?: string) {
     return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
+  @RequirePermission('classificacao:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)
@@ -41,6 +45,7 @@ export class ClassificacaoController {
   }
 
   @Post()
+  @RequirePermission('classificacao:write')
   async create(@Body() dto: CreateLookupDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
@@ -52,6 +57,7 @@ export class ClassificacaoController {
   }
 
   @Patch(':id')
+  @RequirePermission('classificacao:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateLookupDto,
@@ -67,6 +73,7 @@ export class ClassificacaoController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @RequirePermission('classificacao:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)

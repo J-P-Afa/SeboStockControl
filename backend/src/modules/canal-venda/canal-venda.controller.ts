@@ -11,13 +11,15 @@ import {
   HttpStatus,
   Inject,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateCanalVendaDto, UpdateCanalVendaDto } from './canal-venda.dto';
 import { PrismaCanalVendaRepository } from './prisma-canal-venda.repository';
 import { CANAL_VENDA_REPOSITORY } from './constants';
-import { Result } from '../../common';
+import { Result, PermissionsGuard, RequirePermission } from '../../common';
 
 @Controller('canais-venda')
+@UseGuards(PermissionsGuard)
 export class CanalVendaController {
   constructor(
     @Inject(CANAL_VENDA_REPOSITORY)
@@ -25,11 +27,13 @@ export class CanalVendaController {
   ) {}
 
   @Get()
+  @RequirePermission('canal-venda:read')
   async findAll(@Query('all') all?: string) {
     return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
+  @RequirePermission('canal-venda:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)
@@ -41,6 +45,7 @@ export class CanalVendaController {
   }
 
   @Post()
+  @RequirePermission('canal-venda:write')
   async create(@Body() dto: CreateCanalVendaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
@@ -52,6 +57,7 @@ export class CanalVendaController {
   }
 
   @Patch(':id')
+  @RequirePermission('canal-venda:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCanalVendaDto,
@@ -67,6 +73,7 @@ export class CanalVendaController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @RequirePermission('canal-venda:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)
