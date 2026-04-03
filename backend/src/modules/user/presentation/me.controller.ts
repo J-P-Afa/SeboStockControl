@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  NotFoundException,
-  Patch,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../../../common/guards';
 import {
@@ -29,13 +21,7 @@ export class MeController {
 
   @Get('me')
   async getMe(@Req() req: RequestWithUser) {
-    const result = await this.getMeUseCase.execute(req.user.id);
-
-    if (!result.success) {
-      throw new NotFoundException(result.error);
-    }
-
-    return { success: true, data: result.data };
+    return this.getMeUseCase.execute(req.user.id);
   }
 
   @Patch('me/preferences')
@@ -43,15 +29,9 @@ export class MeController {
     @Req() req: RequestWithUser,
     @Body() dto: UpdateMyPreferencesDto,
   ) {
-    const result = await this.updateMyPreferencesUseCase.execute(
+    return this.updateMyPreferencesUseCase.execute(
       req.user.id,
       dto.themePreference,
     );
-
-    if (!result.success) {
-      throw new NotFoundException(result.error);
-    }
-
-    return { success: true, data: result.data };
   }
 }
