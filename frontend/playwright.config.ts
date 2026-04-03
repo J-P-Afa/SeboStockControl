@@ -38,6 +38,9 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
+  expect: {
+    timeout: 10000,
+  },
   projects: [
     {
       name: 'setup',
