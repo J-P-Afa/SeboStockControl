@@ -11,9 +11,18 @@ import {
 } from '../application/use-cases';
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { Result } from '../../../common';
-import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { Condition, EditionType, Status } from '@prisma/client';
-import { BookResponseDto } from '../application/dtos';
+import {
+  BookResponseDto,
+  CreateBookDto,
+  UpdateBookDto,
+} from '../application/dtos';
+import { ExternalBookLookupDto } from '../application/dtos/external-book-lookup.dto';
 
 describe('BookController', () => {
   let controller: BookController;
@@ -48,7 +57,10 @@ describe('BookController', () => {
         { provide: GetBookUseCase, useValue: getBookUseCase },
         { provide: ListBooksUseCase, useValue: listBooksUseCase },
         { provide: GetBookByIsbnUseCase, useValue: getBookByIsbnUseCase },
-        { provide: LookupExternalBookUseCase, useValue: lookupExternalBookUseCase },
+        {
+          provide: LookupExternalBookUseCase,
+          useValue: lookupExternalBookUseCase,
+        },
       ],
     }).compile();
 
@@ -57,7 +69,13 @@ describe('BookController', () => {
 
   describe('create', () => {
     it('should format successful creation as { success, data }', async () => {
-      const dto: any = { title: 'New Book' };
+      const dto = new CreateBookDto();
+      dto.title = 'New Book';
+      dto.editionType = EditionType.normal;
+      dto.condition = Condition.novo;
+      dto.status = Status.completo;
+      dto.weight = 0.5;
+
       createBookUseCase.execute.mockResolvedValue(Result.ok(mockBookDto));
 
       const response = await controller.create(dto);
@@ -67,7 +85,13 @@ describe('BookController', () => {
     });
 
     it('should throw ConflictException on ISBN collision', async () => {
-      const dto: any = { title: 'New Book' };
+      const dto: CreateBookDto = {
+        title: 'New Book',
+        editionType: EditionType.normal,
+        condition: Condition.novo,
+        status: Status.completo,
+        weight: 0.5,
+      };
       createBookUseCase.execute.mockResolvedValue(
         Result.fail('ISBN13_ALREADY_EXISTS', 'ISBN already exists'),
       );
@@ -76,7 +100,13 @@ describe('BookController', () => {
     });
 
     it('should throw BadRequestException on other failures', async () => {
-      const dto: any = { title: 'New Book' };
+      const dto: CreateBookDto = {
+        title: 'New Book',
+        editionType: EditionType.normal,
+        condition: Condition.novo,
+        status: Status.completo,
+        weight: 0.5,
+      };
       createBookUseCase.execute.mockResolvedValue(Result.fail('ERR', 'Fail'));
 
       await expect(controller.create(dto)).rejects.toThrow(BadRequestException);
@@ -85,7 +115,9 @@ describe('BookController', () => {
 
   describe('externalLookup', () => {
     it('should format successful external lookup as { success, data }', async () => {
-      lookupExternalBookUseCase.execute.mockResolvedValue(Result.ok(mockBookDto as any));
+      lookupExternalBookUseCase.execute.mockResolvedValue(
+        Result.ok(mockBookDto as unknown as ExternalBookLookupDto),
+      );
 
       const response = await controller.externalLookup('123');
 
@@ -93,9 +125,13 @@ describe('BookController', () => {
     });
 
     it('should throw NotFoundException on failed lookup', async () => {
-      lookupExternalBookUseCase.execute.mockResolvedValue(Result.fail('NF', 'Not Found'));
+      lookupExternalBookUseCase.execute.mockResolvedValue(
+        Result.fail('NF', 'Not Found'),
+      );
 
-      await expect(controller.externalLookup('123')).rejects.toThrow(NotFoundException);
+      await expect(controller.externalLookup('123')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -154,13 +190,18 @@ describe('BookController', () => {
       const response = await controller.getByIsbn('123', Condition.usado);
 
       expect(response).toStrictEqual({ success: true, data: mockBookDto });
-      expect(listBooksUseCase.execute).toHaveBeenCalledWith({ isbn: '123', condition: Condition.usado });
+      expect(listBooksUseCase.execute).toHaveBeenCalledWith({
+        isbn: '123',
+        condition: Condition.usado,
+      });
     });
 
     it('should throw NotFoundException if condition is provided but no books found', async () => {
       listBooksUseCase.execute.mockResolvedValue(Result.ok([]));
 
-      await expect(controller.getByIsbn('123', Condition.usado)).rejects.toThrow(NotFoundException);
+      await expect(
+        controller.getByIsbn('123', Condition.usado),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -182,7 +223,7 @@ describe('BookController', () => {
 
   describe('update', () => {
     it('should format successful update as { success, data }', async () => {
-      const dto: any = { title: 'Updated' };
+      const dto: UpdateBookDto = { title: 'Updated' };
       updateBookUseCase.execute.mockResolvedValue(Result.ok(mockBookDto));
 
       const response = await controller.update(1, dto);
@@ -195,7 +236,7 @@ describe('BookController', () => {
         Result.fail('BOOK_NOT_FOUND', 'Not found'),
       );
 
-      await expect(controller.update(1, {} as any)).rejects.toThrow(
+      await expect(controller.update(1, {} as UpdateBookDto)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -205,7 +246,7 @@ describe('BookController', () => {
         Result.fail('BA', 'Bad request'),
       );
 
-      await expect(controller.update(1, {} as any)).rejects.toThrow(
+      await expect(controller.update(1, {} as UpdateBookDto)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -219,7 +260,9 @@ describe('BookController', () => {
     });
 
     it('should throw NotFoundException if delete fails', async () => {
-      deleteBookUseCase.execute.mockResolvedValue(Result.fail('NF', 'Id not found'));
+      deleteBookUseCase.execute.mockResolvedValue(
+        Result.fail('NF', 'Id not found'),
+      );
 
       await expect(controller.remove(1)).rejects.toThrow(NotFoundException);
     });

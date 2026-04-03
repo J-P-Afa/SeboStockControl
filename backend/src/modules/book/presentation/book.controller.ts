@@ -8,11 +8,9 @@ import {
   Patch,
   ParseIntPipe,
   Query,
-  NotFoundException,
   HttpCode,
   HttpStatus,
-  BadRequestException,
-  ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   CreateBookUseCase,
@@ -25,6 +23,7 @@ import {
 } from '../application/use-cases';
 import { CreateBookDto, UpdateBookDto } from '../application/dtos';
 import { Condition, EditionType, Status } from '@prisma/client';
+import { Result } from '../../../common';
 
 @Controller('books')
 export class BookController {
@@ -40,24 +39,12 @@ export class BookController {
 
   @Post()
   async create(@Body() dto: CreateBookDto) {
-    const result = await this.createBookUseCase.execute(dto);
-    if (!result.success) {
-      if (
-        result.error?.code === 'ISBN13_ALREADY_EXISTS' ||
-        result.error?.code === 'ISBN10_ALREADY_EXISTS'
-      ) {
-        throw new ConflictException(result.error);
-      }
-      throw new BadRequestException(result.error);
-    }
-    return { success: true, data: result.data };
+    return this.createBookUseCase.execute(dto);
   }
 
   @Get('external-lookup/:isbn')
   async externalLookup(@Param('isbn') isbn: string) {
-    const result = await this.lookupExternalBookUseCase.execute(isbn);
-    if (!result.success) throw new NotFoundException(result.error?.message);
-    return { success: true, data: result.data };
+    return this.lookupExternalBookUseCase.execute(isbn);
   }
 
   @Get()
@@ -76,7 +63,7 @@ export class BookController {
     @Query('collection') collection?: string,
     @Query('inStock') inStock?: string,
   ) {
-    const result = await this.listBooksUseCase.execute({
+    return this.listBooksUseCase.execute({
       id: id ? Number(id) : undefined,
       isbn,
       search,
@@ -91,7 +78,6 @@ export class BookController {
       collection,
       inStock: inStock !== undefined ? inStock === 'true' : undefined,
     });
-    return { success: true, data: result.data };
   }
 
   @Get('isbn/:isbn')
@@ -102,21 +88,17 @@ export class BookController {
     if (condition) {
       const result = await this.listBooksUseCase.execute({ isbn, condition });
       if (result.data && result.data.length > 0)
-        return { success: true, data: result.data[0] };
+        return Result.ok(result.data[0]);
       throw new NotFoundException(
         `Livro com ISBN ${isbn} e condição ${condition} não encontrado`,
       );
     }
-    const result = await this.getBookByIsbnUseCase.execute(isbn);
-    if (!result.success) throw new NotFoundException(result.error?.message);
-    return { success: true, data: result.data };
+    return this.getBookByIsbnUseCase.execute(isbn);
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.getBookUseCase.execute(id);
-    if (!result.success) throw new NotFoundException(result.error?.message);
-    return { success: true, data: result.data };
+    return this.getBookUseCase.execute(id);
   }
 
   @Patch(':id')
@@ -124,20 +106,12 @@ export class BookController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBookDto,
   ) {
-    const result = await this.updateBookUseCase.execute(id, dto);
-    if (!result.success) {
-      if (result.error?.code === 'BOOK_NOT_FOUND') {
-        throw new NotFoundException(result.error);
-      }
-      throw new BadRequestException(result.error);
-    }
-    return { success: true, data: result.data };
+    return this.updateBookUseCase.execute(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.deleteBookUseCase.execute(id);
-    if (!result.success) throw new NotFoundException(result.error?.message);
+    return this.deleteBookUseCase.execute(id);
   }
 }
