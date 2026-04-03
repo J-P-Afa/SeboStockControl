@@ -29,21 +29,21 @@ export interface RecentTransaction {
 
 export const dashboardApi = {
   getKPIs: async () => {
-    const { data } = await client.get<{ data: DashboardKPIs }>("/dashboard/kpis")
-    return data.data
+    const { data } = await client.get<DashboardKPIs>("/dashboard/kpis")
+    return data
   },
   getSalesTrend: async () => {
-    const { data } = await client.get<{ data: SalesTrend[] }>("/dashboard/sales-trend")
-    return data.data
+    const { data } = await client.get<SalesTrend[]>("/dashboard/sales-trend")
+    return data
   },
   getTopCategories: async () => {
-    const { data } = await client.get<{ data: CategoryData[] }>("/dashboard/top-categories")
-    return data.data
+    const { data } = await client.get<CategoryData[]>("/dashboard/top-categories")
+    return data
   },
   getRecentTransactions: async () => {
-    const { data } = await client.get<{ data: RecentTransaction[] }>(
+    const { data } = await client.get<RecentTransaction[]>(
       "/dashboard/recent-transactions"
     )
-    return data.data
+    return data
   },
 }
