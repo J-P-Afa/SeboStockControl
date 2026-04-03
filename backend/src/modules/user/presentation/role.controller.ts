@@ -8,8 +8,6 @@ import {
   Param,
   UseGuards,
   ParseUUIDPipe,
-  ConflictException,
-  NotFoundException,
 } from '@nestjs/common';
 import { PermissionsGuard } from '../../../common/guards';
 import { RequirePermission } from '../../../common';
@@ -34,27 +32,19 @@ export class RoleController {
   @Get()
   @RequirePermission('user:read')
   async list() {
-    const result = await this.listRolesUseCase.execute();
-    return { success: true, data: result.data };
+    return this.listRolesUseCase.execute();
   }
 
   @Get('permissions')
   @RequirePermission('user:read')
   async listPermissions() {
-    const result = await this.listRolesUseCase.listPermissions();
-    return { success: true, data: result.data };
+    return this.listRolesUseCase.listPermissions();
   }
 
   @Post()
   @RequirePermission('user:create')
   async create(@Body() dto: CreateRoleDto) {
-    const result = await this.createRoleUseCase.execute(dto);
-
-    if (!result.success) {
-      throw new ConflictException(result.error);
-    }
-
-    return { success: true, data: result.data };
+    return this.createRoleUseCase.execute(dto);
   }
 
   @Patch(':id')
@@ -63,22 +53,12 @@ export class RoleController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateRoleDto,
   ) {
-    const result = await this.updateRoleUseCase.execute(id, dto);
-
-    if (!result.success) {
-      throw new NotFoundException(result.error);
-    }
-
-    return { success: true, data: result.data };
+    return this.updateRoleUseCase.execute(id, dto);
   }
 
   @Delete(':id')
   @RequirePermission('user:delete')
   async delete(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.deleteRoleUseCase.execute(id);
-
-    if (!result.success) {
-      throw new NotFoundException(result.error);
-    }
+    return this.deleteRoleUseCase.execute(id);
   }
 }
