@@ -44,12 +44,8 @@ describe('useBooks hook', () => {
     server.use(
       http.get(`${API_URL}/books`, () => {
         return HttpResponse.json({
-          data: mockBooks,
-          meta: {
-            total: 2,
-            page: 1,
-            lastPage: 1,
-          },
+          success: true,
+          data: mockBooks
         });
       })
     );
@@ -76,7 +72,10 @@ describe('useBooks hook', () => {
     
     server.use(
       http.post(`${API_URL}/books`, () => {
-        return HttpResponse.json({ id: 3, ...newBook }, { status: 201 });
+        return HttpResponse.json({
+          success: true,
+          data: { id: 3, ...newBook }
+        }, { status: 201 });
       })
     );
 
@@ -91,7 +90,10 @@ describe('useBooks hook', () => {
   it('should handle create book error', async () => {
     server.use(
       http.post(`${API_URL}/books`, () => {
-        return HttpResponse.json({ message: 'ISBN already exists' }, { status: 400 });
+        return HttpResponse.json({ 
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'ISBN already exists' } 
+        }, { status: 400 });
       })
     );
 
@@ -108,7 +110,10 @@ describe('useBooks hook', () => {
     
     server.use(
       http.patch(`${API_URL}/books/1`, () => {
-        return HttpResponse.json({ id: 1, title: 'Updated Book' });
+        return HttpResponse.json({
+          success: true,
+          data: { id: 1, title: 'Updated Book' }
+        });
       })
     );
 
@@ -123,7 +128,10 @@ describe('useBooks hook', () => {
   it('should handle update book error', async () => {
     server.use(
       http.patch(`${API_URL}/books/1`, () => {
-        return HttpResponse.json({ message: 'Update failed' }, { status: 400 });
+        return HttpResponse.json({ 
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'Update failed' } 
+        }, { status: 400 });
       })
     );
 
@@ -138,7 +146,10 @@ describe('useBooks hook', () => {
   it('should delete a book successfully', async () => {
     server.use(
       http.delete(`${API_URL}/books/1`, () => {
-        return HttpResponse.json({ id: 1 });
+        return HttpResponse.json({
+          success: true,
+          data: { id: 1 }
+        });
       })
     );
 
@@ -153,7 +164,10 @@ describe('useBooks hook', () => {
   it('should handle delete book error', async () => {
     server.use(
       http.delete(`${API_URL}/books/1`, () => {
-        return HttpResponse.json({ message: 'Delete failed' }, { status: 400 });
+        return HttpResponse.json({ 
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'Delete failed' } 
+        }, { status: 400 });
       })
     );
 
