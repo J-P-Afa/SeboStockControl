@@ -37,6 +37,18 @@ async function main() {
     { action: 'saida:read', description: 'Ler saídas de estoque' },
     { action: 'saida:create', description: 'Registrar saídas de estoque' },
 
+    // Gêneros
+    { action: 'genre:read', description: 'Ler gêneros' },
+    { action: 'genre:write', description: 'Criar/Atualizar gêneros' },
+
+    // Idiomas
+    { action: 'language:read', description: 'Ler idiomas' },
+    { action: 'language:write', description: 'Criar/Atualizar idiomas' },
+
+    // Editoras
+    { action: 'publisher:read', description: 'Ler editoras' },
+    { action: 'publisher:write', description: 'Criar/Atualizar editoras' },
+
     // Configurações e Auxiliares
     { action: 'config:read', description: 'Ler configurações auxiliares' },
     { action: 'config:manage', description: 'Gerenciar configurações auxiliares' },
