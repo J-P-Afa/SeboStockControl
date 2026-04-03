@@ -30,7 +30,22 @@ model User {
   entradas Entrada[]
   saidas   Saida[]
 
+  // Security
+  refreshTokens RefreshToken[]
+
   @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique // Hashed refresh token
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
 
 model Role {
@@ -205,7 +220,7 @@ model TipoSaida {
 
 model Estoque {
   id                Int       @id @default(autoincrement())
-  book              Book      @relation(fields: [bookId], references: [id])
+  book              Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId            Int       @unique @map("book_id")
   quantidade        Int       @default(0)
   custoMedio        Decimal   @default(0.0) @map("custo_medio") @db.Decimal(14, 4)
@@ -219,7 +234,7 @@ model Estoque {
 
 model Entrada {
   id               Int      @id @default(autoincrement())
-  book             Book     @relation(fields: [bookId], references: [id])
+  book             Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId           Int      @map("book_id")
   usuario          User     @relation(fields: [usuarioId], references: [id])
   usuarioId        String   @map("usuario_id")
@@ -238,7 +253,7 @@ model Entrada {
 
 model Saida {
   id               Int             @id @default(autoincrement())
-  book             Book            @relation(fields: [bookId], references: [id])
+  book             Book            @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId           Int             @map("book_id")
   usuario          User            @relation(fields: [usuarioId], references: [id])
   usuarioId        String          @map("usuario_id")
