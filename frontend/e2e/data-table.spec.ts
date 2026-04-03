@@ -24,8 +24,8 @@ test.describe('Data Table Interactions', () => {
     await expect(page.getByRole('table')).toBeVisible();
 
     // Check if pagination exists and click the next button
-    // The pagination buttons are usually "Seguinte" or "Anterior" in Portuguese based on the UI.
-    const nextButton = page.locator('nav[aria-label="Paginação"]').getByRole('button', { name: /Próxima/i }).or(page.getByRole('button', { name: /Next/i }));
+    const paginationNav = page.locator('nav[aria-label="Paginação"]');
+    const nextButton = paginationNav.getByRole('button', { name: /Próxima/i }).or(paginationNav.getByRole('button', { name: /Next/i }));
     
     if (await nextButton.isVisible()) {
       await nextButton.click();
