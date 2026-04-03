@@ -86,8 +86,9 @@ describe('Dashboard (e2e)', () => {
   it('/api/dashboard/kpis (GET) - should return 403 when user lacks permission', async () => {
     // We would need a user without the permission to test this properly
     // For now, testing that a random token (or no token) fails with 401
-    const response = await request(app.getHttpServer())
-      .get('/api/dashboard/kpis');
+    const response = await request(app.getHttpServer()).get(
+      '/api/dashboard/kpis',
+    );
 
     expect(response.status).toBe(401);
   });
