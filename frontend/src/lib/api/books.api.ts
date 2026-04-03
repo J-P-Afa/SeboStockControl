@@ -4,14 +4,13 @@ import type {
   CreateBookPayload,
   UpdateBookPayload,
   ListBooksFilters,
-  ApiResponse,
   ExternalBook,
 } from '@/types';
 import { apiClient } from './client';
 
 export async function lookupExternalBook(isbn: string): Promise<ExternalBook | null> {
-  const { data } = await apiClient.get<ApiResponse<ExternalBook>>(`/books/external-lookup/${isbn}`);
-  return data.data;
+  const { data } = await apiClient.get<ExternalBook | null>(`/books/external-lookup/${isbn}`);
+  return data;
 }
 
 export async function listBooks(
@@ -21,7 +20,7 @@ export async function listBooks(
   sortOrder?: 'asc' | 'desc',
   filters?: ListBooksFilters,
 ): Promise<PaginatedResponse<Book>> {
-  const { data } = await apiClient.get<ApiResponse<Book[]>>('/books', {
+  const { data: books = [] } = await apiClient.get<Book[]>('/books', {
     params: {
       page,
       limit,
@@ -31,7 +30,6 @@ export async function listBooks(
     },
   });
 
-  const books = data.data ?? [];
   const total = books.length;
 
   // Mock pagination metadata as backend returns full list for now
@@ -45,24 +43,18 @@ export async function listBooks(
 }
 
 export async function createBook(payload: CreateBookPayload): Promise<Book> {
-  const { data } = await apiClient.post<ApiResponse<Book>>('/books', payload);
-  if (!data.success) {
-    throw data.error || { message: 'Erro desconhecido ao criar livro' };
-  }
-  return data.data;
+  const { data } = await apiClient.post<Book>('/books', payload);
+  return data;
 }
 
 export async function updateBook(
   id: number,
   payload: UpdateBookPayload,
 ): Promise<Book> {
-  const { data } = await apiClient.patch<ApiResponse<Book>>(`/books/${id}`, payload);
-  if (!data.success) {
-    throw data.error || { message: 'Erro desconhecido ao atualizar livro' };
-  }
-  return data.data;
+  const { data } = await apiClient.patch<Book>(`/books/${id}`, payload);
+  return data;
 }
 
 export async function deleteBook(id: number): Promise<void> {
-  await apiClient.delete(`/books/${id}`);
+  await apiClient.delete<void>(`/books/${id}`);
 }
