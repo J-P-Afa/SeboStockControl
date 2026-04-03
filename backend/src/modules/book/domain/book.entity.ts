@@ -175,12 +175,18 @@ export class BookEntity {
       );
     }
 
-    const cleanIsbn13 = props.isbn13 !== undefined
-      ? (props.isbn13 ? props.isbn13.replace(/[^0-9]/g, '') : props.isbn13)
-      : undefined;
-    const cleanIsbn10 = props.isbn10 !== undefined
-      ? (props.isbn10 ? props.isbn10.replace(/[^0-9X]/gi, '').toUpperCase() : props.isbn10)
-      : undefined;
+    const cleanIsbn13 =
+      props.isbn13 !== undefined
+        ? props.isbn13
+          ? props.isbn13.replace(/[^0-9]/g, '')
+          : props.isbn13
+        : undefined;
+    const cleanIsbn10 =
+      props.isbn10 !== undefined
+        ? props.isbn10
+          ? props.isbn10.replace(/[^0-9X]/gi, '').toUpperCase()
+          : props.isbn10
+        : undefined;
 
     this.props = {
       ...this.props,
