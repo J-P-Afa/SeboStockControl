@@ -34,19 +34,7 @@ export class LanguageController {
 
   @Post()
   async create(@Body() dto: CreateLanguageDto) {
-    const result = await this.createLanguage.execute(dto);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
+    return this.createLanguage.execute(dto);
   }
 
   @Get()
@@ -56,35 +44,18 @@ export class LanguageController {
       isActive: query.isActive,
     };
 
-    const result = await this.getLanguages.execute(
+    return this.getLanguages.execute(
       query.page,
       query.limit,
       query.sortBy,
       query.sortOrder,
       filters,
     );
-
-    return {
-      success: true,
-      data: result.data,
-    };
   }
 
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.getLanguageById.execute(id);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
+    return this.getLanguageById.execute(id);
   }
 
   @Put(':id')
@@ -92,38 +63,15 @@ export class LanguageController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateLanguageDto,
   ) {
-    const result = await this.updateLanguage.execute({
+    return this.updateLanguage.execute({
       id,
       ...dto,
     });
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.deleteLanguage.execute(id);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-    };
+    return this.deleteLanguage.execute(id);
   }
 }
