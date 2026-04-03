@@ -7,7 +7,6 @@ import {
   Delete,
   Patch,
   ParseIntPipe,
-  NotFoundException,
   HttpCode,
   HttpStatus,
   Inject,
@@ -16,6 +15,7 @@ import {
 import { CreateCanalVendaDto, UpdateCanalVendaDto } from './canal-venda.dto';
 import { PrismaCanalVendaRepository } from './prisma-canal-venda.repository';
 import { CANAL_VENDA_REPOSITORY } from './constants';
+import { Result } from '../../common';
 
 @Controller('canais-venda')
 export class CanalVendaController {
@@ -26,28 +26,29 @@ export class CanalVendaController {
 
   @Get()
   async findAll(@Query('all') all?: string) {
-    return { success: true, data: await this.repo.findAll(all === 'true') };
+    return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
-    if (!item) throw new NotFoundException('Canal de venda não encontrado');
-    return { success: true, data: item };
+    if (!item)
+      return Result.fail({
+        code: 'CANAL_VENDA_NOT_FOUND',
+        message: 'Canal de venda não encontrado',
+      });
+    return item;
   }
 
   @Post()
   async create(@Body() dto: CreateCanalVendaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
-      return {
-        success: false,
-        error: {
-          code: 'CANAL_VENDA_EXISTS',
-          message: 'Canal de venda já existe',
-        },
-      };
-    return { success: true, data: await this.repo.create(dto) };
+      return Result.fail({
+        code: 'CANAL_VENDA_ALREADY_EXISTS',
+        message: 'Canal de venda já existe',
+      });
+    return this.repo.create(dto);
   }
 
   @Patch(':id')
@@ -56,15 +57,23 @@ export class CanalVendaController {
     @Body() dto: UpdateCanalVendaDto,
   ) {
     const item = await this.repo.findById(id);
-    if (!item) throw new NotFoundException('Canal de venda não encontrado');
-    return { success: true, data: await this.repo.update(id, dto) };
+    if (!item)
+      return Result.fail({
+        code: 'CANAL_VENDA_NOT_FOUND',
+        message: 'Canal de venda não encontrado',
+      });
+    return this.repo.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
-    if (!item) throw new NotFoundException('Canal de venda não encontrado');
+    if (!item)
+      return Result.fail({
+        code: 'CANAL_VENDA_NOT_FOUND',
+        message: 'Canal de venda não encontrado',
+      });
     await this.repo.delete(id);
   }
 }
