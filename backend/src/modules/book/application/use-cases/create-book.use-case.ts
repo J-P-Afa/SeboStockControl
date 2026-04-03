@@ -17,13 +17,29 @@ export class CreateBookUseCase {
   ) {}
 
   async execute(input: CreateBookDto): Promise<Result<BookResponseDto>> {
+    // 1. Validação de domínio (fora do try/catch principal para retornar erro específico)
+    let book: BookEntity;
+    try {
+      book = BookEntity.create({
+        ...input,
+        listPrice: input.listPrice ? new Prisma.Decimal(input.listPrice) : null,
+        weight: new Prisma.Decimal(input.weight ?? 0),
+        isActive: true,
+      });
+    } catch (error: unknown) {
+      return Result.fail(
+        'BOOK_VALIDATION_ERROR',
+        error instanceof Error ? error.message : 'Erro de validação do book',
+      );
+    }
+
+    // 2. Operações de infraestrutura e persistência
     try {
       if (input.isbn13) {
         const existingByIsbn13 = await this.bookRepo.findByIsbn13AndCondition(
           input.isbn13,
           input.condition,
         );
-
         if (existingByIsbn13) {
           return Result.fail(
             'ISBN13_ALREADY_EXISTS',
@@ -37,7 +53,6 @@ export class CreateBookUseCase {
           input.isbn10,
           input.condition,
         );
-
         if (existingByIsbn10) {
           return Result.fail(
             'ISBN10_ALREADY_EXISTS',
@@ -46,23 +61,14 @@ export class CreateBookUseCase {
         }
       }
 
-      const book = BookEntity.create({
-        ...input,
-        listPrice: input.listPrice ? new Prisma.Decimal(input.listPrice) : null,
-        weight: new Prisma.Decimal(input.weight ?? 0),
-        isActive: true,
-      });
-
       const saved = await this.bookRepo.create(book.toJSON());
 
       return Result.ok(BookResponseDto.fromEntity(saved));
-    } catch (error: any) {
-      this.logger.error('Failed to create book', error.stack);
-
-      // Se for um erro de domínio (lançado pelo BookEntity), retornamos a mensagem específica
-      if (error instanceof Error && error.name === 'Error') {
-        return Result.fail('BOOK_VALIDATION_ERROR', error.message);
-      }
+    } catch (error: unknown) {
+      this.logger.error(
+        'Failed to create book',
+        error instanceof Error ? error.stack : error,
+      );
 
       return Result.fail('CREATE_BOOK_ERROR', 'Erro ao criar book');
     }
