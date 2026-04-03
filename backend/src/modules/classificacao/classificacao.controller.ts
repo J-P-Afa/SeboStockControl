@@ -7,7 +7,6 @@ import {
   Delete,
   Patch,
   ParseIntPipe,
-  NotFoundException,
   HttpCode,
   HttpStatus,
   Inject,
@@ -16,6 +15,7 @@ import {
 import { CreateLookupDto, UpdateLookupDto } from '../../common/dtos/lookup.dto';
 import { PrismaClassificacaoRepository } from './prisma-classificacao.repository';
 import { CLASSIFICACAO_REPOSITORY } from './constants';
+import { Result } from '../../common';
 
 @Controller('classificacoes')
 export class ClassificacaoController {
@@ -26,30 +26,29 @@ export class ClassificacaoController {
 
   @Get()
   async findAll(@Query('all') all?: string) {
-    const items = await this.repo.findAll(all === 'true');
-    return { success: true, data: items };
+    return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
-    if (!item) throw new NotFoundException('Classificação não encontrada');
-    return { success: true, data: item };
+    if (!item)
+      return Result.fail({
+        code: 'CLASSIFICACAO_NOT_FOUND',
+        message: 'Classificação não encontrada',
+      });
+    return item;
   }
 
   @Post()
   async create(@Body() dto: CreateLookupDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
-      return {
-        success: false,
-        error: {
-          code: 'CLASSIFICACAO_EXISTS',
-          message: 'Classificação já existe',
-        },
-      };
-    const item = await this.repo.create(dto);
-    return { success: true, data: item };
+      return Result.fail({
+        code: 'CLASSIFICACAO_ALREADY_EXISTS',
+        message: 'Classificação já existe',
+      });
+    return this.repo.create(dto);
   }
 
   @Patch(':id')
@@ -58,16 +57,23 @@ export class ClassificacaoController {
     @Body() dto: UpdateLookupDto,
   ) {
     const item = await this.repo.findById(id);
-    if (!item) throw new NotFoundException('Classificação não encontrada');
-    const updated = await this.repo.update(id, dto);
-    return { success: true, data: updated };
+    if (!item)
+      return Result.fail({
+        code: 'CLASSIFICACAO_NOT_FOUND',
+        message: 'Classificação não encontrada',
+      });
+    return this.repo.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
-    if (!item) throw new NotFoundException('Classificação não encontrada');
+    if (!item)
+      return Result.fail({
+        code: 'CLASSIFICACAO_NOT_FOUND',
+        message: 'Classificação não encontrada',
+      });
     await this.repo.delete(id);
   }
 }
