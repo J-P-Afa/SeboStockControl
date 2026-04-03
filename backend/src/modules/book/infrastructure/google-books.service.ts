@@ -49,19 +49,22 @@ export class GoogleBooksService implements IExternalBookService {
         return null;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as GoogleBooksResponse;
 
-      if (!data.items || data.totalItems === 0) {
+      if (!data.items || data.items.length === 0) {
         this.logger.debug(`Book with ISBN ${isbn} not found in Google Books`);
         return null;
       }
 
       return this.mapToDto(data.items[0], cleanIsbn);
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
         this.logger.warn(`Google Books lookup timed out for ISBN ${isbn}`);
       } else {
-        this.logger.error(`Failed to lookup book by ISBN ${isbn} on Google Books`, error);
+        this.logger.error(
+          `Failed to lookup book by ISBN ${isbn} on Google Books`,
+          error instanceof Error ? error.stack : error,
+        );
       }
       return null;
     } finally {
@@ -69,9 +72,12 @@ export class GoogleBooksService implements IExternalBookService {
     }
   }
 
-  private mapToDto(data: any, originalIsbn: string): ExternalBookLookupDto {
+  private mapToDto(
+    data: GoogleBookItem,
+    originalIsbn: string,
+  ): ExternalBookLookupDto {
     const dto = new ExternalBookLookupDto();
-    const info = data.volumeInfo || {};
+    const info = data.volumeInfo;
 
     dto.title = info.title;
     dto.subtitle = info.subtitle || null;
@@ -79,8 +85,12 @@ export class GoogleBooksService implements IExternalBookService {
 
     // ISBNs
     const identifiers = info.industryIdentifiers || [];
-    const isbn10FromApi = identifiers.find((id: any) => id.type === 'ISBN_10')?.identifier;
-    const isbn13FromApi = identifiers.find((id: any) => id.type === 'ISBN_13')?.identifier;
+    const isbn10FromApi = identifiers.find(
+      (id) => id.type === 'ISBN_10',
+    )?.identifier;
+    const isbn13FromApi = identifiers.find(
+      (id) => id.type === 'ISBN_13',
+    )?.identifier;
 
     const baseIsbn = isbn13FromApi || isbn10FromApi || originalIsbn;
     const isbns = IsbnUtils.populateBoth(baseIsbn);
@@ -97,7 +107,8 @@ export class GoogleBooksService implements IExternalBookService {
     dto.synopsis = info.description || null;
 
     // Cover (upgrade to https)
-    let cover = info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || null;
+    let cover =
+      info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || null;
     if (cover && cover.startsWith('http://')) {
       cover = cover.replace('http://', 'https://');
     }
@@ -126,4 +137,30 @@ export class GoogleBooksService implements IExternalBookService {
     };
     return mapping[code.toLowerCase()] || code;
   }
+}
+
+interface GoogleBookItem {
+  volumeInfo: {
+    title: string;
+    subtitle?: string;
+    publisher?: string;
+    industryIdentifiers?: Array<{
+      type: string;
+      identifier: string;
+    }>;
+    publishedDate?: string;
+    pageCount?: number;
+    description?: string;
+    imageLinks?: {
+      thumbnail?: string;
+      smallThumbnail?: string;
+    };
+    language?: string;
+    categories?: string[];
+  };
+}
+
+interface GoogleBooksResponse {
+  items?: GoogleBookItem[];
+  totalItems: number;
 }

@@ -65,11 +65,14 @@ export class OpenLibraryService implements IExternalBookService {
       }
 
       return dto;
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
         this.logger.warn(`Open Library lookup timed out for ISBN ${isbn}`);
       } else {
-        this.logger.error(`Failed to lookup book by ISBN ${isbn} on Open Library`, error);
+        this.logger.error(
+          `Failed to lookup book by ISBN ${isbn} on Open Library`,
+          error instanceof Error ? error.stack : error,
+        );
       }
       return null;
     } finally {

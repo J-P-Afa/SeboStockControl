@@ -29,7 +29,7 @@ export class OpenBDService implements IExternalBookService {
         return null;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as OpenBDResponseItem[];
 
       if (!Array.isArray(data) || data.length === 0 || data[0] === null) {
         this.logger.debug(`Book with ISBN ${isbn} not found in OpenBD`);
@@ -37,11 +37,14 @@ export class OpenBDService implements IExternalBookService {
       }
 
       return this.mapToDto(data[0], cleanIsbn);
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
         this.logger.warn(`OpenBD lookup timed out for ISBN ${isbn}`);
       } else {
-        this.logger.error(`Failed to lookup book by ISBN ${isbn} on OpenBD`, error);
+        this.logger.error(
+          `Failed to lookup book by ISBN ${isbn} on OpenBD`,
+          error instanceof Error ? error.stack : error,
+        );
       }
       return null;
     } finally {
@@ -49,7 +52,10 @@ export class OpenBDService implements IExternalBookService {
     }
   }
 
-  private mapToDto(data: any, originalIsbn: string): ExternalBookLookupDto {
+  private mapToDto(
+    data: OpenBDResponseItem,
+    originalIsbn: string,
+  ): ExternalBookLookupDto {
     const dto = new ExternalBookLookupDto();
     const onix = data.onix || {};
     const hanmoto = data.hanmoto || {};
@@ -82,7 +88,8 @@ export class OpenBDService implements IExternalBookService {
     }
 
     // Publication Year
-    const pubDate = publishingDetail.PublishingDate?.[0]?.Date || hanmoto.dateshuppan;
+    const pubDate =
+      publishingDetail.PublishingDate?.[0]?.Date || hanmoto.dateshuppan;
     if (pubDate) {
       const yearMatch = pubDate.toString().match(/\d{4}/);
       dto.publicationYear = yearMatch ? parseInt(yearMatch[0], 10) : null;
@@ -90,13 +97,13 @@ export class OpenBDService implements IExternalBookService {
 
     // Pages
     const extent = descriptiveDetail.Extent || [];
-    const pageExtent = extent.find((e: any) => e.ExtentUnit === '03');
+    const pageExtent = extent.find((e) => e.ExtentUnit === '03');
     dto.pages = pageExtent ? parseInt(pageExtent.ExtentValue, 10) : null;
 
     // Synopsis
     const collateralDetail = onix.CollateralDetail || {};
     const textContent = collateralDetail.TextContent || [];
-    const synopsisContent = textContent.find((t: any) => t.TextType === '03');
+    const synopsisContent = textContent.find((t) => t.TextType === '03');
     dto.synopsis = synopsisContent?.Text || hanmoto.kaisetsu || null;
 
     // Cover
@@ -104,7 +111,9 @@ export class OpenBDService implements IExternalBookService {
 
     // Subjects
     const subjects = descriptiveDetail.Subject || [];
-    dto.subjects = subjects.map((s: any) => s.SubjectHeadingText).filter(Boolean);
+    dto.subjects = subjects
+      .map((s) => s.SubjectHeadingText)
+      .filter((s): s is string => !!s);
 
     return dto;
   }
@@ -123,4 +132,49 @@ export class OpenBDService implements IExternalBookService {
     };
     return mapping[code.toLowerCase()] || code;
   }
+}
+
+interface OpenBDResponseItem {
+  onix?: {
+    DescriptiveDetail?: {
+      TitleDetail?: {
+        TitleElement?: {
+          TitleText?: string;
+          Subtitle?: string;
+        };
+      };
+      Language?: Array<{
+        LanguageCode: string;
+      }>;
+      Extent?: Array<{
+        ExtentUnit: string;
+        ExtentValue: string;
+      }>;
+      Subject?: Array<{
+        SubjectHeadingText: string;
+      }>;
+    };
+    RecordReference?: string;
+    PublishingDetail?: {
+      Imprint?: {
+        ImprintName: string;
+      };
+      PublishingDate?: Array<{
+        Date: string;
+      }>;
+    };
+    CollateralDetail?: {
+      TextContent?: Array<{
+        TextType: string;
+        Text: string;
+      }>;
+    };
+  };
+  hanmoto?: {
+    publisher?: string;
+    hasshusha?: string;
+    dateshuppan?: string;
+    kaisetsu?: string;
+    cover?: string;
+  };
 }

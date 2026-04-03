@@ -34,13 +34,16 @@ export class BrasilApiService implements IExternalBookService {
         return null;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as BrasilApiResponse;
       return this.mapToDto(data, cleanIsbn);
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
         this.logger.warn(`Brasil API lookup timed out for ISBN ${isbn}`);
       } else {
-        this.logger.error(`Failed to lookup book by ISBN ${isbn} on Brasil API`, error);
+        this.logger.error(
+          `Failed to lookup book by ISBN ${isbn} on Brasil API`,
+          error instanceof Error ? error.stack : error,
+        );
       }
       return null;
     } finally {
@@ -48,7 +51,10 @@ export class BrasilApiService implements IExternalBookService {
     }
   }
 
-  private mapToDto(data: any, originalIsbn: string): ExternalBookLookupDto {
+  private mapToDto(
+    data: BrasilApiResponse,
+    originalIsbn: string,
+  ): ExternalBookLookupDto {
     const dto = new ExternalBookLookupDto();
 
     dto.title = data.title;
@@ -71,4 +77,16 @@ export class BrasilApiService implements IExternalBookService {
 
     return dto;
   }
+}
+
+interface BrasilApiResponse {
+  isbn: string;
+  title: string;
+  subtitle?: string;
+  publisher?: string;
+  year?: string;
+  page_count?: number;
+  synopsis?: string;
+  cover_url?: string;
+  subjects?: string[];
 }
