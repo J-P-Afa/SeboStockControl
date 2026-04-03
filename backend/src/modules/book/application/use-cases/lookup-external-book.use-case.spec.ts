@@ -9,6 +9,9 @@ import { ExternalBookLookupDto } from '../dtos/external-book-lookup.dto';
 import { LanguageRepository } from '../../../language/domain/language.repository';
 import { PublisherRepository } from '../../../publisher/domain/publisher.repository';
 import { GenreRepository } from '../../../genre/domain/genre.repository';
+import { LanguageEntity } from '../../../language/domain/language.entity';
+import { PublisherEntity } from '../../../publisher/domain/publisher.entity';
+import { GenreEntity } from '../../../genre/domain/genre.entity';
 
 describe('LookupExternalBookUseCase', () => {
   let useCase: LookupExternalBookUseCase;
@@ -65,18 +68,27 @@ describe('LookupExternalBookUseCase', () => {
     const isbn = '9780141311333';
     externalBookService.lookupByIsbn.mockResolvedValue({ ...mockExternalBook });
 
-    languageRepository.findByDescription.mockResolvedValue({
-      id: 99,
-      description: 'English',
-    } as any);
-    publisherRepository.findByDescription.mockResolvedValue({
-      id: 88,
-      description: 'Puffin',
-    } as any);
-    genreRepository.findByDescription.mockResolvedValue({
-      id: 77,
-      description: 'Foxes',
-    } as any);
+    languageRepository.findByDescription.mockResolvedValue(
+      LanguageEntity.restore({
+        id: 99,
+        description: 'English',
+        isActive: true,
+      }),
+    );
+    publisherRepository.findByDescription.mockResolvedValue(
+      PublisherEntity.restore({
+        id: 88,
+        description: 'Puffin',
+        isActive: true,
+      }),
+    );
+    genreRepository.findByDescription.mockResolvedValue(
+      GenreEntity.restore({
+        id: 77,
+        description: 'Foxes',
+        isActive: true,
+      }),
+    );
 
     // Act
     const result = await useCase.execute(isbn);
@@ -104,18 +116,27 @@ describe('LookupExternalBookUseCase', () => {
     genreRepository.findByDescription.mockResolvedValue(null);
 
     // Mock create returning a new row id
-    languageRepository.create.mockResolvedValue({
-      id: 999,
-      description: 'English',
-    } as any);
-    publisherRepository.create.mockResolvedValue({
-      id: 888,
-      description: 'Puffin',
-    } as any);
-    genreRepository.create.mockResolvedValue({
-      id: 777,
-      description: 'Foxes',
-    } as any);
+    languageRepository.create.mockResolvedValue(
+      LanguageEntity.restore({
+        id: 999,
+        description: 'English',
+        isActive: true,
+      }),
+    );
+    publisherRepository.create.mockResolvedValue(
+      PublisherEntity.restore({
+        id: 888,
+        description: 'Puffin',
+        isActive: true,
+      }),
+    );
+    genreRepository.create.mockResolvedValue(
+      GenreEntity.restore({
+        id: 777,
+        description: 'Foxes',
+        isActive: true,
+      }),
+    );
 
     // Act
     const result = await useCase.execute(isbn);

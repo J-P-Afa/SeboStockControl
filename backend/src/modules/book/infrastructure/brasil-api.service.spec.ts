@@ -21,13 +21,13 @@ describe('BrasilApiService', () => {
     // Arrange
     const isbn = '9788542603330';
     const mockResponse = {
-      isbn: "9788542603330",
-      title: "Naruto edição gold",
-      publisher: "Panini Brasil",
+      isbn: '9788542603330',
+      title: 'Naruto edição gold',
+      publisher: 'Panini Brasil',
       year: 2023,
       page_count: 192,
-      subjects: ["Mangá", "Ação"],
-      cover_url: "https://cover-url.jpg"
+      subjects: ['Mangá', 'Ação'],
+      cover_url: 'https://cover-url.jpg',
     };
 
     (global.fetch as jest.Mock).mockResolvedValue({

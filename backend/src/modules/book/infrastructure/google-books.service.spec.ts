@@ -106,7 +106,9 @@ describe('GoogleBooksService', () => {
 
     // Assert
     expect(result).toBeNull();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('quota exceeded'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('quota exceeded'),
+    );
   });
 
   it('should return null if no items found', async () => {
