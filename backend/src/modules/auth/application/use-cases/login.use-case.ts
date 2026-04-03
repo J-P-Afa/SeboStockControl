@@ -74,6 +74,19 @@ export class LoginUseCase {
       ),
     ]);
 
+    // Store refresh token hash (using bcrypt)
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // Matches '7d'
+
+    await this.prisma.refreshToken.create({
+      data: {
+        token: refreshTokenHash,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+
     return Result.ok({ accessToken, refreshToken });
   }
 }
