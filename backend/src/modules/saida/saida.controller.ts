@@ -13,6 +13,7 @@ import { CreateSaidaDto } from './create-saida.dto';
 import { CreateSaidaBulkDto } from './create-saida-bulk.dto';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { Result } from '../../common';
 
 @Controller('saidas')
 export class SaidaController {
@@ -24,16 +25,12 @@ export class SaidaController {
 
   @Post()
   async create(@Body() dto: CreateSaidaDto) {
-    const result = await this.createSaidaUseCase.execute(dto);
-    if (!result.success) return { success: false, error: result.error };
-    return { success: true, data: result.data };
+    return this.createSaidaUseCase.execute(dto);
   }
 
   @Post('bulk')
   async createBulk(@Body() dto: CreateSaidaBulkDto) {
-    const result = await this.createSaidaBulkUseCase.execute(dto);
-    if (!result.success) return { success: false, error: result.error };
-    return { success: true, data: result.data };
+    return this.createSaidaBulkUseCase.execute(dto);
   }
 
   @Get()
@@ -45,7 +42,7 @@ export class SaidaController {
     if (bookId) where.bookId = Number(bookId);
     if (tipoSaidaId) where.tipoSaidaId = Number(tipoSaidaId);
 
-    const saidas = await this.prisma.saida.findMany({
+    return this.prisma.saida.findMany({
       where,
       include: {
         book: { select: { title: true } },
@@ -56,7 +53,6 @@ export class SaidaController {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return { success: true, data: saidas };
   }
 
   @Get(':id')
@@ -71,11 +67,11 @@ export class SaidaController {
         formaPagamento: true,
       },
     });
-    if (!saida)
-      return {
-        success: false,
-        error: { code: 'SAIDA_NOT_FOUND', message: 'Saída não encontrada' },
-      };
-    return { success: true, data: saida };
+
+    if (!saida) {
+      return Result.fail('SAIDA_NOT_FOUND', 'Saída não encontrada');
+    }
+
+    return saida;
   }
 }
