@@ -35,19 +35,7 @@ export class GenreController {
   //CREATE
   @Post()
   async create(@Body() dto: CreateGenreDto) {
-    const result = await this.createGenre.execute(dto);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
+    return this.createGenre.execute(dto);
   }
 
   //LIST
@@ -58,36 +46,19 @@ export class GenreController {
       isActive: query.isActive,
     };
 
-    const result = await this.getGenres.execute(
+    return this.getGenres.execute(
       query.page,
       query.limit,
       query.sortBy,
       query.sortOrder,
       filters,
     );
-
-    return {
-      success: true,
-      data: result.data,
-    };
   }
 
   //GET BY ID
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.getGenreById.execute(id);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
+    return this.getGenreById.execute(id);
   }
 
   //UPDATE
@@ -96,39 +67,16 @@ export class GenreController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateGenreDto,
   ) {
-    const result = await this.updateGenre.execute({
+    return this.updateGenre.execute({
       id,
       ...dto,
     });
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
   }
 
   //DELETE
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.deleteGenre.execute(id);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-    };
+    return this.deleteGenre.execute(id);
   }
 }
