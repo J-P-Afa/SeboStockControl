@@ -1,4 +1,4 @@
-import type { Genre, CreateGenreData, UpdateGenreData, ApiResponse, PaginatedResponse, ListGenresFilters } from '@/types';
+import type { Genre, CreateGenreData, UpdateGenreData, PaginatedResponse, ListGenresFilters } from '@/types';
 import { apiClient } from './client';
 
 export async function listGenres(
@@ -8,7 +8,7 @@ export async function listGenres(
   sortOrder?: 'asc' | 'desc',
   filters?: ListGenresFilters
 ): Promise<PaginatedResponse<Genre>> {
-  const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Genre>>>('/genres', {
+  const { data } = await apiClient.get<PaginatedResponse<Genre>>('/genres', {
     params: {
       page,
       limit,
@@ -19,17 +19,17 @@ export async function listGenres(
     },
   });
 
-  return data.data;
+  return data;
 }
 
 export async function createGenre(payload: CreateGenreData): Promise<Genre> {
-  const { data } = await apiClient.post<ApiResponse<Genre>>('/genres', payload);
-  return data.data;
+  const { data } = await apiClient.post<Genre>('/genres', payload);
+  return data;
 }
 
 export async function updateGenre(id: number, payload: UpdateGenreData): Promise<Genre> {
-  const { data } = await apiClient.put<ApiResponse<Genre>>(`/genres/${id}`, payload);
-  return data.data;
+  const { data } = await apiClient.put<Genre>(`/genres/${id}`, payload);
+  return data;
 }
 
 export async function deleteGenre(id: number): Promise<void> {
