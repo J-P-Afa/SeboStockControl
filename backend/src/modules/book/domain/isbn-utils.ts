@@ -11,7 +11,7 @@ export class IsbnUtils {
 
     // Pega os 9 dígitos centrais (pulando o prefixo 978)
     const nineDigits = clean.substring(3, 12);
-    
+
     // Calcula o dígito verificador do ISBN-10
     let sum = 0;
     for (let i = 0; i < 9; i++) {
@@ -20,7 +20,7 @@ export class IsbnUtils {
 
     const remainder = sum % 11;
     const checkDigit = 11 - remainder;
-    
+
     let checkStr: string;
     if (checkDigit === 10) {
       checkStr = 'X';
@@ -45,7 +45,7 @@ export class IsbnUtils {
 
     const nineDigits = clean.substring(0, 9);
     const prefix = '978' + nineDigits;
-    
+
     // Calcula o dígito verificador do ISBN-13
     let sum = 0;
     for (let i = 0; i < 12; i++) {
@@ -55,14 +55,17 @@ export class IsbnUtils {
 
     const remainder = sum % 10;
     const checkDigit = (10 - remainder) % 10;
-    
+
     return prefix + checkDigit.toString();
   }
 
   /**
    * Garante que ambos os campos de ISBN estejam preenchidos se possível.
    */
-  static populateBoth(isbn: string): { isbn10: string | null; isbn13: string | null } {
+  static populateBoth(isbn: string): {
+    isbn10: string | null;
+    isbn13: string | null;
+  } {
     const clean = isbn.replace(/[^0-9X]/gi, '');
     if (clean.length === 10) {
       return {
