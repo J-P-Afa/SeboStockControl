@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { Result } from '../../../../common';
 import { PrismaService } from '../../../database';
 import { TokenResponseDto } from '../dtos';
@@ -22,6 +23,32 @@ export class RefreshTokenUseCase {
       return Result.fail(
         'AUTH_INVALID_REFRESH_TOKEN',
         'Invalid or expired refresh token',
+      );
+    }
+
+    // Find all active tokens for the user to detect reuse
+    const activeTokens = await this.prisma.refreshToken.findMany({
+      where: { userId: payload.sub },
+    });
+
+    let matchedTokenId: string | null = null;
+    for (const storedToken of activeTokens) {
+      if (await bcrypt.compare(refreshToken, storedToken.token)) {
+        matchedTokenId = storedToken.id;
+        break;
+      }
+    }
+
+    // REUSE DETECTION: If we verified the JWT payload but couldn't find a matching hashed token in DB,
+    // it might have already been rotated/revoked (stolen token reused).
+    if (!matchedTokenId) {
+      // SECURITY BREACH: Potential token reuse detected! Revoke ALL active tokens for this user.
+      await this.prisma.refreshToken.deleteMany({
+        where: { userId: payload.sub },
+      });
+      return Result.fail(
+        'AUTH_TOKEN_REUSE_DETECTED',
+        'Security breach: token reuse detected. All sessions revoked.',
       );
     }
 
@@ -57,6 +84,22 @@ export class RefreshTokenUseCase {
           expiresIn: '7d',
         },
       ),
+    ]);
+
+    // ROTATION: Delete the old matched token and create a new one
+    const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.delete({ where: { id: matchedTokenId } }),
+      this.prisma.refreshToken.create({
+        data: {
+          token: newRefreshTokenHash,
+          userId: user.id,
+          expiresAt,
+        },
+      }),
     ]);
 
     return Result.ok({

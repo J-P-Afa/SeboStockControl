@@ -1,5 +1,6 @@
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { RefreshTokenUseCase } from './refresh-token.use-case';
 import { PrismaService } from '../../../database';
 
@@ -28,6 +29,9 @@ describe('RefreshTokenUseCase', () => {
   it('should refresh tokens successfully', async () => {
     // Arrange
     jwtService.verifyAsync.mockResolvedValue({ sub: 'user-id' });
+    (prismaService.refreshToken.findMany as jest.Mock).mockResolvedValue([
+      { id: 'token-1', token: await bcrypt.hash('valid-refresh-token', 10) },
+    ]);
     (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
     jwtService.signAsync.mockResolvedValue('new-token-string');
 
@@ -64,6 +68,9 @@ describe('RefreshTokenUseCase', () => {
   it('should fail if user is not found or inactive', async () => {
     // Arrange
     jwtService.verifyAsync.mockResolvedValue({ sub: 'user-id' });
+    (prismaService.refreshToken.findMany as jest.Mock).mockResolvedValue([
+      { id: 'token-1', token: await bcrypt.hash('valid-token', 10) },
+    ]);
     (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
     // Act
