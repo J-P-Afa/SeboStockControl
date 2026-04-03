@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Inject,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   CreateFormaPagamentoDto,
@@ -18,9 +19,10 @@ import {
 } from './forma-pagamento.dto';
 import { PrismaFormaPagamentoRepository } from './prisma-forma-pagamento.repository';
 import { FORMA_PAGAMENTO_REPOSITORY } from './constants';
-import { Result } from '../../common';
+import { Result, PermissionsGuard, RequirePermission } from '../../common';
 
 @Controller('formas-pagamento')
+@UseGuards(PermissionsGuard)
 export class FormaPagamentoController {
   constructor(
     @Inject(FORMA_PAGAMENTO_REPOSITORY)
@@ -28,11 +30,13 @@ export class FormaPagamentoController {
   ) {}
 
   @Get()
+  @RequirePermission('forma-pagamento:read')
   async findAll(@Query('all') all?: string) {
     return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
+  @RequirePermission('forma-pagamento:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)
@@ -44,6 +48,7 @@ export class FormaPagamentoController {
   }
 
   @Post()
+  @RequirePermission('forma-pagamento:write')
   async create(@Body() dto: CreateFormaPagamentoDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
@@ -55,6 +60,7 @@ export class FormaPagamentoController {
   }
 
   @Patch(':id')
+  @RequirePermission('forma-pagamento:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateFormaPagamentoDto,
@@ -70,6 +76,7 @@ export class FormaPagamentoController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @RequirePermission('forma-pagamento:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)

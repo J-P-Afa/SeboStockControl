@@ -11,13 +11,15 @@ import {
   HttpStatus,
   Inject,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateTipoSaidaDto, UpdateTipoSaidaDto } from './tipo-saida.dto';
 import { PrismaTipoSaidaRepository } from './prisma-tipo-saida.repository';
 import { TIPO_SAIDA_REPOSITORY } from './constants';
-import { Result } from '../../common';
+import { Result, PermissionsGuard, RequirePermission } from '../../common';
 
 @Controller('tipos-saida')
+@UseGuards(PermissionsGuard)
 export class TipoSaidaController {
   constructor(
     @Inject(TIPO_SAIDA_REPOSITORY)
@@ -25,11 +27,13 @@ export class TipoSaidaController {
   ) {}
 
   @Get()
+  @RequirePermission('tipo-saida:read')
   async findAll(@Query('all') all?: string) {
     return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
+  @RequirePermission('tipo-saida:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item) {
@@ -42,6 +46,7 @@ export class TipoSaidaController {
   }
 
   @Post()
+  @RequirePermission('tipo-saida:write')
   async create(@Body() dto: CreateTipoSaidaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing) {
@@ -63,6 +68,7 @@ export class TipoSaidaController {
   }
 
   @Patch(':id')
+  @RequirePermission('tipo-saida:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTipoSaidaDto,
@@ -79,6 +85,7 @@ export class TipoSaidaController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @RequirePermission('tipo-saida:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item) {
