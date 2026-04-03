@@ -70,7 +70,7 @@ export function DataTable<T>({
   });
 
   if (isLoading) {
-    return <DataTableSkeleton message={loadingMessage} />;
+    return <DataTableSkeleton columnCount={columns.length} message={loadingMessage} />;
   }
 
   return (

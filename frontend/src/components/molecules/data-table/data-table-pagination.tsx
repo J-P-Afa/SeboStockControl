@@ -40,7 +40,7 @@ export function DataTablePagination({
     <div className="flex items-center justify-between px-2">
       <p className="text-sm text-muted-foreground">{registrosLabel(total)}</p>
 
-      <div className="flex items-center gap-6">
+      <nav aria-label="Paginação" className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Registros por página</span>
           <Select
@@ -83,7 +83,7 @@ export function DataTablePagination({
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-      </div>
+      </nav>
     </div>
   );
 }
