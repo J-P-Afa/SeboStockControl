@@ -11,11 +11,6 @@ import {
 } from '../application/use-cases';
 import { mockDeep, MockProxy } from 'jest-mock-extended';
 import { Result } from '../../../common';
-import {
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
 import { Condition, EditionType, Status } from '@prisma/client';
 import {
   BookResponseDto,
@@ -84,7 +79,7 @@ describe('BookController', () => {
       expect(createBookUseCase.execute).toHaveBeenCalledWith(dto);
     });
 
-    it('should throw ConflictException on ISBN collision', async () => {
+    it('should return Result.fail on ISBN collision', async () => {
       const dto: CreateBookDto = {
         title: 'New Book',
         editionType: EditionType.normal,
@@ -96,10 +91,12 @@ describe('BookController', () => {
         Result.fail('ISBN13_ALREADY_EXISTS', 'ISBN already exists'),
       );
 
-      await expect(controller.create(dto)).rejects.toThrow(ConflictException);
+      const response = await controller.create(dto);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('ISBN13_ALREADY_EXISTS');
     });
 
-    it('should throw BadRequestException on other failures', async () => {
+    it('should return Result.fail on other failures', async () => {
       const dto: CreateBookDto = {
         title: 'New Book',
         editionType: EditionType.normal,
@@ -109,7 +106,9 @@ describe('BookController', () => {
       };
       createBookUseCase.execute.mockResolvedValue(Result.fail('ERR', 'Fail'));
 
-      await expect(controller.create(dto)).rejects.toThrow(BadRequestException);
+      const response = await controller.create(dto);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('ERR');
     });
   });
 
@@ -124,14 +123,14 @@ describe('BookController', () => {
       expect(response).toStrictEqual({ success: true, data: mockBookDto });
     });
 
-    it('should throw NotFoundException on failed lookup', async () => {
+    it('should return Result.fail on failed lookup', async () => {
       lookupExternalBookUseCase.execute.mockResolvedValue(
         Result.fail('NF', 'Not Found'),
       );
 
-      await expect(controller.externalLookup('123')).rejects.toThrow(
-        NotFoundException,
-      );
+      const response = await controller.externalLookup('123');
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('NF');
     });
   });
 
@@ -196,12 +195,12 @@ describe('BookController', () => {
       });
     });
 
-    it('should throw NotFoundException if condition is provided but no books found', async () => {
+    it('should return Result.fail if condition is provided but no books found', async () => {
       listBooksUseCase.execute.mockResolvedValue(Result.ok([]));
 
-      await expect(
-        controller.getByIsbn('123', Condition.usado),
-      ).rejects.toThrow(NotFoundException);
+      const response = await controller.getByIsbn('123', Condition.usado);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('BOOK_NOT_FOUND');
     });
   });
 
@@ -214,10 +213,12 @@ describe('BookController', () => {
       expect(response).toStrictEqual({ success: true, data: mockBookDto });
     });
 
-    it('should throw NotFoundException if book not found', async () => {
+    it('should return Result.fail if book not found', async () => {
       getBookUseCase.execute.mockResolvedValue(Result.fail('NF', 'Not found'));
 
-      await expect(controller.findOne(1)).rejects.toThrow(NotFoundException);
+      const response = await controller.findOne(1);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('NF');
     });
   });
 
@@ -231,40 +232,43 @@ describe('BookController', () => {
       expect(response).toStrictEqual({ success: true, data: mockBookDto });
     });
 
-    it('should throw NotFoundException when book not found', async () => {
+    it('should return Result.fail when book not found', async () => {
       updateBookUseCase.execute.mockResolvedValue(
         Result.fail('BOOK_NOT_FOUND', 'Not found'),
       );
 
-      await expect(controller.update(1, {} as UpdateBookDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      const response = await controller.update(1, {} as UpdateBookDto);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('BOOK_NOT_FOUND');
     });
 
-    it('should throw BadRequestException on failed update', async () => {
+    it('should return Result.fail on failed update', async () => {
       updateBookUseCase.execute.mockResolvedValue(
         Result.fail('BA', 'Bad request'),
       );
 
-      await expect(controller.update(1, {} as UpdateBookDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      const response = await controller.update(1, {} as UpdateBookDto);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('BA');
     });
   });
 
   describe('remove', () => {
-    it('should not throw on success (returns NO_CONTENT)', async () => {
+    it('should return Result.ok on success', async () => {
       deleteBookUseCase.execute.mockResolvedValue(Result.ok());
 
-      await expect(controller.remove(1)).resolves.toBeUndefined();
+      const response = await controller.remove(1);
+      expect(response).toStrictEqual({ success: true, data: undefined });
     });
 
-    it('should throw NotFoundException if delete fails', async () => {
+    it('should return Result.fail if delete fails', async () => {
       deleteBookUseCase.execute.mockResolvedValue(
         Result.fail('NF', 'Id not found'),
       );
 
-      await expect(controller.remove(1)).rejects.toThrow(NotFoundException);
+      const response = await controller.remove(1);
+      expect(response.success).toBe(false);
+      expect(response.error?.code).toBe('NF');
     });
   });
 });

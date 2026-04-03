@@ -10,7 +10,6 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  NotFoundException,
 } from '@nestjs/common';
 import {
   CreateBookUseCase,
@@ -23,7 +22,7 @@ import {
 } from '../application/use-cases';
 import { CreateBookDto, UpdateBookDto } from '../application/dtos';
 import { Condition, EditionType, Status } from '@prisma/client';
-import { Result } from '../../../common';
+import { Result, RequirePermission } from '../../../common';
 
 @Controller('books')
 export class BookController {
@@ -38,16 +37,19 @@ export class BookController {
   ) {}
 
   @Post()
+  @RequirePermission('book:create')
   async create(@Body() dto: CreateBookDto) {
     return this.createBookUseCase.execute(dto);
   }
 
   @Get('external-lookup/:isbn')
+  @RequirePermission('book:read')
   async externalLookup(@Param('isbn') isbn: string) {
     return this.lookupExternalBookUseCase.execute(isbn);
   }
 
   @Get()
+  @RequirePermission('book:read')
   async findAll(
     @Query('id') id?: string,
     @Query('isbn') isbn?: string,
@@ -81,6 +83,7 @@ export class BookController {
   }
 
   @Get('isbn/:isbn')
+  @RequirePermission('book:read')
   async getByIsbn(
     @Param('isbn') isbn: string,
     @Query('condition') condition?: Condition,
@@ -89,7 +92,8 @@ export class BookController {
       const result = await this.listBooksUseCase.execute({ isbn, condition });
       if (result.data && result.data.length > 0)
         return Result.ok(result.data[0]);
-      throw new NotFoundException(
+      return Result.fail(
+        'BOOK_NOT_FOUND',
         `Livro com ISBN ${isbn} e condição ${condition} não encontrado`,
       );
     }
@@ -97,11 +101,13 @@ export class BookController {
   }
 
   @Get(':id')
+  @RequirePermission('book:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.getBookUseCase.execute(id);
   }
 
   @Patch(':id')
+  @RequirePermission('book:update')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBookDto,
@@ -111,6 +117,7 @@ export class BookController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @RequirePermission('book:delete')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.deleteBookUseCase.execute(id);
   }
