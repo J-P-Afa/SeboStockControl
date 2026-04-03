@@ -183,9 +183,37 @@ export class PrismaBookRepository implements IBookRepository {
   }
 
   async update(id: number, data: UpdateBookParams): Promise<BookEntity> {
+    const cleanData = {
+      ...data,
+      publisherId:
+        data.publisherId !== undefined &&
+        data.publisherId !== null &&
+        data.publisherId <= 0
+          ? null
+          : data.publisherId,
+      languageId:
+        data.languageId !== undefined &&
+        data.languageId !== null &&
+        data.languageId <= 0
+          ? null
+          : data.languageId,
+      genreId:
+        data.genreId !== undefined &&
+        data.genreId !== null &&
+        data.genreId <= 0
+          ? null
+          : data.genreId,
+      classificacaoId:
+        data.classificacaoId !== undefined &&
+        data.classificacaoId !== null &&
+        data.classificacaoId <= 0
+          ? null
+          : data.classificacaoId,
+    };
+
     const updated = await this.prisma.book.update({
       where: { id },
-      data: data,
+      data: cleanData,
       include: { estoque: { select: { quantidade: true } } },
     });
     return this.toEntity(updated);
