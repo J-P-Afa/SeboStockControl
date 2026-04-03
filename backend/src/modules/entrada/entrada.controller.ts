@@ -13,6 +13,7 @@ import { BulkCreateEntradaUseCase } from './bulk-create-entrada.use-case';
 import { CreateEntradaDto } from './create-entrada.dto';
 import { BulkCreateEntradaDto } from './bulk-create-entrada.dto';
 import { PrismaService } from '../database';
+import { Result } from '../../common';
 
 @Controller('entradas')
 export class EntradaController {
@@ -25,29 +26,23 @@ export class EntradaController {
 
   @Get('last-cost')
   async getLastCost(@Query('bookId', ParseIntPipe) bookId: number) {
-    const result = await this.getLastEntradaUseCase.execute(bookId);
-    if (!result.success) return { success: false, error: result.error };
-    return { success: true, data: result.data };
+    return this.getLastEntradaUseCase.execute(bookId);
   }
 
   @Post()
   async create(@Body() dto: CreateEntradaDto) {
-    const result = await this.createEntradaUseCase.execute(dto);
-    if (!result.success) return { success: false, error: result.error };
-    return { success: true, data: result.data };
+    return this.createEntradaUseCase.execute(dto);
   }
 
   @Post('bulk')
   async bulkCreate(@Body() dto: BulkCreateEntradaDto) {
-    const result = await this.bulkCreateEntradaUseCase.execute(dto);
-    if (!result.success) return { success: false, error: result.error };
-    return { success: true, data: result.data };
+    return this.bulkCreateEntradaUseCase.execute(dto);
   }
 
   @Get()
   async findAll(@Query('bookId') bookId?: string) {
     const where = bookId ? { bookId: Number(bookId) } : {};
-    const entradas = await this.prisma.entrada.findMany({
+    return this.prisma.entrada.findMany({
       where,
       include: {
         book: { select: { title: true } },
@@ -55,7 +50,6 @@ export class EntradaController {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return { success: true, data: entradas };
   }
 
   @Get(':id')
@@ -65,10 +59,7 @@ export class EntradaController {
       include: { book: true, usuario: { select: { name: true, email: true } } },
     });
     if (!entrada)
-      return {
-        success: false,
-        error: { code: 'ENTRADA_NOT_FOUND', message: 'Entrada não encontrada' },
-      };
-    return { success: true, data: entrada };
+      return Result.fail('ENTRADA_NOT_FOUND', 'Entrada não encontrada');
+    return entrada;
   }
 }
