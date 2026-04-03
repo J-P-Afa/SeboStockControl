@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { CreateSaidaDto } from './create-saida.dto';
 import { CreateSaidaUseCase } from './create-saida.use-case';
 import { CreateSaidaBulkUseCase } from './create-saida-bulk.use-case';

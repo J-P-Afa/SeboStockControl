@@ -27,7 +27,7 @@ test.describe('Data Table Interactions', () => {
     const paginationNav = page.locator('nav[aria-label="Paginação"]');
     const nextButton = paginationNav.getByRole('button', { name: /Próxima/i }).or(paginationNav.getByRole('button', { name: /Next/i }));
     
-    if (await nextButton.isVisible()) {
+    if (await nextButton.isVisible() && await nextButton.isEnabled()) {
       await nextButton.click();
       // Should still see the table but likely with different data
       await expect(page.getByRole('table')).toBeVisible();

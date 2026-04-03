@@ -147,8 +147,14 @@ export default function EntradasPage() {
     // Fetch stock and last cost
     try {
       const [stock, cost] = await Promise.all([
-        getBookStock(book.id),
-        getLastCost(book.id)
+        getBookStock(book.id).catch((err) => {
+          console.warn('Could not fetch stock:', err);
+          return 0;
+        }),
+        getLastCost(book.id).catch((err) => {
+          console.warn('Could not fetch last cost:', err);
+          return 0;
+        })
       ]);
       setEstoqueAtual(stock);
       
@@ -157,8 +163,8 @@ export default function EntradasPage() {
       } else {
         setCustoUnitario(cost || 0);
       }
-    } catch {
-      console.error('Failed to fetch book details');
+    } catch (err) {
+      console.error('Failed to fetch book details', err);
     }
   };
 
@@ -262,9 +268,9 @@ export default function EntradasPage() {
     try {
       const book = await createBook({
         ...formData,
-        publisherId: Number(formData.publisherId),
-        languageId: Number(formData.languageId),
-        genreId: Number(formData.genreId),
+        publisherId: formData.publisherId ? Number(formData.publisherId) : undefined,
+        languageId: formData.languageId ? Number(formData.languageId) : undefined,
+        genreId: formData.genreId ? Number(formData.genreId) : undefined,
       } as CreateBookPayload);
       
       setBookFormOpen(false);

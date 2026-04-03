@@ -182,10 +182,16 @@ export const test = base.extend<{
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: [
-              { id: 1, name: 'Ficção' },
-              { id: 2, name: 'Não-Ficção' },
-            ],
+            data: {
+              items: [
+                { id: 1, description: 'Ficção' },
+                { id: 2, description: 'Não-Ficção' },
+              ],
+              total: 2,
+              totalPages: 1,
+              page: 1,
+              limit: 10,
+            },
           }),
         });
       }
@@ -196,10 +202,16 @@ export const test = base.extend<{
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: [
-              { id: 1, name: 'Português' },
-              { id: 2, name: 'Inglês' },
-            ],
+            data: {
+              items: [
+                { id: 1, description: 'Português' },
+                { id: 2, description: 'Inglês' },
+              ],
+              total: 2,
+              totalPages: 1,
+              page: 1,
+              limit: 10,
+            },
           }),
         });
       }
@@ -210,10 +222,16 @@ export const test = base.extend<{
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: [
-              { id: 1, name: 'Companhia das Letras' },
-              { id: 2, name: 'Rocco' },
-            ],
+            data: {
+              items: [
+                { id: 1, description: 'Companhia das Letras' },
+                { id: 2, description: 'Rocco' },
+              ],
+              total: 2,
+              totalPages: 1,
+              page: 1,
+              limit: 10,
+            },
           }),
         });
       }
@@ -225,8 +243,8 @@ export const test = base.extend<{
           body: JSON.stringify({
             success: true,
             data: [
-              { id: 1, name: 'Loja Física' },
-              { id: 2, name: 'Estante Virtual' },
+              { id: 1, descricao: 'Loja Física' },
+              { id: 2, descricao: 'Estante Virtual' },
             ],
           }),
         });
@@ -239,8 +257,8 @@ export const test = base.extend<{
           body: JSON.stringify({
             success: true,
             data: [
-              { id: 1, name: 'Dinheiro' },
-              { id: 2, name: 'Cartão de Crédito' },
+              { id: 1, descricao: 'Dinheiro' },
+              { id: 2, descricao: 'Cartão de Crédito' },
             ],
           }),
         });
@@ -253,8 +271,8 @@ export const test = base.extend<{
           body: JSON.stringify({
             success: true,
             data: [
-              { id: 1, name: 'Venda' },
-              { id: 2, name: 'Avaria' },
+              { id: 1, descricao: 'Venda' },
+              { id: 2, descricao: 'Avaria' },
             ],
           }),
         });

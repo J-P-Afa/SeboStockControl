@@ -35,10 +35,7 @@ export class EstoqueController {
   async findByBook(@Param('bookId', ParseIntPipe) bookId: number) {
     const item = await this.repo.findByBookId(bookId);
     if (!item) {
-      return Result.fail(
-        'STOCK_NOT_FOUND',
-        'Estoque não encontrado para este book',
-      );
+      return Result.ok(null);
     }
     return item;
   }

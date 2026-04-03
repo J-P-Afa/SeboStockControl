@@ -16,10 +16,10 @@ export class GetLastEntradaUseCase {
     });
 
     if (!lastEntrada) {
-      return Result.fail(
-        'ENTRADA_NOT_FOUND',
-        'Nenhuma entrada encontrada para este livro',
-      );
+      return Result.ok({
+        custoUnitario: 0,
+        dataEntrada: new Date(),
+      });
     }
 
     return Result.ok({
