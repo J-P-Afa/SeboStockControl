@@ -280,9 +280,9 @@ export default function RegistrarSaidaPage() {
     try {
       const book = await createBook({
         ...formData,
-        publisherId: Number(formData.publisherId),
-        languageId: Number(formData.languageId),
-        genreId: Number(formData.genreId),
+        publisherId: formData.publisherId ? Number(formData.publisherId) : undefined,
+        languageId: formData.languageId ? Number(formData.languageId) : undefined,
+        genreId: formData.genreId ? Number(formData.genreId) : undefined,
       } as CreateBookPayload);
       
       setBookFormOpen(false);
