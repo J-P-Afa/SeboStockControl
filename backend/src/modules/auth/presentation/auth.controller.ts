@@ -1,13 +1,18 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { Public } from '../../../common';
+import { Public, CurrentUser } from '../../../common';
 import { LoginDto, RefreshTokenDto } from '../application/dtos';
-import { LoginUseCase, RefreshTokenUseCase } from '../application/use-cases';
+import {
+  LoginUseCase,
+  RefreshTokenUseCase,
+  LogoutUseCase,
+} from '../application/use-cases';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
   ) {}
 
   @Public()
@@ -22,5 +27,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() dto: RefreshTokenDto) {
     return this.refreshTokenUseCase.execute(dto.refreshToken);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(
+    @CurrentUser('id') userId: string,
+    @Body() dto: RefreshTokenDto,
+  ) {
+    return this.logoutUseCase.execute(userId, dto.refreshToken);
   }
 }
