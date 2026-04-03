@@ -34,19 +34,7 @@ export class PublisherController {
 
   @Post()
   async create(@Body() dto: CreatePublisherDto) {
-    const result = await this.createPublisher.execute(dto);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
+    return this.createPublisher.execute(dto);
   }
 
   @Get()
@@ -56,35 +44,18 @@ export class PublisherController {
       isActive: query.isActive,
     };
 
-    const result = await this.getPublishers.execute(
+    return this.getPublishers.execute(
       query.page,
       query.limit,
       query.sortBy,
       query.sortOrder,
       filters,
     );
-
-    return {
-      success: true,
-      data: result.data,
-    };
   }
 
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.getPublisherById.execute(id);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
+    return this.getPublisherById.execute(id);
   }
 
   @Put(':id')
@@ -92,38 +63,15 @@ export class PublisherController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdatePublisherDto,
   ) {
-    const result = await this.updatePublisher.execute({
+    return this.updatePublisher.execute({
       id,
       ...dto,
     });
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-      data: result.data,
-    };
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.deletePublisher.execute(id);
-
-    if (!result.success) {
-      return {
-        success: false,
-        error: result.error,
-      };
-    }
-
-    return {
-      success: true,
-    };
+    return this.deletePublisher.execute(id);
   }
 }
