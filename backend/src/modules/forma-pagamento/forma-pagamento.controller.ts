@@ -48,7 +48,7 @@ export class FormaPagamentoController {
   }
 
   @Post()
-  @RequirePermission('forma-pagamento:write')
+  @RequirePermission('forma-pagamento:create')
   async create(@Body() dto: CreateFormaPagamentoDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
@@ -60,7 +60,7 @@ export class FormaPagamentoController {
   }
 
   @Patch(':id')
-  @RequirePermission('forma-pagamento:write')
+  @RequirePermission('forma-pagamento:create')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateFormaPagamentoDto,
@@ -76,7 +76,7 @@ export class FormaPagamentoController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @RequirePermission('forma-pagamento:write')
+  @RequirePermission('forma-pagamento:create')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)

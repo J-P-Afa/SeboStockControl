@@ -14,7 +14,7 @@ export class PermissionsGuard implements CanActivate {
     );
 
     if (!requiredPermissions || requiredPermissions.length === 0) {
-      return false;
+      return true;
     }
 
     const { user } = context

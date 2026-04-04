@@ -45,7 +45,7 @@ export class CanalVendaController {
   }
 
   @Post()
-  @RequirePermission('canal-venda:write')
+  @RequirePermission('canal-venda:create')
   async create(@Body() dto: CreateCanalVendaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing)
@@ -57,7 +57,7 @@ export class CanalVendaController {
   }
 
   @Patch(':id')
-  @RequirePermission('canal-venda:write')
+  @RequirePermission('canal-venda:create')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCanalVendaDto,
@@ -73,7 +73,7 @@ export class CanalVendaController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @RequirePermission('canal-venda:write')
+  @RequirePermission('canal-venda:create')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item)

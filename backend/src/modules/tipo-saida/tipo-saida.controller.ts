@@ -18,6 +18,10 @@ import { PrismaTipoSaidaRepository } from './prisma-tipo-saida.repository';
 import { TIPO_SAIDA_REPOSITORY } from './constants';
 import { Result, PermissionsGuard, RequirePermission } from '../../common';
 
+interface RequestWithUser extends Request {
+  user: any;
+}
+
 @Controller('tipos-saida')
 @UseGuards(PermissionsGuard)
 export class TipoSaidaController {
@@ -27,13 +31,13 @@ export class TipoSaidaController {
   ) {}
 
   @Get()
-  @RequirePermission('tipo-saida:read')
+  @RequirePermission('saida:read')
   async findAll(@Query('all') all?: string) {
     return this.repo.findAll(all === 'true');
   }
 
   @Get(':id')
-  @RequirePermission('tipo-saida:read')
+  @RequirePermission('saida:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item) {
@@ -46,7 +50,7 @@ export class TipoSaidaController {
   }
 
   @Post()
-  @RequirePermission('tipo-saida:write')
+  @RequirePermission('saida:write')
   async create(@Body() dto: CreateTipoSaidaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing) {
@@ -68,7 +72,7 @@ export class TipoSaidaController {
   }
 
   @Patch(':id')
-  @RequirePermission('tipo-saida:write')
+  @RequirePermission('saida:write')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTipoSaidaDto,
@@ -85,7 +89,7 @@ export class TipoSaidaController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  @RequirePermission('tipo-saida:write')
+  @RequirePermission('saida:write')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item) {

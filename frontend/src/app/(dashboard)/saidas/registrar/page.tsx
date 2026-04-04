@@ -296,7 +296,7 @@ export default function RegistrarSaidaPage() {
       toast.error(getErrorMessage(error, 'Erro ao cadastrar livro'));
     }
   };
-
+  
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
@@ -326,7 +326,9 @@ export default function RegistrarSaidaPage() {
                 onValueChange={(val) => setTipoSaidaId(Number(val))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione..." />
+                  <span>
+                    {tiposSaida.find(t => t.id === tipoSaidaId)?.descricao || "Selecione..."}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {tiposSaida.map(t => (
@@ -347,7 +349,9 @@ export default function RegistrarSaidaPage() {
                     onValueChange={(val) => setCanalVendaId(Number(val))}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione..." />
+                      <span>
+                        {canaisVenda.find(c => c.id === canalVendaId)?.descricao || "Selecione..."}
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
                       {canaisVenda.map(c => (
@@ -366,7 +370,9 @@ export default function RegistrarSaidaPage() {
                     onValueChange={(val) => setFormaPagamentoId(Number(val))}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione..." />
+                      <span>
+                        {formasPagamento.find(f => f.id === formaPagamentoId)?.descricao || "Selecione..."}
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
                       {formasPagamento.map(f => (

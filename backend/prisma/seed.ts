@@ -36,6 +36,10 @@ async function main() {
     { action: 'entrada:create', description: 'Registrar entradas de estoque' },
     { action: 'saida:read', description: 'Ler saídas de estoque' },
     { action: 'saida:create', description: 'Registrar saídas de estoque' },
+    { action: 'canal-venda:read', description: 'Ler canais de venda' },
+    { action: 'canal-venda:create', description: 'Criar/Atualizar canais de venda' },
+    { action: 'forma-pagamento:read', description: 'Ler formas de pagamento' },
+    { action: 'forma-pagamento:create', description: 'Criar/Atualizar formas de pagamento' },
 
     // Gêneros
     { action: 'genre:read', description: 'Ler gêneros' },

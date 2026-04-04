@@ -60,6 +60,7 @@ export class RefreshTokenUseCase {
         },
       },
     });
+    
 
     if (!user || !user.isActive) {
       return Result.fail('AUTH_USER_NOT_FOUND', 'User not found or inactive');
