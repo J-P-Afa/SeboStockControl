@@ -18,10 +18,6 @@ import { PrismaTipoSaidaRepository } from './prisma-tipo-saida.repository';
 import { TIPO_SAIDA_REPOSITORY } from './constants';
 import { Result, PermissionsGuard, RequirePermission } from '../../common';
 
-interface RequestWithUser extends Request {
-  user: any;
-}
-
 @Controller('tipos-saida')
 @UseGuards(PermissionsGuard)
 export class TipoSaidaController {

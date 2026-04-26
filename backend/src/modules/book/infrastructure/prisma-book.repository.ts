@@ -156,10 +156,19 @@ export class PrismaBookRepository implements IBookRepository {
           synopsis: data.synopsis,
           dimensions: data.dimensions,
           weight: data.weight,
-          publisherId: (data.publisherId && data.publisherId > 0) ? data.publisherId : undefined,
-          languageId: (data.languageId && data.languageId > 0) ? data.languageId : undefined,
-          genreId: (data.genreId && data.genreId > 0) ? data.genreId : undefined,
-          classificacaoId: (data.classificacaoId && data.classificacaoId > 0) ? data.classificacaoId : undefined,
+          publisherId:
+            data.publisherId && data.publisherId > 0
+              ? data.publisherId
+              : undefined,
+          languageId:
+            data.languageId && data.languageId > 0
+              ? data.languageId
+              : undefined,
+          genreId: data.genreId && data.genreId > 0 ? data.genreId : undefined,
+          classificacaoId:
+            data.classificacaoId && data.classificacaoId > 0
+              ? data.classificacaoId
+              : undefined,
           isActive: data.isActive ?? true,
         },
       });
@@ -198,9 +207,7 @@ export class PrismaBookRepository implements IBookRepository {
           ? null
           : data.languageId,
       genreId:
-        data.genreId !== undefined &&
-        data.genreId !== null &&
-        data.genreId <= 0
+        data.genreId !== undefined && data.genreId !== null && data.genreId <= 0
           ? null
           : data.genreId,
       classificacaoId:
