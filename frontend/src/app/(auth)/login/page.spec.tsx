@@ -41,7 +41,7 @@ describe('LoginPage Organism', () => {
 
   it('should render the login form', () => {
     render(<LoginPage />);
-    expect(screen.getByText(/Sebo Stock/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Sebo Alfa/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Senha/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument();

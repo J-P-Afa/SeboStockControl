@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { BookOpen, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/atoms/card';
+import { AppLogo } from '@/components/atoms/app-logo';
 import { useAuth } from '@/hooks/use-auth';
 import { getErrorMessage } from '@/lib/api';
 import { loginSchema, type LoginFormData } from '@/lib/validations/login.schema';
@@ -68,10 +69,9 @@ export default function LoginPage() {
         className={`w-full max-w-sm glass-darker border-none shadow-[0_0_50px_oklch(var(--primary)/0.1)] relative z-10 rounded-3xl ${error ? 'animate-shake' : ''}`}
       >
         <CardHeader className="text-center pt-10">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary/80 shadow-2xl shadow-primary/30 text-primary-foreground transform transition-transform hover:scale-110">
-            <BookOpen className="h-8 w-8" />
-          </div>
-          <CardTitle className="text-4xl font-display font-bold tracking-tight">Sebo Stock</CardTitle>
+          <CardTitle className="font-display">
+            <AppLogo size="lg" className="justify-center text-left" />
+          </CardTitle>
           <CardDescription className="text-muted-foreground/60 mt-2 text-base">Entre com suas credenciais para continuar</CardDescription>
         </CardHeader>
         <CardContent className="pb-10 pt-4">

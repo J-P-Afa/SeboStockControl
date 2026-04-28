@@ -20,8 +20,15 @@ const inter = Inter({
 
 
 export const metadata: Metadata = {
-  title: 'Sebo Stock Control',
-  description: 'Sistema de controle de estoque para Sebo',
+  title: 'Sebo Alfa',
+  description: 'Sistema de controle de estoque para Sebo Alfa',
+  icons: {
+    icon: [
+      { url: '/sebo-alfa-favicon.png', type: 'image/png' },
+    ],
+    shortcut: '/sebo-alfa-favicon.png',
+    apple: '/sebo-alfa-favicon.png',
+  },
 };
 
 import { AccessibilityProvider } from '@/components/providers/accessibility-provider';

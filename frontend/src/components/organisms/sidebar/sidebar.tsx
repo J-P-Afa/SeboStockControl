@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { SidebarItem } from '@/components/molecules/sidebar-item';
 import { Button } from '@/components/atoms/button';
+import { AppLogo } from '@/components/atoms/app-logo';
 import { ThemeSwitcher } from '@/components/molecules/theme-switcher';
 import { menuItems } from './sidebar-config';
 import { Separator } from '@/components/atoms/separator';
@@ -34,14 +35,11 @@ export function Sidebar() {
       aria-label="Menu Lateral"
     >
       <div className="flex h-16 items-center gap-3 px-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary to-primary/80 text-primary-foreground shadow-primary/20 shadow-lg">
-          <BookOpen className="h-5 w-5" />
-        </div>
-        {isExpanded && (
-          <span className="truncate text-lg font-display font-bold tracking-tight">
-            Sebo Stock
-          </span>
-        )}
+        <AppLogo
+          size="sm"
+          variant={isExpanded ? 'full' : 'mark'}
+          className={cn(!isExpanded && 'justify-center')}
+        />
       </div>
 
 

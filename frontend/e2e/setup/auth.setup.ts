@@ -12,7 +12,7 @@ setup('authenticate', async ({ page }) => {
 
   // Ensure page is loaded
   try {
-    await expect(page.getByRole('heading', { name: /Sebo Stock/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /Sebo Alfa/i })).toBeVisible({ timeout: 15000 });
     console.log('Login page loaded successfully.');
   } catch (e) {
     console.error('FAILED to load login page in setup. URL:', page.url());

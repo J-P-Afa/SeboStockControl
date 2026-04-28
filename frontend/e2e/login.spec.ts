@@ -7,7 +7,7 @@ test.describe('Login Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     // Ensure we are actually on the login page and it's hydrated
-    await expect(page.getByRole('heading', { name: /Sebo Stock/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Sebo Alfa/i })).toBeVisible();
   });
 
   test('should show validation errors for empty fields', async ({ page }) => {
