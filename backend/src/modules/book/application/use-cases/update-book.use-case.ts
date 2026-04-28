@@ -18,6 +18,46 @@ export class UpdateBookUseCase {
     private readonly bookRepo: IBookRepository,
   ) {}
 
+  private toUpdateParams(book: UpdateBookParams): UpdateBookParams {
+    return {
+      title: book.title,
+      subtitle: book.subtitle,
+      isbn13: book.isbn13,
+      isbn10: book.isbn10,
+      listPrice: book.listPrice,
+      editionType: book.editionType,
+      volume: book.volume,
+      collection: book.collection,
+      condition: book.condition,
+      status: book.status,
+      publicationYear: book.publicationYear,
+      pages: book.pages,
+      synopsis: book.synopsis,
+      dimensions: book.dimensions,
+      weight: book.weight,
+      publisherId: book.publisherId,
+      languageId: book.languageId,
+      genreId: book.genreId,
+      classificacaoId: book.classificacaoId,
+      isActive: book.isActive,
+    };
+  }
+
+  private normalizeInput(input: UpdateBookDto): UpdateBookParams {
+    const { listPrice, weight, ...rest } = input;
+    const updateParams: UpdateBookParams = { ...rest };
+
+    if (listPrice !== undefined) {
+      updateParams.listPrice = new Prisma.Decimal(listPrice);
+    }
+
+    if (weight !== undefined) {
+      updateParams.weight = new Prisma.Decimal(weight);
+    }
+
+    return updateParams;
+  }
+
   async execute(
     id: number,
     input: UpdateBookDto,
@@ -42,13 +82,7 @@ export class UpdateBookUseCase {
 
     // 2. Aplicar atualizações de domínio
     try {
-      existing.update({
-        ...input,
-        listPrice: input.listPrice
-          ? new Prisma.Decimal(input.listPrice)
-          : undefined,
-        weight: input.weight ? new Prisma.Decimal(input.weight) : undefined,
-      });
+      existing.update(this.normalizeInput(input));
     } catch (error: unknown) {
       return Result.fail(
         'BOOK_VALIDATION_ERROR',
@@ -60,7 +94,7 @@ export class UpdateBookUseCase {
     try {
       const updated = await this.bookRepo.update(
         id,
-        existing.toJSON() as UpdateBookParams,
+        this.toUpdateParams(existing.toJSON()),
       );
 
       return Result.ok(BookResponseDto.fromEntity(updated));
