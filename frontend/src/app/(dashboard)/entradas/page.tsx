@@ -100,8 +100,8 @@ export default function EntradasPage() {
     
     try {
       const { data } = await apiClient.get(`/books/isbn/${isbn}`);
-      if (data.success && data.data) {
-        handleBookSelect(data.data);
+      if (data) {
+        handleBookSelect(data);
       } else {
         // Not found in local DB, try external
         await handleExternalLookup(isbn);
