@@ -1,4 +1,18 @@
-import { LayoutDashboard, Users, ShieldCheck, BookOpen, Tag, Globe, Archive, PackagePlus, PackageMinus, Boxes, type LucideIcon } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Users,
+  ShieldCheck,
+  BookOpen,
+  Tag,
+  Globe,
+  Archive,
+  PackagePlus,
+  PackageMinus,
+  Boxes,
+  Store,
+  CreditCard,
+  type LucideIcon,
+} from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -47,6 +61,16 @@ export const menuItems: MenuItem[] = [
     label: 'Editoras',
     href: '/publishers',
     icon: Archive,
+  },
+  {
+    label: 'Canais de Venda',
+    href: '/canais-venda',
+    icon: Store,
+  },
+  {
+    label: 'Formas de Pagamento',
+    href: '/formas-pagamento',
+    icon: CreditCard,
   },
   {
     label: 'Usuários',

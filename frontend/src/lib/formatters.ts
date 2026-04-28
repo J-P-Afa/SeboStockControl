@@ -46,3 +46,17 @@ export function formatCurrency(value: number): string {
     currency: 'BRL',
   }).format(value);
 }
+
+export function formatPercent(value: number | string | null | undefined): string {
+  const numericValue = typeof value === 'string' ? Number(value) : value;
+  const safeValue =
+    typeof numericValue === 'number' && Number.isFinite(numericValue)
+      ? numericValue
+      : 0;
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'percent',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(safeValue);
+}

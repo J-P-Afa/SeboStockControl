@@ -19,7 +19,7 @@ export class CreateCanalVendaDto {
   @IsNumber()
   @Min(0)
   @Max(1)
-  comissao?: number;
+  comissaoVariavel?: number;
 
   @IsOptional()
   @IsBoolean()
@@ -28,6 +28,6 @@ export class CreateCanalVendaDto {
 
 export class UpdateCanalVendaDto {
   @IsOptional() @IsString() @MaxLength(100) descricao?: string;
-  @IsOptional() @IsNumber() @Min(0) @Max(1) comissao?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1) comissaoVariavel?: number;
   @IsOptional() @IsBoolean() isActive?: boolean;
 }

@@ -46,6 +46,16 @@ export {
 export * from './saidas.api';
 export * from './estoques.api';
 export { listTiposSaida } from './tipo-saida.api';
-export { listCanaisVenda } from './canal-venda.api';
-export { listFormasPagamento } from './forma-pagamento.api';
+export {
+  listCanaisVenda,
+  createCanalVenda,
+  updateCanalVenda,
+  deleteCanalVenda,
+} from './canal-venda.api';
+export {
+  listFormasPagamento,
+  createFormaPagamento,
+  updateFormaPagamento,
+  deleteFormaPagamento,
+} from './forma-pagamento.api';
 export { dashboardApi } from './dashboard.api';

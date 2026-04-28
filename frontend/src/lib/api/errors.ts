@@ -20,6 +20,10 @@ export const API_ERROR_MESSAGES: Record<string, string> = {
   AUTH_USER_NOT_FOUND: 'Usuário não encontrado ou inativo',
   ROLE_ALREADY_EXISTS: 'Já existe um cargo com este nome',
   ROLE_NOT_FOUND: 'Cargo não encontrado',
+  CANAL_VENDA_ALREADY_EXISTS: 'Canal de venda já existe',
+  CANAL_VENDA_NOT_FOUND: 'Canal de venda não encontrado',
+  FORMA_PAGAMENTO_ALREADY_EXISTS: 'Forma de pagamento já existe',
+  FORMA_PAGAMENTO_NOT_FOUND: 'Forma de pagamento não encontrada',
 };
 
 /**
