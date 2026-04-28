@@ -7,10 +7,12 @@ import {
   BookFilters,
 } from '../domain/book.repository.interface';
 import { BookEntity, BookProps } from '../domain/book.entity';
-import { Book, Condition } from '@prisma/client';
+import { Book, Condition, Prisma } from '@prisma/client';
 
 /** Tipo interno: resultado do Prisma com o join 1:1 de Estoque */
-type BookWithEstoque = Book & { estoque?: { quantidade: number } | null };
+type BookWithEstoque = Book & {
+  estoque?: { quantidade: number; custoMedio: Prisma.Decimal } | null;
+};
 
 /**
  * @ai-context Implementação do repositório usando Prisma.
@@ -47,6 +49,10 @@ export class PrismaBookRepository implements IBookRepository {
       updatedAt: prisma.updatedAt,
       // @ai-context: campo de infra enriquecido via join; não pertence ao domínio puro
       stock: prisma.estoque?.quantidade ?? null,
+      stockUnitCost: prisma.estoque?.custoMedio ?? null,
+      stockTotalCost: prisma.estoque
+        ? prisma.estoque.custoMedio.mul(prisma.estoque.quantidade)
+        : null,
     };
     return BookEntity.restore(props);
   }
@@ -54,7 +60,7 @@ export class PrismaBookRepository implements IBookRepository {
   async findById(id: number): Promise<BookEntity | null> {
     const book = await this.prisma.book.findUnique({
       where: { id },
-      include: { estoque: { select: { quantidade: true } } },
+      include: { estoque: { select: { quantidade: true, custoMedio: true } } },
     });
     return book ? this.toEntity(book) : null;
   }
@@ -66,7 +72,7 @@ export class PrismaBookRepository implements IBookRepository {
   async findByIsbn(isbn: string): Promise<BookEntity | null> {
     const book = await this.prisma.book.findFirst({
       where: { OR: [{ isbn13: isbn }, { isbn10: isbn }] },
-      include: { estoque: { select: { quantidade: true } } },
+      include: { estoque: { select: { quantidade: true, custoMedio: true } } },
     });
     return book ? this.toEntity(book) : null;
   }
@@ -106,7 +112,7 @@ export class PrismaBookRepository implements IBookRepository {
         ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
         ...(filters?.inStock && { estoque: { quantidade: { gt: 0 } } }),
       },
-      include: { estoque: { select: { quantidade: true } } },
+      include: { estoque: { select: { quantidade: true, custoMedio: true } } },
       orderBy: { title: 'asc' },
     });
 
@@ -184,7 +190,9 @@ export class PrismaBookRepository implements IBookRepository {
 
       return tx.book.findUnique({
         where: { id: book.id },
-        include: { estoque: { select: { quantidade: true } } },
+        include: {
+          estoque: { select: { quantidade: true, custoMedio: true } },
+        },
       });
     });
 
@@ -221,7 +229,7 @@ export class PrismaBookRepository implements IBookRepository {
     const updated = await this.prisma.book.update({
       where: { id },
       data: cleanData,
-      include: { estoque: { select: { quantidade: true } } },
+      include: { estoque: { select: { quantidade: true, custoMedio: true } } },
     });
     return this.toEntity(updated);
   }

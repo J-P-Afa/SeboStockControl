@@ -137,6 +137,24 @@ describe('ListBooksUseCase', () => {
     expect(resultOutOfStock.data?.[0].title).toBe('Sem Estoque');
   });
 
+  it('should include stock cost fields from the stock read model', async () => {
+    const book = await bookRepository.create({
+      ...mockBookData,
+      listPrice: new Prisma.Decimal(0),
+    });
+
+    const storedBook = bookRepository.items.find((b) => b.id === book.id);
+    (storedBook as any).props.stock = 3;
+    (storedBook as any).props.stockUnitCost = new Prisma.Decimal('12.50');
+
+    const result = await useCase.execute();
+
+    expect(result.success).toBe(true);
+    expect(result.data?.[0].stock).toBe(3);
+    expect(result.data?.[0].stockUnitCost?.toString()).toBe('12.5');
+    expect(result.data?.[0].stockTotalCost?.toString()).toBe('37.5');
+  });
+
   it('should handle generic errors from repository gracefully', async () => {
     // Arrange: provocando um erro na infraestrutura
     jest

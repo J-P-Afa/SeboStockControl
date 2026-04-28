@@ -25,6 +25,8 @@ export interface Book {
   
   // Virtual field from relation if included in future
   stock?: number;
+  stockUnitCost?: number | string | null;
+  stockTotalCost?: number | string | null;
 }
 
 export interface ExternalBook {

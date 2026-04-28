@@ -86,10 +86,10 @@ export function getEstoquesTableColumns({
       enableSorting: true,
     },
     {
-      accessorKey: 'listPrice',
+      accessorKey: 'stockUnitCost',
       header: 'Custo Unit.',
       cell: ({ row }) => {
-        const price = Number(row.original.listPrice ?? 0);
+        const price = Number(row.original.stockUnitCost ?? 0);
         return <span className="font-mono text-sm">{formatCurrency(price)}</span>;
       },
       enableSorting: true,
@@ -98,9 +98,8 @@ export function getEstoquesTableColumns({
       id: 'totalPrice',
       header: 'Custo Total',
       cell: ({ row }) => {
-        const price = Number(row.original.listPrice ?? 0);
-        const stock = row.original.stock ?? 0;
-        return <span className="font-mono text-sm font-semibold">{formatCurrency(price * stock)}</span>;
+        const totalCost = Number(row.original.stockTotalCost ?? 0);
+        return <span className="font-mono text-sm font-semibold">{formatCurrency(totalCost)}</span>;
       },
       enableSorting: false,
     },

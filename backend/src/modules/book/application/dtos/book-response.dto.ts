@@ -28,6 +28,8 @@ export class BookResponseDto {
   updatedAt: Date;
   /** @ai-context Quantidade atual em estoque — join 1:1 via Estoque. Null se o estoque ainda não foi criado. */
   stock: number | null | undefined;
+  stockUnitCost: Prisma.Decimal | null | undefined;
+  stockTotalCost: Prisma.Decimal | null | undefined;
 
   static fromEntity(entity: BookEntity): BookResponseDto {
     const dto = new BookResponseDto();
@@ -55,6 +57,8 @@ export class BookResponseDto {
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;
     dto.stock = entity.stock;
+    dto.stockUnitCost = entity.stockUnitCost;
+    dto.stockTotalCost = entity.stockTotalCost;
     return dto;
   }
 }

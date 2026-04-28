@@ -133,8 +133,8 @@ export default function EstoquesPage() {
       b.isbn13 || b.isbn10 || '',
       b.condition,
       b.stock ?? 0,
-      b.listPrice ?? 0,
-      (b.listPrice ?? 0) * (b.stock ?? 0)
+      b.stockUnitCost ?? 0,
+      b.stockTotalCost ?? 0
     ]);
     const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

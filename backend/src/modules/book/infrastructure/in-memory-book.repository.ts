@@ -128,6 +128,8 @@ export class InMemoryBookRepository implements IBookRepository {
       createdAt: new Date(),
       updatedAt: new Date(),
       stock: 0,
+      stockUnitCost: null,
+      stockTotalCost: null,
     };
     const entity = BookEntity.restore(bookProps);
     this.items.push(entity);

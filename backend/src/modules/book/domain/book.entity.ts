@@ -35,6 +35,8 @@ export interface BookProps {
    * Não participa de invariantes de domínio. Usar apenas para exibição/DTO.
    */
   stock?: number | null;
+  stockUnitCost?: Prisma.Decimal | null;
+  stockTotalCost?: Prisma.Decimal | null;
 }
 
 export class BookEntity {
@@ -163,6 +165,21 @@ export class BookEntity {
   }
   get stock(): number | null | undefined {
     return this.props.stock;
+  }
+  get stockUnitCost(): Prisma.Decimal | null | undefined {
+    return this.props.stockUnitCost;
+  }
+  get stockTotalCost(): Prisma.Decimal | null | undefined {
+    if (
+      this.props.stockTotalCost == null &&
+      this.props.stockUnitCost !== undefined &&
+      this.props.stockUnitCost !== null &&
+      this.props.stock !== undefined &&
+      this.props.stock !== null
+    ) {
+      return this.props.stockUnitCost.mul(this.props.stock);
+    }
+    return this.props.stockTotalCost;
   }
 
   public update(
