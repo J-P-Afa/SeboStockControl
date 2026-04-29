@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import type { SortingState } from '@tanstack/react-table';
-import { Download, Filter, Search, Boxes } from 'lucide-react';
+import { Download, Filter, X, Boxes } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
@@ -78,13 +78,27 @@ export default function EstoquesPage() {
     [],
   );
 
-  const handleEnterSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const val = e.currentTarget.value;
-      setSearch(val);
-      setPage(1);
-    }
-  };
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
+
+  const handleInStockChange = useCallback((checked: boolean) => {
+    setInStockOnly(checked);
+    setPage(1);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setSearch('');
+    setInStockOnly(false);
+    setCondition('Todos');
+    setEditionType('Todos');
+    setStatus('Todos');
+    setIsActiveOnly(true);
+    setPublisherId('Todos');
+    setLanguageId('Todos');
+    setPage(1);
+  }, []);
 
   const handleEdit = (book: Book) => {
     setSelectedBook(book);
@@ -166,18 +180,19 @@ export default function EstoquesPage() {
 
       <div className="flex flex-col gap-3 relative z-20">
         <div className="flex items-center gap-3 bg-card p-3 rounded-2xl border border-border/60 shadow-sm flex-wrap">
-          <div className="flex items-center relative gap-2 shrink-0">
-            <Search className="h-4 w-4 text-muted-foreground absolute left-3" />
+          <div className="flex gap-2 items-center shrink-0">
+            <Label htmlFor="book-main-search" className="text-sm">Buscar</Label>
             <Input
               id="book-main-search"
-              onKeyDown={handleEnterSearch}
-              placeholder="ISBN, ID ou Descrição (Enter para buscar)"
-              className="pl-9 min-w-[300px] border-border/80 focus-visible:ring-primary/20"
+              value={search}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              placeholder="Descrição ou ISBN"
+              className="min-w-[220px] border-border/80 focus-visible:ring-primary/20"
             />
           </div>
 
           <Label className="flex items-center gap-2 cursor-pointer px-3 py-2 bg-muted/40 hover:bg-muted/80 rounded-xl transition-colors border border-transparent">
-            <Switch checked={inStockOnly} onCheckedChange={(c) => { setInStockOnly(c); setPage(1); }} />
+            <Switch checked={inStockOnly} onCheckedChange={handleInStockChange} />
             <span className="text-sm font-medium">Com estoque positivo</span>
           </Label>
 
@@ -191,11 +206,8 @@ export default function EstoquesPage() {
             Filtros Avançados
           </Button>
 
-          <Button variant="secondary" size="sm" onClick={() => {
-            setSearch(''); setInStockOnly(false); setCondition('Todos'); setEditionType('Todos'); 
-            setStatus('Todos'); setIsActiveOnly(true); setPublisherId('Todos'); setLanguageId('Todos');
-            setPage(1);
-          }} className="ml-auto">
+          <Button variant="secondary" size="sm" onClick={handleClearFilters} className="ml-auto">
+            <X className="mr-1 h-4 w-4" />
             Limpar Todos
           </Button>
         </div>
