@@ -137,13 +137,16 @@ function DateField({
           <span className="flex h-full w-11 shrink-0 items-center justify-center rounded-l-lg border-r border-border/70 bg-muted/80 text-muted-foreground transition-colors group-focus-within/date-field:border-primary/40 group-focus-within/date-field:bg-primary/10 group-focus-within/date-field:text-primary">
             <CalendarDays className="h-4 w-4" />
           </span>
-          <span className="min-w-0 flex-1 px-3 text-foreground">
+          <span className="min-w-0 px-3 text-foreground">
             {formatDisplay(value)}
           </span>
           {label ? (
-            <span className="hidden shrink-0 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 sm:block">
-              {label}
-            </span>
+            <>
+              <div className="flex-1" />
+              <span className="hidden shrink-0 pl-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 sm:block">
+                {label}
+              </span>
+            </>
           ) : null}
         </PopoverTrigger>
       </div>
