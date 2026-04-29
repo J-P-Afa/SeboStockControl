@@ -13,6 +13,7 @@ import { ClassificacaoModule } from './modules/classificacao/classificacao.modul
 import { CanalVendaModule } from './modules/canal-venda/canal-venda.module';
 import { FormaPagamentoModule } from './modules/forma-pagamento/forma-pagamento.module';
 import { TipoSaidaModule } from './modules/tipo-saida/tipo-saida.module';
+import { TipoEntradaModule } from './modules/tipo-entrada/tipo-entrada.module';
 import { StockModule } from './modules/stock/stock.module';
 import { EntradaModule } from './modules/entrada/entrada.module';
 import { SaidaModule } from './modules/saida/saida.module';
@@ -39,6 +40,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     CanalVendaModule,
     FormaPagamentoModule,
     TipoSaidaModule,
+    TipoEntradaModule,
     StockModule,
     EntradaModule,
     SaidaModule,
