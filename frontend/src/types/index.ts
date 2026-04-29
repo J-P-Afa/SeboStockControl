@@ -21,6 +21,7 @@ export * from './genre';
 export * from './language';
 export * from './publisher';
 export * from './tipo-saida';
+export * from './tipo-entrada';
 export * from './canal-venda';
 export * from './forma-pagamento';
 export * from './saida';
