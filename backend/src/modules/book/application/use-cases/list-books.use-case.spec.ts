@@ -50,9 +50,10 @@ describe('ListBooksUseCase', () => {
 
     // Assert
     expect(result.success).toBe(true);
-    expect(result.data).toHaveLength(2);
-    expect(result.data?.[0].title).toBe('Dom Quixote');
-    expect(result.data?.[1].title).toBe('Livro 2');
+    expect(result.data?.items).toHaveLength(2);
+    expect(result.data?.items[0].title).toBe('Dom Quixote');
+    expect(result.data?.items[1].title).toBe('Livro 2');
+    expect(result.data?.total).toBe(2);
   });
 
   it('should list books filtering by id', async () => {
@@ -68,8 +69,9 @@ describe('ListBooksUseCase', () => {
 
     // Assert
     expect(result.success).toBe(true);
-    expect(result.data).toHaveLength(1);
-    expect(result.data?.[0].id).toBe(book2.id);
+    expect(result.data?.items).toHaveLength(1);
+    expect(result.data?.items[0].id).toBe(book2.id);
+    expect(result.data?.total).toBe(1);
   });
 
   it('should list books filtering by isbn (13 or 10 digits)', async () => {
@@ -82,10 +84,10 @@ describe('ListBooksUseCase', () => {
 
     // Assert
     expect(resultIsbn13.success).toBe(true);
-    expect(resultIsbn13.data).toHaveLength(1);
+    expect(resultIsbn13.data?.items).toHaveLength(1);
 
     expect(resultIsbn10.success).toBe(true);
-    expect(resultIsbn10.data).toHaveLength(1);
+    expect(resultIsbn10.data?.items).toHaveLength(1);
   });
 
   it('should list books filtering by collection', async () => {
@@ -98,8 +100,8 @@ describe('ListBooksUseCase', () => {
 
     // Assert
     expect(result.success).toBe(true);
-    expect(result.data).toHaveLength(1);
-    expect(result.data?.[0].collection).toBe('Ficção');
+    expect(result.data?.items).toHaveLength(1);
+    expect(result.data?.items[0].collection).toBe('Ficção');
   });
 
   it('should list books filtering by inStock condition (true/false) using Read-Model data', async () => {
@@ -129,12 +131,12 @@ describe('ListBooksUseCase', () => {
 
     // Assert
     expect(resultInStock.success).toBe(true);
-    expect(resultInStock.data).toHaveLength(1);
-    expect(resultInStock.data?.[0].title).toBe('Com Estoque');
+    expect(resultInStock.data?.items).toHaveLength(1);
+    expect(resultInStock.data?.items[0].title).toBe('Com Estoque');
 
     expect(resultOutOfStock.success).toBe(true);
-    expect(resultOutOfStock.data).toHaveLength(1);
-    expect(resultOutOfStock.data?.[0].title).toBe('Sem Estoque');
+    expect(resultOutOfStock.data?.items).toHaveLength(1);
+    expect(resultOutOfStock.data?.items[0].title).toBe('Sem Estoque');
   });
 
   it('should include stock cost fields from the stock read model', async () => {
@@ -150,9 +152,9 @@ describe('ListBooksUseCase', () => {
     const result = await useCase.execute();
 
     expect(result.success).toBe(true);
-    expect(result.data?.[0].stock).toBe(3);
-    expect(result.data?.[0].stockUnitCost?.toString()).toBe('12.5');
-    expect(result.data?.[0].stockTotalCost?.toString()).toBe('37.5');
+    expect(result.data?.items[0].stock).toBe(3);
+    expect(result.data?.items[0].stockUnitCost?.toString()).toBe('12.5');
+    expect(result.data?.items[0].stockTotalCost?.toString()).toBe('37.5');
   });
 
   it('should handle generic errors from repository gracefully', async () => {
