@@ -1,7 +1,10 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Result } from '../../../../common/interfaces/result.interface';
 import type { DashboardRepository } from '../../domain/dashboard.repository';
-import { SalesTrendData } from '../../domain/dashboard.repository';
+import {
+  DashboardFilters,
+  SalesTrendData,
+} from '../../domain/dashboard.repository';
 
 @Injectable()
 export class GetSalesTrendUseCase {
@@ -12,9 +15,11 @@ export class GetSalesTrendUseCase {
     private readonly repository: DashboardRepository,
   ) {}
 
-  async execute(): Promise<Result<SalesTrendData[]>> {
+  async execute(
+    filters: DashboardFilters = {},
+  ): Promise<Result<SalesTrendData[]>> {
     try {
-      const trends = await this.repository.getSalesTrend(30);
+      const trends = await this.repository.getSalesTrend(filters, 30);
       return Result.ok(trends);
     } catch (error) {
       this.logger.error('Failed to retrieve sales trends', error);

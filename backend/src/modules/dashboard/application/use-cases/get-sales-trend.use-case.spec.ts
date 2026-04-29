@@ -36,6 +36,20 @@ describe('GetSalesTrendUseCase', () => {
     ]);
   });
 
+  it('should pass dashboard filters and default trend window to the repository', async () => {
+    const filters = {
+      startDate: '2026-04-01',
+      endDate: '2026-04-29',
+      bookAttribute: 'condition' as const,
+      bookAttributeValues: ['novo'],
+    };
+    const getSalesTrendSpy = jest.spyOn(repository, 'getSalesTrend');
+
+    await useCase.execute(filters);
+
+    expect(getSalesTrendSpy).toHaveBeenCalledWith(filters, 30);
+  });
+
   it('should return error if repository fails', async () => {
     // Arrange
     jest
