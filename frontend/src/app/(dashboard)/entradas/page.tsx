@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { 
   PackagePlus, 
   Trash2, 
@@ -39,16 +39,12 @@ import {
 import { BookSearchAutocomplete } from '@/components/molecules/book-search-autocomplete';
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
 import { DateField } from '@/components/molecules/date-field';
+import { useTiposEntrada } from '@/hooks/use-tipos-entrada';
 import { bulkCreateEntrada, getLastCost, getBookStock, createBook, getErrorMessage } from '@/lib/api';
 import { lookupExternalBook } from '@/lib/api/books.api';
 import { formatCurrency } from '@/lib/formatters';
 import { Condition, type Book, type ExternalBook, type CreateBookPayload } from '@/types';
 import { apiClient } from '@/lib/api/client';
-
-enum TipoEntrada {
-  COMPRA = 'Compra',
-  DOACAO = 'Doação Recebida',
-}
 
 interface EntradaItem {
   id: string; // Local ID for UI management
@@ -64,9 +60,10 @@ interface EntradaItem {
 export default function EntradasPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { data: tiposEntrada = [], isLoading: isLoadingTiposEntrada } = useTiposEntrada();
   
   // Header State
-  const [tipoEntrada, setTipoEntrada] = useState<TipoEntrada>(TipoEntrada.COMPRA);
+  const [tipoEntradaId, setTipoEntradaId] = useState<number | null>(null);
   const [dataEntrada, setDataEntrada] = useState(new Date().toISOString().split('T')[0]);
   const [fornecedor, setFornecedor] = useState('');
   const [numeroNotaFiscal, setNumeroNotaFiscal] = useState('');
@@ -91,8 +88,27 @@ export default function EntradasPage() {
   const [isFetchingExternal, setIsFetchingExternal] = useState(false);
 
   // Calculated values
+  const selectedTipoEntrada = useMemo(
+    () => tiposEntrada.find((tipo) => tipo.id === tipoEntradaId) ?? null,
+    [tiposEntrada, tipoEntradaId],
+  );
+  const isDoacao = selectedTipoEntrada?.isDoacao ?? false;
   const custoTotalItem = useMemo(() => quantidade * custoUnitario, [quantidade, custoUnitario]);
   const totalGeral = useMemo(() => items.reduce((acc, item) => acc + item.custoTotal, 0), [items]);
+
+  useEffect(() => {
+    if (tipoEntradaId !== null || tiposEntrada.length === 0) return;
+
+    const defaultTipo =
+      tiposEntrada.find((tipo) => !tipo.isDoacao) ?? tiposEntrada[0];
+    setTipoEntradaId(defaultTipo.id);
+  }, [tipoEntradaId, tiposEntrada]);
+
+  useEffect(() => {
+    if (isDoacao) {
+      setCustoUnitario(0);
+    }
+  }, [isDoacao]);
 
   // Fetch book by ISBN for reader mode
   const handleIsbnSubmit = async (isbn: string) => {
@@ -158,7 +174,7 @@ export default function EntradasPage() {
       ]);
       setEstoqueAtual(stock);
       
-      if (tipoEntrada === TipoEntrada.DOACAO) {
+      if (isDoacao) {
         setCustoUnitario(0);
       } else {
         setCustoUnitario(cost || 0);
@@ -231,6 +247,11 @@ export default function EntradasPage() {
       return;
     }
 
+    if (!tipoEntradaId) {
+      toast.error('Selecione um tipo de entrada');
+      return;
+    }
+
     try {
       await bulkCreateEntrada({
         usuarioId: user.id,
@@ -240,6 +261,7 @@ export default function EntradasPage() {
         observacao: observacaoGeral,
         items: items.map(item => ({
           bookId: item.bookId,
+          tipoEntradaId,
           quantidade: item.quantidade,
           custoUnitario: item.custoUnitario,
           fornecedor,
@@ -293,7 +315,7 @@ export default function EntradasPage() {
           <PackagePlus className="h-7 w-7 text-primary" />
         </div>
         <p className="text-muted-foreground/80">
-          Gerencie a entrada de novos itens no estoque (Compras ou Doações).
+          Gerencie a entrada de novos itens no estoque.
         </p>
       </div>
 
@@ -310,18 +332,26 @@ export default function EntradasPage() {
             <div className="space-y-2">
               <Label>Tipo de Entrada</Label>
               <Select 
-                value={tipoEntrada} 
+                value={tipoEntradaId ? String(tipoEntradaId) : undefined}
                 onValueChange={(val) => {
-                  setTipoEntrada(val as TipoEntrada);
-                  if (val === TipoEntrada.DOACAO) setCustoUnitario(0);
+                  const nextTipoEntradaId = Number(val);
+                  const nextTipoEntrada = tiposEntrada.find(
+                    (tipo) => tipo.id === nextTipoEntradaId,
+                  );
+                  setTipoEntradaId(nextTipoEntradaId);
+                  if (nextTipoEntrada?.isDoacao) setCustoUnitario(0);
                 }}
+                disabled={isLoadingTiposEntrada || tiposEntrada.length === 0}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={TipoEntrada.COMPRA}>{TipoEntrada.COMPRA}</SelectItem>
-                  <SelectItem value={TipoEntrada.DOACAO}>{TipoEntrada.DOACAO}</SelectItem>
+                  {tiposEntrada.map((tipo) => (
+                    <SelectItem key={tipo.id} value={String(tipo.id)}>
+                      {tipo.descricao}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -474,7 +504,7 @@ export default function EntradasPage() {
                 <Input 
                   type="number" 
                   step="0.01" 
-                  disabled={tipoEntrada === TipoEntrada.DOACAO}
+                  disabled={isDoacao}
                   value={custoUnitario} 
                   onChange={(e) => setCustoUnitario(Number(e.target.value))}
                   className="pl-9 font-bold"

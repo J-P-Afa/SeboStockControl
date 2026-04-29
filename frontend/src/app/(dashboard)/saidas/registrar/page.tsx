@@ -388,7 +388,6 @@ export default function RegistrarSaidaPage() {
             <div className="space-y-2">
               <Label>Data da Saída</Label>
               <DateField
-                label="Saída"
                 value={dataSaida}
                 onChange={(e) => setDataSaida(e.target.value)}
               />

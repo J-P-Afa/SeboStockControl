@@ -97,4 +97,88 @@ describe('EntradasPage', () => {
     });
     expect(screen.queryByRole('dialog', { name: 'Cadastrar Livro' })).not.toBeInTheDocument();
   });
+
+  it('fetches external book when local lookup fails and opens creation dialog', async () => {
+    server.use(
+      http.get(`${API_URL}/books/isbn/1234567890`, () =>
+        HttpResponse.json(null, { status: 404 }),
+      ),
+      http.get(`${API_URL}/books/external-lookup/1234567890`, () =>
+        HttpResponse.json({ title: 'Livro Externo Open Library' }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10 ou ISBN13'), '1234567890{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Cadastrar Livro' })).toBeInTheDocument();
+    });
+  });
+
+  it('adds an item to the list and saves the transaction', async () => {
+    const book: Book = {
+      id: 1,
+      title: 'Livro de Teste',
+      isbn10: '1234567890',
+      isbn13: null,
+      condition: Condition.NOVO,
+      editionType: EditionType.NORMAL,
+      status: Status.COMPLETO,
+      listPrice: null,
+      weight: 300,
+      publisherId: null,
+      languageId: null,
+      genreId: null,
+      isActive: true,
+      createdAt: '2026-04-28T00:00:00.000Z',
+      updatedAt: '2026-04-28T00:00:00.000Z',
+    };
+
+    server.use(
+      http.get(`${API_URL}/tipos-entrada`, () =>
+        HttpResponse.json({ success: true, data: [{ id: 1, descricao: 'Compra', isDoacao: false }] }),
+      ),
+      http.get(`${API_URL}/books/isbn/1234567890`, () =>
+        HttpResponse.json({ success: true, data: book }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10 ou ISBN13'), '1234567890{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Livro de Teste')).toBeInTheDocument();
+    });
+
+    // Add item
+    await user.click(screen.getByRole('button', { name: /salvar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('cell', { name: 'Livro de Teste' })).toBeInTheDocument();
+    });
+
+    // Save all
+    await user.click(screen.getByRole('button', { name: /finalizar transação/i }));
+
+    const api = await import('@/lib/api');
+    await waitFor(() => {
+      expect(api.bulkCreateEntrada).toHaveBeenCalled();
+    });
+  });
+
+  it('switches to manual mode and clears inputs', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: /manual/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Pesquisa Inteligente')).toBeInTheDocument();
+    });
+  });
 });

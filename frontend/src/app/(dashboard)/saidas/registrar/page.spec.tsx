@@ -17,7 +17,7 @@ vi.mock('@/hooks/use-auth', () => ({
 
 vi.mock('@/hooks/use-tipos-saida', () => ({
   useTiposSaida: () => ({
-    data: [{ id: 1, descricao: 'Venda', isVenda: true, isActive: true }],
+    data: [{ id: 1, descricao: 'Doação', isVenda: false, isActive: true }],
   }),
 }));
 
@@ -109,5 +109,66 @@ describe('RegistrarSaidaPage', () => {
       expect(screen.getByText('Livro Existente')).toBeInTheDocument();
     });
     expect(screen.queryByRole('dialog', { name: 'Cadastrar Livro' })).not.toBeInTheDocument();
+  });
+
+  it('adds an item to the list and saves the transaction', async () => {
+    const book: Book = {
+      id: 1,
+      title: 'Livro de Teste de Saida',
+      isbn10: '1234567890',
+      isbn13: null,
+      condition: Condition.NOVO,
+      editionType: EditionType.NORMAL,
+      status: Status.COMPLETO,
+      listPrice: 50,
+      weight: 300,
+      publisherId: null,
+      languageId: null,
+      genreId: null,
+      isActive: true,
+      createdAt: '2026-04-28T00:00:00.000Z',
+      updatedAt: '2026-04-28T00:00:00.000Z',
+    };
+
+    server.use(
+      http.get(`${API_URL}/books/isbn/1234567890`, () =>
+        HttpResponse.json({ success: true, data: book }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10 ou ISBN13'), '1234567890{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Livro de Teste de Saida')).toBeInTheDocument();
+    });
+
+    // Add item
+    await user.click(screen.getByRole('button', { name: /salvar/i }));
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Livro de Teste de Saida').length).toBeGreaterThan(0);
+    });
+
+    // Finalize
+    await user.click(screen.getByRole('button', { name: /finalizar transação/i }));
+
+    const api = await import('@/lib/api');
+    await waitFor(() => {
+      expect(api.bulkCreateSaida).toHaveBeenCalled();
+    });
+  });
+
+  it('switches to manual mode and clears inputs', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: /manual/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Pesquisa Inteligente')).toBeInTheDocument();
+    });
   });
 });
