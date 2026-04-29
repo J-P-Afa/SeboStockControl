@@ -25,9 +25,45 @@ export interface SalesTrendData {
   netProfit: number;
 }
 
+export const DASHBOARD_BOOK_ATTRIBUTES = [
+  'classificacaoId',
+  'genreId',
+  'publisherId',
+  'languageId',
+  'condition',
+  'status',
+  'editionType',
+] as const;
+
+export type DashboardBookAttribute = (typeof DASHBOARD_BOOK_ATTRIBUTES)[number];
+
+export interface DashboardFilters {
+  startDate?: string;
+  endDate?: string;
+  bookAttribute?: DashboardBookAttribute;
+  bookAttributeValues?: string[];
+}
+
+export interface DashboardBookAttributeValue {
+  value: string;
+  label: string;
+}
+
 export interface DashboardRepository {
-  getKPIs(): Promise<DashboardKPIs>;
-  getTopCategories(limit?: number): Promise<CategoryData[]>;
-  getRecentTransactions(limit?: number): Promise<RecentTransactionData[]>;
-  getSalesTrend(days?: number): Promise<SalesTrendData[]>;
+  getKPIs(filters?: DashboardFilters): Promise<DashboardKPIs>;
+  getTopCategories(
+    filters?: DashboardFilters,
+    limit?: number,
+  ): Promise<CategoryData[]>;
+  getRecentTransactions(
+    filters?: DashboardFilters,
+    limit?: number,
+  ): Promise<RecentTransactionData[]>;
+  getSalesTrend(
+    filters?: DashboardFilters,
+    days?: number,
+  ): Promise<SalesTrendData[]>;
+  getBookAttributeValues(
+    attribute: DashboardBookAttribute,
+  ): Promise<DashboardBookAttributeValue[]>;
 }
