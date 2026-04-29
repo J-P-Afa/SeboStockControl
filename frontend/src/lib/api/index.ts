@@ -52,6 +52,12 @@ export {
   deleteTipoSaida,
 } from './tipo-saida.api';
 export {
+  listTiposEntrada,
+  createTipoEntrada,
+  updateTipoEntrada,
+  deleteTipoEntrada,
+} from './tipo-entrada.api';
+export {
   listCanaisVenda,
   createCanalVenda,
   updateCanalVenda,

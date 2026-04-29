@@ -39,4 +39,18 @@ export const handlers = [
       role: 'ADMIN',
     });
   }),
+
+  // Dashboard Lookups
+  http.get(`${API_URL}/tipos-entrada`, () => {
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_URL}/tipos-saida`, () => {
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_URL}/canais-venda`, () => {
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_URL}/formas-pagamento`, () => {
+    return HttpResponse.json({ success: true, data: [] });
+  }),
 ];

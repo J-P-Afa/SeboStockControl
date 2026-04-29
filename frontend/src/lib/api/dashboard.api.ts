@@ -1,4 +1,10 @@
 import { apiClient as client } from "./client"
+import {
+  buildDashboardSearchParams,
+  type DashboardBookAttribute,
+  type DashboardBookAttributeValue,
+  type DashboardFilters,
+} from "@/lib/dashboard-filters"
 
 export interface DashboardKPIs {
   totalVendas: number
@@ -28,21 +34,39 @@ export interface RecentTransaction {
 }
 
 export const dashboardApi = {
-  getKPIs: async () => {
-    const { data } = await client.get<DashboardKPIs>("/dashboard/kpis")
+  getKPIs: async (filters?: DashboardFilters) => {
+    const { data } = await client.get<DashboardKPIs>("/dashboard/kpis", {
+      params: buildDashboardSearchParams(filters),
+    })
     return data
   },
-  getSalesTrend: async () => {
-    const { data } = await client.get<SalesTrend[]>("/dashboard/sales-trend")
+  getSalesTrend: async (filters?: DashboardFilters) => {
+    const { data } = await client.get<SalesTrend[]>("/dashboard/sales-trend", {
+      params: buildDashboardSearchParams(filters),
+    })
     return data
   },
-  getTopCategories: async () => {
-    const { data } = await client.get<CategoryData[]>("/dashboard/top-categories")
+  getTopCategories: async (filters?: DashboardFilters) => {
+    const { data } = await client.get<CategoryData[]>("/dashboard/top-categories", {
+      params: buildDashboardSearchParams(filters),
+    })
     return data
   },
-  getRecentTransactions: async () => {
+  getRecentTransactions: async (filters?: DashboardFilters) => {
     const { data } = await client.get<RecentTransaction[]>(
-      "/dashboard/recent-transactions"
+      "/dashboard/recent-transactions",
+      {
+        params: buildDashboardSearchParams(filters),
+      }
+    )
+    return data
+  },
+  getBookAttributeValues: async (attribute: DashboardBookAttribute) => {
+    const { data } = await client.get<DashboardBookAttributeValue[]>(
+      "/dashboard/book-attribute-values",
+      {
+        params: { attribute },
+      }
     )
     return data
   },

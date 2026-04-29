@@ -40,20 +40,11 @@ export async function listBooks(
     });
   }
 
-  const { data: books = [] } = await apiClient.get<Book[]>('/books', {
+  const { data } = await apiClient.get<PaginatedResponse<Book>>('/books', {
     params,
   });
 
-  const total = books.length;
-
-  // Mock pagination metadata as backend returns full list for now
-  return {
-    items: books,
-    total,
-    page: 1,
-    limit: total || limit,
-    totalPages: total > 0 ? 1 : 0,
-  };
+  return data;
 }
 
 export async function createBook(payload: CreateBookPayload): Promise<Book> {
