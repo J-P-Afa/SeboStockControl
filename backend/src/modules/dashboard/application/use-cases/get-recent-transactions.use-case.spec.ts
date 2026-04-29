@@ -46,6 +46,23 @@ describe('GetRecentTransactionsUseCase', () => {
     ]);
   });
 
+  it('should pass dashboard filters and the transaction limit to the repository', async () => {
+    const filters = {
+      startDate: '2026-04-01',
+      endDate: '2026-04-29',
+      bookAttribute: 'status' as const,
+      bookAttributeValues: ['completo'],
+    };
+    const getRecentTransactionsSpy = jest.spyOn(
+      repository,
+      'getRecentTransactions',
+    );
+
+    await useCase.execute(filters);
+
+    expect(getRecentTransactionsSpy).toHaveBeenCalledWith(filters, 10);
+  });
+
   it('should return error if repository fails', async () => {
     // Arrange
     jest
