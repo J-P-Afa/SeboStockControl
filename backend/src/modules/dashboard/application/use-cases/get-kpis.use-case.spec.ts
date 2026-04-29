@@ -41,6 +41,20 @@ describe('GetKPIsUseCase', () => {
     });
   });
 
+  it('should pass dashboard filters to the repository', async () => {
+    const filters = {
+      startDate: '2026-04-01',
+      endDate: '2026-04-29',
+      bookAttribute: 'publisherId' as const,
+      bookAttributeValues: ['2', '3'],
+    };
+    const getKPIsSpy = jest.spyOn(repository, 'getKPIs');
+
+    await useCase.execute(filters);
+
+    expect(getKPIsSpy).toHaveBeenCalledWith(filters);
+  });
+
   it('should return a failed Result Pattern if repository throws', async () => {
     // Arrange: Force failure in repository
     jest
