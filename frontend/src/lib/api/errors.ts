@@ -12,6 +12,8 @@ export interface ApiErrorResponse {
  * Used when backend returns structured errors so the UI stays consistent.
  */
 export const API_ERROR_MESSAGES: Record<string, string> = {
+  FOREIGN_KEY_CONSTRAINT:
+    'Não é possível excluir este registro porque ele já está sendo usado.',
   USER_EMAIL_EXISTS: 'Já existe um usuário com este e-mail',
   USER_NOT_FOUND: 'Usuário não encontrado',
   AUTH_INVALID_CREDENTIALS: 'Email ou senha inválidos',
@@ -71,8 +73,17 @@ export function getErrorMessage(error: unknown, fallback: string): string {
  */
 function getErrorResponseData(error: unknown): ApiErrorResponse | null {
   if (error === null || typeof error !== 'object') return null;
+
+  if (hasApiErrorShape(error)) {
+    return error;
+  }
+
   const err = error as { response?: { data?: unknown } };
   const data = err.response?.data;
   if (data === null || typeof data !== 'object') return null;
   return data as ApiErrorResponse;
+}
+
+function hasApiErrorShape(error: object): error is ApiErrorResponse {
+  return 'code' in error || 'message' in error;
 }

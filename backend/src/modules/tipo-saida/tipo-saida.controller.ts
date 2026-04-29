@@ -46,7 +46,7 @@ export class TipoSaidaController {
   }
 
   @Post()
-  @RequirePermission('saida:write')
+  @RequirePermission('saida:create')
   async create(@Body() dto: CreateTipoSaidaDto) {
     const existing = await this.repo.findByDescricao(dto.descricao);
     if (existing) {
@@ -68,7 +68,7 @@ export class TipoSaidaController {
   }
 
   @Patch(':id')
-  @RequirePermission('saida:write')
+  @RequirePermission('saida:create')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTipoSaidaDto,
@@ -80,12 +80,23 @@ export class TipoSaidaController {
         'Tipo de saída não encontrado',
       );
     }
+
+    if (dto.isVenda === true && item.isVenda === false) {
+      const countVenda = await this.repo.countVenda();
+      if (countVenda > 0) {
+        return Result.fail(
+          'TIPO_SAIDA_IS_VENDA_EXISTS',
+          'Já existe um tipo de saída com isVenda = true',
+        );
+      }
+    }
+
     return this.repo.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  @RequirePermission('saida:write')
+  @RequirePermission('saida:create')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const item = await this.repo.findById(id);
     if (!item) {

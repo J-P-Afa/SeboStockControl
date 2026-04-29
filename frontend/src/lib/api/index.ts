@@ -45,7 +45,12 @@ export {
 } from './entradas.api';
 export * from './saidas.api';
 export * from './estoques.api';
-export { listTiposSaida } from './tipo-saida.api';
+export {
+  listTiposSaida,
+  createTipoSaida,
+  updateTipoSaida,
+  deleteTipoSaida,
+} from './tipo-saida.api';
 export {
   listCanaisVenda,
   createCanalVenda,

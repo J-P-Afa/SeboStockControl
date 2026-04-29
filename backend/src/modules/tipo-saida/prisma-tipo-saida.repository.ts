@@ -38,7 +38,10 @@ export class PrismaTipoSaidaRepository {
     return this.prisma.tipoSaida.create({ data });
   }
 
-  update(id: number, data: { descricao?: string; isActive?: boolean }) {
+  update(
+    id: number,
+    data: { descricao?: string; isVenda?: boolean; isActive?: boolean },
+  ) {
     return this.prisma.tipoSaida.update({ where: { id }, data });
   }
 

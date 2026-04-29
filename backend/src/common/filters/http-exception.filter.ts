@@ -3,6 +3,7 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ResultError } from '../interfaces/result.interface';
@@ -11,14 +12,47 @@ import { ResultError } from '../interfaces/result.interface';
  * Filter to catch all HttpExceptions and normalize the response body.
  * Ensures the response follows the { code, message } contract for the frontend.
  */
-@Catch(HttpException)
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+
+    const { status, error } = this.normalizeException(exception);
+
+    response.status(status).json({
+      success: false,
+      error,
+    });
+  }
+
+  private normalizeException(exception: unknown): {
+    status: number;
+    error: ResultError;
+  } {
+    if (this.isPrismaForeignKeyConstraintError(exception)) {
+      return {
+        status: HttpStatus.CONFLICT,
+        error: {
+          code: 'FOREIGN_KEY_CONSTRAINT',
+          message:
+            'Não é possível excluir este registro porque ele já está sendo usado.',
+        },
+      };
+    }
+
+    if (!(exception instanceof HttpException)) {
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Internal server error',
+        },
+      };
+    }
+
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
-
     let error: ResultError;
 
     if (
@@ -47,9 +81,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
       };
     }
 
-    response.status(status).json({
-      success: false,
+    return {
+      status,
       error,
-    });
+    };
+  }
+
+  private isPrismaForeignKeyConstraintError(exception: unknown): boolean {
+    if (exception === null || typeof exception !== 'object') return false;
+
+    const error = exception as { code?: unknown };
+    return error.code === 'P2003' || error.code === 'P2014';
   }
 }

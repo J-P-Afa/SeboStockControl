@@ -11,6 +11,7 @@ import {
   Boxes,
   Store,
   CreditCard,
+  ClipboardList,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -71,6 +72,11 @@ export const menuItems: MenuItem[] = [
     label: 'Formas de Pagamento',
     href: '/formas-pagamento',
     icon: CreditCard,
+  },
+  {
+    label: 'Tipos de Saída',
+    href: '/tipos-saida',
+    icon: ClipboardList,
   },
   {
     label: 'Usuários',

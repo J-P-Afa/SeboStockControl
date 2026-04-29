@@ -23,5 +23,6 @@ export class CreateTipoSaidaDto {
 
 export class UpdateTipoSaidaDto {
   @IsOptional() @IsString() @MaxLength(50) descricao?: string;
+  @IsOptional() @IsBoolean() isVenda?: boolean;
   @IsOptional() @IsBoolean() isActive?: boolean;
 }
