@@ -1,7 +1,10 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Result } from '../../../../common/interfaces/result.interface';
 import type { DashboardRepository } from '../../domain/dashboard.repository';
-import { CategoryData } from '../../domain/dashboard.repository';
+import {
+  CategoryData,
+  DashboardFilters,
+} from '../../domain/dashboard.repository';
 
 @Injectable()
 export class GetTopCategoriesUseCase {
@@ -12,9 +15,11 @@ export class GetTopCategoriesUseCase {
     private readonly repository: DashboardRepository,
   ) {}
 
-  async execute(): Promise<Result<CategoryData[]>> {
+  async execute(
+    filters: DashboardFilters = {},
+  ): Promise<Result<CategoryData[]>> {
     try {
-      const data = await this.repository.getTopCategories(5);
+      const data = await this.repository.getTopCategories(filters, 5);
       return Result.ok(data);
     } catch (error) {
       this.logger.error('Failed to retrieve top categories', error);

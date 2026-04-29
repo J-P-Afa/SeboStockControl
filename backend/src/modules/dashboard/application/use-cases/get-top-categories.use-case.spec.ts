@@ -34,6 +34,20 @@ describe('GetTopCategoriesUseCase', () => {
     expect(result.data?.[0].category).toBe('Ficção');
   });
 
+  it('should pass dashboard filters and the category limit to the repository', async () => {
+    const filters = {
+      startDate: '2026-04-01',
+      endDate: '2026-04-29',
+      bookAttribute: 'genreId' as const,
+      bookAttributeValues: ['4'],
+    };
+    const getTopCategoriesSpy = jest.spyOn(repository, 'getTopCategories');
+
+    await useCase.execute(filters);
+
+    expect(getTopCategoriesSpy).toHaveBeenCalledWith(filters, 5);
+  });
+
   it('should return error if repository fails', async () => {
     // Arrange
     jest
