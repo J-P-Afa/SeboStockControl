@@ -17,7 +17,9 @@ export class InMemoryBookRepository implements IBookRepository {
     return Promise.resolve(BookEntity.restore(book.toJSON())); // Return copy to prevent mutation
   }
 
-  findAll(filters?: BookFilters): Promise<BookEntity[]> {
+  findAll(
+    filters?: BookFilters,
+  ): Promise<{ items: BookEntity[]; total: number }> {
     let result = [...this.items];
 
     if (filters) {
@@ -87,7 +89,27 @@ export class InMemoryBookRepository implements IBookRepository {
       }
     }
 
-    return Promise.resolve(result.map((b) => BookEntity.restore(b.toJSON())));
+    const total = result.length;
+
+    if (filters?.sortBy) {
+      const field = filters.sortBy as keyof BookEntity;
+      const order = filters.sortOrder === 'desc' ? -1 : 1;
+      result.sort((a, b) => {
+        if (a[field] < b[field]) return -1 * order;
+        if (a[field] > b[field]) return 1 * order;
+        return 0;
+      });
+    }
+
+    if (filters?.page && filters?.limit) {
+      const skip = (filters.page - 1) * filters.limit;
+      result = result.slice(skip, skip + filters.limit);
+    }
+
+    return Promise.resolve({
+      items: result.map((b) => BookEntity.restore(b.toJSON())),
+      total,
+    });
   }
 
   findByIsbn(isbn: string): Promise<BookEntity | null> {
