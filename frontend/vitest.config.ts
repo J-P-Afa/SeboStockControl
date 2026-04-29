@@ -19,7 +19,15 @@ export default defineConfig({
         branches: 80,
         statements: 75
       },
-      exclude: ['node_modules/**', 'dist/**', '.next/**', '**/*.d.ts', '**/*.spec.ts', '**/*.spec.tsx', '**/*.test.ts', '**/*.test.tsx', 'src/types/**', 'src/lib/api/**' // External API wrappers
+      exclude: ['node_modules/**', 'dist/**', '.next/**', '**/*.d.ts', '**/*.spec.ts', '**/*.spec.tsx', '**/*.test.ts', '**/*.test.tsx', 'src/types/**', 'src/lib/api/**', // External API wrappers
+        // Radix/Base UI thin wrappers — no business logic
+        'src/components/molecules/dropdown-menu.tsx',
+        'src/components/molecules/alert-dialog.tsx',
+        'src/components/molecules/select.tsx',
+        'src/components/molecules/dialog.tsx',
+        'src/components/molecules/popover.tsx',
+        'src/components/molecules/data-table/index.ts',
+        'src/components/organisms/**/index.ts',
       ]
     },
     projects: [{
