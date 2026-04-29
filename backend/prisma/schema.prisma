@@ -218,6 +218,18 @@ model TipoSaida {
   @@map("tipo_saida")
 }
 
+model TipoEntrada {
+  id        Int       @id @default(autoincrement())
+  descricao String    @unique @db.VarChar(50)
+  isDoacao  Boolean   @default(false) @map("is_doacao")
+  isActive  Boolean   @default(true) @map("is_active")
+  entradas  Entrada[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("tipo_entrada")
+}
+
 model Estoque {
   id                Int       @id @default(autoincrement())
   book              Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
@@ -238,6 +250,8 @@ model Entrada {
   bookId           Int      @map("book_id")
   usuario          User     @relation(fields: [usuarioId], references: [id])
   usuarioId        String   @map("usuario_id")
+  tipoEntrada      TipoEntrada @relation(fields: [tipoEntradaId], references: [id])
+  tipoEntradaId    Int      @map("tipo_entrada_id")
   quantidade       Int
   custoUnitario    Decimal  @map("custo_unitario") @db.Decimal(14, 4)
   valorTotal       Decimal  @map("valor_total") @db.Decimal(14, 4)
