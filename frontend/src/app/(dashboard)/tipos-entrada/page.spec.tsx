@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, beforeEach } from 'vitest';
-import TiposSaidaPage from './page';
+import TiposEntradaPage from './page';
 import { server } from '@/lib/api/mocks/server';
 
 const API_URL = 'http://localhost:3001/api';
@@ -16,30 +16,30 @@ function renderPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <TiposSaidaPage />
+      <TiposEntradaPage />
     </QueryClientProvider>,
   );
 }
 
-describe('TiposSaidaPage', () => {
+describe('TiposEntradaPage', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${API_URL}/tipos-saida`, () => {
+      http.get(`${API_URL}/tipos-entrada`, () => {
         return HttpResponse.json({
           success: true,
           data: [
             {
               id: 1,
-              descricao: 'Venda',
-              isVenda: true,
+              descricao: 'Doação Recebida',
+              isDoacao: true,
               isActive: true,
               createdAt: '2026-04-28T00:00:00.000Z',
               updatedAt: '2026-04-28T00:00:00.000Z',
             },
             {
               id: 2,
-              descricao: 'Doação Enviada',
-              isVenda: false,
+              descricao: 'Compra',
+              isDoacao: false,
               isActive: false,
               createdAt: '2026-04-29T00:00:00.000Z',
               updatedAt: '2026-04-29T00:00:00.000Z',
@@ -50,14 +50,14 @@ describe('TiposSaidaPage', () => {
     );
   });
 
-  it('lists output types from the API', async () => {
+  it('lists input types from the API', async () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Venda')).toBeInTheDocument();
+      expect(screen.getByText('Doação Recebida')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Venda padrão')).toBeInTheDocument();
+    expect(screen.getByText('Doação')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /novo tipo/i }),
     ).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe('TiposSaidaPage', () => {
 
   it('can open create dialog and submit', async () => {
     server.use(
-      http.post(`${API_URL}/tipos-saida`, () => HttpResponse.json({ success: true, data: { id: 2 } }))
+      http.post(`${API_URL}/tipos-entrada`, () => HttpResponse.json({ success: true, data: { id: 2 } }))
     );
     renderPage();
     await waitFor(() => {
@@ -80,7 +80,7 @@ describe('TiposSaidaPage', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
     
-    await user.type(screen.getByLabelText(/nome/i), 'Doação');
+    await user.type(screen.getByLabelText(/nome/i), 'Compra');
     await user.click(screen.getByRole('button', { name: /criar/i }));
     
     await waitFor(() => {
@@ -88,24 +88,24 @@ describe('TiposSaidaPage', () => {
     });
   });
 
-  it('can search and filter output types', async () => {
+  it('can search and filter input types', async () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
     renderPage();
     
     const searchInput = screen.getByPlaceholderText('Buscar tipo...');
-    await user.type(searchInput, 'Venda');
+    await user.type(searchInput, 'Doação');
     
-    expect(searchInput).toHaveValue('Venda');
+    expect(searchInput).toHaveValue('Doação');
   });
 
   it('can open edit dialog and submit', async () => {
     server.use(
-      http.patch(`${API_URL}/tipos-saida/1`, () => HttpResponse.json({ success: true, data: { id: 1 } }))
+      http.patch(`${API_URL}/tipos-entrada/1`, () => HttpResponse.json({ success: true, data: { id: 1 } }))
     );
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('Venda')).toBeInTheDocument();
+      expect(screen.getByText('Doação Recebida')).toBeInTheDocument();
     });
     
     const { default: userEvent } = await import('@testing-library/user-event');
@@ -132,11 +132,11 @@ describe('TiposSaidaPage', () => {
 
   it('can open delete dialog and confirm', async () => {
     server.use(
-      http.delete(`${API_URL}/tipos-saida/1`, () => HttpResponse.json({ success: true, data: { id: 1 } }))
+      http.delete(`${API_URL}/tipos-entrada/1`, () => HttpResponse.json({ success: true, data: { id: 1 } }))
     );
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('Venda')).toBeInTheDocument();
+      expect(screen.getByText('Doação Recebida')).toBeInTheDocument();
     });
     
     const { default: userEvent } = await import('@testing-library/user-event');
@@ -166,7 +166,7 @@ describe('TiposSaidaPage', () => {
     renderPage();
     
     const searchInput = screen.getByPlaceholderText('Buscar tipo...');
-    await user.type(searchInput, 'Venda');
+    await user.type(searchInput, 'Doação');
     
     expect(screen.getByRole('button', { name: /limpar/i })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /limpar/i }));
@@ -190,9 +190,10 @@ describe('TiposSaidaPage', () => {
     renderPage();
     
     await waitFor(() => {
-      expect(screen.getByText('Venda')).toBeInTheDocument();
+      expect(screen.getByText('Doação Recebida')).toBeInTheDocument();
     });
     
+    // The switch is wrapped in a Label — query it by role
     const activeSwitch = screen.getByRole('switch');
     expect(activeSwitch).toBeChecked();
     
@@ -201,7 +202,7 @@ describe('TiposSaidaPage', () => {
     
     // After switch is toggled off, active items should be hidden
     await waitFor(() => {
-      expect(screen.queryByText('Venda')).not.toBeInTheDocument();
+      expect(screen.queryByText('Doação Recebida')).not.toBeInTheDocument();
     });
   });
 });
