@@ -17,7 +17,7 @@ describe('TipoSaidaController permissions', () => {
     );
 
     expect(createPermissions).toEqual(['saida:create']);
-    expect(updatePermissions).toEqual(['saida:create']);
-    expect(deletePermissions).toEqual(['saida:create']);
+    expect(updatePermissions).toEqual(['saida:update']);
+    expect(deletePermissions).toEqual(['saida:delete']);
   });
 });
