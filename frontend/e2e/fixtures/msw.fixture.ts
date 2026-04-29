@@ -138,10 +138,16 @@ export const test = base.extend<{
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: [
-              { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', status: 'COMPLETO', stockQuantity: 10, weight: 500 },
-              { id: '2', title: 'Dom Casmurro', author: 'Machado de Assis', status: 'PENDENTE', stockQuantity: 5, weight: 300 },
-            ],
+            data: {
+              items: [
+                { id: '1', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', status: 'COMPLETO', stockQuantity: 10, weight: 500 },
+                { id: '2', title: 'Dom Casmurro', author: 'Machado de Assis', status: 'PENDENTE', stockQuantity: 5, weight: 300 },
+              ],
+              total: 2,
+              totalPages: 1,
+              page: 1,
+              limit: 10,
+            },
           }),
         });
       }

@@ -1,0 +1,157 @@
+
+ RUN  v4.1.2 /home/jp/projects/SeboStockControl/frontend
+      Coverage enabled with v8
+
+ ✓ |unit| src/components/atoms/card.spec.tsx (3 tests) 227ms
+ ✓ |unit| src/components/atoms/checkbox.spec.tsx (3 tests) 262ms
+ ✓ |unit| src/components/atoms/button.spec.tsx (7 tests) 403ms
+ ✓ |unit| src/lib/auth/auth-provider.spec.tsx (4 tests) 262ms
+ ✓ |unit| src/hooks/use-books.spec.tsx (7 tests) 444ms
+ ✓ |unit| src/hooks/use-users.spec.tsx (9 tests) 534ms
+ ✓ |unit| src/components/molecules/book-search-autocomplete.spec.tsx (4 tests) 998ms
+     ✓ handles empty results and allows adding new  429ms
+ ✓ |unit| src/lib/utils.spec.ts (4 tests) 56ms
+ ✓ |unit| src/lib/api/dashboard.api.spec.ts (2 tests) 64ms
+ ✓ |unit| src/components/molecules/popover.spec.tsx (1 test) 90ms
+ ✓ |unit| src/components/molecules/role-multi-select.spec.tsx (2 tests) 91ms
+ ✓ |unit| src/app/(auth)/login/page.spec.tsx (6 tests) 2247ms
+     ✓ should have no accessibility violations  389ms
+     ✓ should call login and redirect on success  350ms
+     ✓ should show error toast and message on login failure  990ms
+ ✓ |unit| src/hooks/use-auth.spec.tsx (2 tests) 36ms
+ ✓ |unit| src/hooks/use-toggle-set.spec.ts (2 tests) 37ms
+ ✓ |unit| src/app/(dashboard)/page.spec.tsx (3 tests) 2377ms
+     ✓ shows month-to-date filters and requests dashboard data with those defaults  462ms
+     ✓ does not reload dashboard data when only the attribute changes  942ms
+     ✓ keeps dashboard content visible while value filters refetch data  964ms
+ ✓ |unit| src/lib/dashboard-filters.spec.ts (4 tests) 7ms
+ ✓ |unit| src/app/(dashboard)/saidas/registrar/page.spec.tsx (3 tests) 2428ms
+     ✓ selects an existing local book scanned by ISBN without opening the creation dialog  1165ms
+     ✓ adds an item to the list and saves the transaction  988ms
+ ✓ |unit| src/app/(dashboard)/entradas/page.spec.tsx (4 tests) 2589ms
+     ✓ selects an existing local book scanned by ISBN without opening the creation dialog  1048ms
+     ✓ fetches external book when local lookup fails and opens creation dialog  608ms
+     ✓ adds an item to the list and saves the transaction  760ms
+ ✓ |unit| src/lib/api/errors.spec.ts (1 test) 5ms
+ ✓ |unit| src/app/(dashboard)/canais-venda/page.spec.tsx (5 tests) 3112ms
+     ✓ lists sales channels from the API  747ms
+     ✓ can open create dialog and submit  1227ms
+     ✓ can open edit dialog and submit  606ms
+     ✓ can open delete dialog and confirm  394ms
+ ✓ |unit| src/app/(dashboard)/formas-pagamento/page.spec.tsx (5 tests) 3232ms
+     ✓ lists payment methods from the API with fee  764ms
+     ✓ can open create dialog and submit  1290ms
+     ✓ can open edit dialog and submit  550ms
+     ✓ can open delete dialog and confirm  415ms
+ ✓ |unit| src/app/(dashboard)/tipos-saida/page.spec.tsx (5 tests) 3222ms
+     ✓ lists output types from the API  692ms
+     ✓ can open create dialog and submit  1325ms
+     ✓ can open edit dialog and submit  601ms
+     ✓ can open delete dialog and confirm  409ms
+ ✓ |unit| src/app/(dashboard)/tipos-entrada/page.spec.tsx (5 tests) 3172ms
+     ✓ lists input types from the API  888ms
+     ✓ can open create dialog and submit  1077ms
+     ✓ can open edit dialog and submit  579ms
+     ✓ can open delete dialog and confirm  390ms
+
+ Test Files  23 passed (23)
+      Tests  91 passed (91)
+   Start at  20:09:37
+   Duration  6.27s (transform 3.20s, setup 8.00s, import 11.83s, tests 25.90s, environment 22.42s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   76.65 |    66.43 |   74.19 |   77.41 |                   
+ app/(auth)/login  |     100 |    92.85 |     100 |     100 |                   
+  page.tsx         |     100 |    92.85 |     100 |     100 | 52                
+ app/(dashboard)   |   70.58 |    67.21 |   66.66 |      70 |                   
+  page.tsx         |   70.58 |    67.21 |   66.66 |      70 | ...08-212,248-259 
+ ...)/canais-venda |      72 |     42.1 |   68.42 |    72.6 |                   
+  page.tsx         |      72 |     42.1 |   68.42 |    72.6 | ...26-127,131-133 
+ ...oard)/entradas |   63.79 |    65.47 |      50 |   64.77 |                   
+  page.tsx         |   63.79 |    65.47 |      50 |   64.77 | ...58-524,604-607 
+ ...rmas-pagamento |   70.12 |     42.1 |      65 |   70.66 |                   
+  page.tsx         |   70.12 |     42.1 |      65 |   70.66 | ...25-126,130-132 
+ ...idas/registrar |   59.62 |    58.77 |   51.02 |   60.13 |                   
+  page.tsx         |   59.62 |    58.77 |   51.02 |   60.13 | ...60-530,619-622 
+ .../tipos-entrada |   76.05 |    57.14 |   68.42 |   76.81 |                   
+  page.tsx         |   76.05 |    57.14 |   68.42 |   76.81 | ...12-113,117-119 
+ ...d)/tipos-saida |   76.05 |    57.14 |   68.42 |   76.81 |                   
+  page.tsx         |   76.05 |    57.14 |   68.42 |   76.81 | ...12-113,117-119 
+ components/atoms  |   94.11 |    76.92 |    90.9 |   94.11 |                   
+  app-logo.tsx     |     100 |     62.5 |     100 |     100 | 46-59             
+  badge.tsx        |     100 |      100 |     100 |     100 |                   
+  button.tsx       |     100 |      100 |     100 |     100 |                   
+  card.tsx         |     100 |      100 |     100 |     100 |                   
+  checkbox.tsx     |     100 |      100 |     100 |     100 |                   
+  input.tsx        |     100 |      100 |     100 |     100 |                   
+  label.tsx        |     100 |      100 |     100 |     100 |                   
+  switch.tsx       |     100 |      100 |     100 |     100 |                   
+  table.tsx        |   77.77 |      100 |      75 |   77.77 | 43,99             
+ ...ents/molecules |   78.45 |    79.41 |   64.94 |   79.66 |                   
+  alert-dialog.tsx |   84.61 |      100 |   83.33 |   84.61 | 14,105            
+  ...ocomplete.tsx |     100 |    85.71 |     100 |     100 | 108,157-164,190   
+  ...rm-dialog.tsx |   71.42 |       70 |   33.33 |   71.42 | 104-113           
+  date-field.tsx   |   80.39 |    81.25 |   70.58 |    85.1 | ...11,161-178,213 
+  ...rm-dialog.tsx |     100 |       75 |     100 |     100 | 46                
+  dialog.tsx       |   81.81 |    83.33 |      80 |   81.81 | 18,26             
+  ...down-menu.tsx |   31.25 |    55.55 |   26.66 |   31.25 | 14,53-63,100-240  
+  ...rm-dialog.tsx |   71.42 |       70 |   33.33 |   71.42 | 106-115           
+  popover.tsx      |     100 |      100 |     100 |     100 |                   
+  ...ti-select.tsx |   85.71 |       75 |   66.66 |   85.71 | 53                
+  select.tsx       |   72.72 |      100 |   66.66 |   72.72 | 12,107,148        
+  ...rm-dialog.tsx |   66.66 |       75 |      25 |   66.66 | 89-108            
+  ...rm-dialog.tsx |   66.66 |       75 |      25 |   66.66 | 89-108            
+ ...les/data-table |   80.76 |    66.66 |   70.58 |   80.76 |                   
+  ...ble-empty.tsx |       0 |        0 |       0 |       0 | 19                
+  ...agination.tsx |   57.14 |      100 |      40 |   57.14 | 48,67-79          
+  ...-skeleton.tsx |     100 |      100 |     100 |     100 |                   
+  data-table.tsx   |     100 |       70 |     100 |     100 | 65,85-98          
+  index.ts         |       0 |        0 |       0 |       0 |                   
+  ...le-header.tsx |      80 |       50 |      50 |      80 | 28                
+ ...is-venda-table |     100 |       50 |     100 |     100 |                   
+  ...e-columns.tsx |     100 |       50 |     100 |     100 | 44-45             
+  ...nda-table.tsx |     100 |      100 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+ ...agamento-table |     100 |       50 |     100 |     100 |                   
+  ...e-columns.tsx |     100 |       50 |     100 |     100 | 44-45             
+  ...nto-table.tsx |     100 |      100 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+ ...-entrada-table |     100 |       50 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+  ...e-columns.tsx |     100 |       50 |     100 |     100 | 37-49             
+  ...ada-table.tsx |     100 |      100 |     100 |     100 |                   
+ ...os-saida-table |     100 |       50 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+  ...e-columns.tsx |     100 |       50 |     100 |     100 | 37-49             
+  ...ida-table.tsx |     100 |      100 |     100 |     100 |                   
+ hooks             |   85.96 |    81.81 |   87.17 |    85.9 |                   
+  use-auth.ts      |     100 |      100 |     100 |     100 |                   
+  ...tocomplete.ts |   51.28 |    41.66 |      80 |   48.64 | 34-35,59-85       
+  use-books.ts     |     100 |      100 |     100 |     100 |                   
+  ...nais-venda.ts |   85.71 |      100 |   78.57 |   85.71 | 48,72,90          
+  ...venda-form.ts |     100 |      100 |     100 |     100 |                   
+  use-debounce.ts  |   85.71 |      100 |      75 |     100 |                   
+  ...mento-form.ts |     100 |      100 |     100 |     100 |                   
+  ...-pagamento.ts |   85.71 |      100 |   78.57 |   85.71 | 48,72,90          
+  ...trada-form.ts |     100 |      100 |     100 |     100 |                   
+  ...saida-form.ts |     100 |      100 |     100 |     100 |                   
+  ...os-entrada.ts |   85.71 |      100 |   78.57 |   85.71 | 48,72,90          
+  ...ipos-saida.ts |   85.71 |      100 |   78.57 |   85.71 | 47,71,89          
+  ...toggle-set.ts |     100 |      100 |     100 |     100 |                   
+  use-users.ts     |     100 |      100 |     100 |     100 |                   
+ lib               |   94.44 |       72 |   93.33 |   96.66 |                   
+  ...rd-filters.ts |   96.15 |    76.47 |     100 |     100 | 45,74-77          
+  formatters.ts    |   85.71 |     62.5 |      80 |   85.71 | 25                
+  utils.ts         |     100 |      100 |     100 |     100 |                   
+ lib/auth          |   89.65 |       75 |     100 |   96.29 |                   
+  ...-provider.tsx |   89.65 |       75 |     100 |   96.29 | 34                
+ lib/validations   |     100 |      100 |     100 |     100 |                   
+  ...nda.schema.ts |     100 |      100 |     100 |     100 |                   
+  ...nto.schema.ts |     100 |      100 |     100 |     100 |                   
+  login.schema.ts  |     100 |      100 |     100 |     100 |                   
+  ...ada.schema.ts |     100 |      100 |     100 |     100 |                   
+  ...ida.schema.ts |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------

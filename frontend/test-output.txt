@@ -1,0 +1,227 @@
+
+> frontend@0.1.0 test:coverage
+> vitest run --project=unit --coverage
+
+
+ RUN  v4.1.2 /home/jp/projects/SeboStockControl/frontend
+      Coverage enabled with v8
+
+ ✓ |unit| src/components/atoms/card.spec.tsx (3 tests) 282ms
+ ✓ |unit| src/components/atoms/checkbox.spec.tsx (3 tests) 231ms
+ ✓ |unit| src/components/atoms/button.spec.tsx (7 tests) 484ms
+ ✓ |unit| src/lib/auth/auth-provider.spec.tsx (4 tests) 406ms
+ ✓ |unit| src/hooks/use-books.spec.tsx (7 tests) 445ms
+ ✓ |unit| src/hooks/use-users.spec.tsx (9 tests) 554ms
+ ❯ |unit| src/components/molecules/book-search-autocomplete.spec.tsx (4 tests | 1 failed) 767ms
+     ✓ renders correctly and handles input 291ms
+     × displays suggestions and allows selection 149ms
+     ✓ handles empty results and allows adding new 239ms
+     ✓ handles clearing the input 81ms
+stderr | src/app/(dashboard)/tipos-entrada/page.spec.tsx > TiposEntradaPage > can open create dialog
+An update to TiposEntradaPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/tipos-entrada/page.spec.tsx > TiposEntradaPage > can open create dialog
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/canais-venda/page.spec.tsx > CanaisVendaPage > can open create dialog
+An update to CanaisVendaPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/formas-pagamento/page.spec.tsx > FormasPagamentoPage > can open create dialog
+An update to FormasPagamentoPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/canais-venda/page.spec.tsx > CanaisVendaPage > can open create dialog
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/formas-pagamento/page.spec.tsx > FormasPagamentoPage > can open create dialog
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/tipos-saida/page.spec.tsx > TiposSaidaPage > can open create dialog
+An update to TiposSaidaPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/tipos-saida/page.spec.tsx > TiposSaidaPage > can open create dialog
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to SelectRoot inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/(dashboard)/entradas/page.spec.tsx > EntradasPage > adds an item to the list and saves the transaction
+Base UI: A component is changing the uncontrolled value state of Select to be controlled.
+Elements should not switch from uncontrolled to controlled (or vice versa).
+Decide between using a controlled or uncontrolled Select element for the lifetime of the component.
+The nature of the state is determined during the first render. It's considered controlled if the value is not `undefined`.
+More info: https://fb.me/react-controlled-components
+
+ ✓ |unit| src/lib/api/dashboard.api.spec.ts (2 tests) 59ms
+ ✓ |unit| src/components/molecules/role-multi-select.spec.tsx (2 tests) 101ms
+ ✓ |unit| src/lib/utils.spec.ts (4 tests) 33ms
+ ✓ |unit| src/components/molecules/popover.spec.tsx (1 test) 75ms
+ ✓ |unit| src/app/(dashboard)/tipos-entrada/page.spec.tsx (3 tests) 1779ms
+     ✓ lists input types from the API  745ms
+     ✓ can open create dialog  734ms
+ ✓ |unit| src/app/(dashboard)/tipos-saida/page.spec.tsx (3 tests) 1871ms
+     ✓ lists output types from the API  897ms
+     ✓ can open create dialog  760ms
+ ✓ |unit| src/app/(dashboard)/formas-pagamento/page.spec.tsx (3 tests) 1895ms
+     ✓ lists payment methods from the API with fee  889ms
+     ✓ can open create dialog  730ms
+ ✓ |unit| src/app/(dashboard)/canais-venda/page.spec.tsx (3 tests) 1954ms
+     ✓ lists sales channels from the API  872ms
+     ✓ can open create dialog  892ms
+ ✓ |unit| src/hooks/use-auth.spec.tsx (2 tests) 36ms
+ ✓ |unit| src/hooks/use-toggle-set.spec.ts (2 tests) 22ms
+ ✓ |unit| src/lib/dashboard-filters.spec.ts (4 tests) 7ms
+ ✓ |unit| src/app/(auth)/login/page.spec.tsx (6 tests) 2421ms
+     ✓ should have no accessibility violations  451ms
+     ✓ should call login and redirect on success  399ms
+     ✓ should show error toast and message on login failure  1052ms
+ ✓ |unit| src/app/(dashboard)/saidas/registrar/page.spec.tsx (3 tests) 2473ms
+     ✓ selects an existing local book scanned by ISBN without opening the creation dialog  1230ms
+     ✓ adds an item to the list and saves the transaction  958ms
+ ✓ |unit| src/app/(dashboard)/entradas/page.spec.tsx (4 tests) 2478ms
+     ✓ selects an existing local book scanned by ISBN without opening the creation dialog  882ms
+     ✓ fetches external book when local lookup fails and opens creation dialog  617ms
+     ✓ adds an item to the list and saves the transaction  815ms
+ ✓ |unit| src/app/(dashboard)/page.spec.tsx (3 tests) 2656ms
+     ✓ shows month-to-date filters and requests dashboard data with those defaults  544ms
+     ✓ does not reload dashboard data when only the attribute changes  1134ms
+     ✓ keeps dashboard content visible while value filters refetch data  973ms
+ ✓ |unit| src/lib/api/errors.spec.ts (1 test) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| src/components/molecules/book-search-autocomplete.spec.tsx > BookSearchAutocomplete > displays suggestions and allows selection
+TypeError: el?.scrollIntoView is not a function
+ ❯ src/hooks/use-autocomplete.ts:51:11
+     49|     if (highlightedIndex >= 0 && listRef.current) {
+     50|       const el = listRef.current.children[highlightedIndex] as HTMLEle…
+     51|       el?.scrollIntoView({ block: 'nearest' });
+       |           ^
+     52|     }
+     53|   }, [highlightedIndex]);
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+ ❯ recursivelyTraversePassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+ ❯ commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:15718:11
+ ❯ recursivelyTraversePassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+ ❯ commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:15476:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 22 passed (23)
+      Tests  1 failed | 82 passed (83)
+   Start at  20:00:22
+   Duration  5.69s (transform 3.81s, setup 8.33s, import 13.15s, tests 21.03s, environment 23.16s)
+
