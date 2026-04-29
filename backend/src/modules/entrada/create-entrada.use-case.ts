@@ -24,7 +24,19 @@ export class CreateEntradaUseCase {
       );
     }
 
-    const custoUnitario = new Prisma.Decimal(dto.custoUnitario ?? 0);
+    const tipoEntrada = await this.prisma.tipoEntrada.findUnique({
+      where: { id: dto.tipoEntradaId },
+    });
+    if (!tipoEntrada || !tipoEntrada.isActive) {
+      return Result.fail(
+        'TIPO_ENTRADA_NOT_FOUND',
+        'Tipo de entrada não encontrado',
+      );
+    }
+
+    const custoUnitario = tipoEntrada.isDoacao
+      ? new Prisma.Decimal(0)
+      : new Prisma.Decimal(dto.custoUnitario ?? 0);
 
     const valorTotal = custoUnitario.mul(dto.quantidade);
     const dataEntrada = new Date(dto.dataEntrada);
@@ -69,6 +81,7 @@ export class CreateEntradaUseCase {
           data: {
             bookId: dto.bookId,
             usuarioId: dto.usuarioId,
+            tipoEntradaId: dto.tipoEntradaId,
             dataEntrada,
             quantidade: dto.quantidade,
             custoUnitario,

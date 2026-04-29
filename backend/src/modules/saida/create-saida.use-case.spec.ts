@@ -69,6 +69,12 @@ describe('CreateSaidaUseCase', () => {
     jest.clearAllMocks();
   });
 
+  function mockTransaction(txMock: DeepMockProxy<PrismaService>) {
+    prismaMock.$transaction.mockImplementation(((
+      cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>,
+    ) => cb(txMock)) as never);
+  }
+
   it('should reject if book is not found', async () => {
     prismaMock.book.findUnique.mockResolvedValue(null);
     const result = await useCase.execute(baseSaidaVenda);
@@ -128,10 +134,7 @@ describe('CreateSaidaUseCase', () => {
       quantidade: 1,
     });
 
-    prismaMock.$transaction.mockImplementation(
-      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
-        cb(txMock),
-    );
+    mockTransaction(txMock);
 
     const result = await useCase.execute({
       ...baseSaidaNaoVenda,
@@ -154,10 +157,7 @@ describe('CreateSaidaUseCase', () => {
     txMock.formaPagamento.findUnique.mockResolvedValue(mockForma);
     txMock.saida.create.mockResolvedValue({ id: 1 } as Saida);
 
-    prismaMock.$transaction.mockImplementation(
-      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
-        cb(txMock),
-    );
+    mockTransaction(txMock);
 
     const result = await useCase.execute(baseSaidaVenda);
 
@@ -199,10 +199,7 @@ describe('CreateSaidaUseCase', () => {
     txMock.estoque.findUnique.mockResolvedValue(mockEstoque);
     txMock.saida.create.mockResolvedValue({ id: 2 } as Saida);
 
-    prismaMock.$transaction.mockImplementation(
-      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
-        cb(txMock),
-    );
+    mockTransaction(txMock);
 
     const result = await useCase.execute(baseSaidaNaoVenda);
 

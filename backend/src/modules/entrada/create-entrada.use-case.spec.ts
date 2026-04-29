@@ -20,6 +20,7 @@ describe('CreateEntradaUseCase', () => {
 
   const baseDto = {
     bookId: 1,
+    tipoEntradaId: 1,
     usuarioId: 'user-uuid',
     dataEntrada: '2026-01-01',
 
@@ -30,8 +31,22 @@ describe('CreateEntradaUseCase', () => {
   beforeEach(() => {
     prismaMock = mockDeep<PrismaService>();
     useCase = new CreateEntradaUseCase(prismaMock);
+    prismaMock.tipoEntrada.findUnique.mockResolvedValue({
+      id: 1,
+      descricao: 'Compra',
+      isDoacao: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     jest.clearAllMocks();
   });
+
+  function mockTransaction(txMock: DeepMockProxy<PrismaService>) {
+    prismaMock.$transaction.mockImplementation(((
+      cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>,
+    ) => cb(txMock)) as never);
+  }
 
   it('should reject if book is not found', async () => {
     prismaMock.book.findUnique.mockResolvedValue(null);
@@ -40,6 +55,52 @@ describe('CreateEntradaUseCase', () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('LIVRO_NOT_FOUND');
+  });
+
+  it('should reject if tipo de entrada is not found', async () => {
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoEntrada.findUnique.mockResolvedValue(null);
+
+    const result = await useCase.execute({ ...baseDto, tipoEntradaId: 999 });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('TIPO_ENTRADA_NOT_FOUND');
+  });
+
+  it('should force unit cost to zero for donation input types', async () => {
+    const txMock = mockDeep<PrismaService>();
+    txMock.estoque.findUnique.mockResolvedValue(mockEstoqueComSaldo);
+    txMock.entrada.create.mockResolvedValue({ id: 4 } as Entrada);
+
+    mockTransaction(txMock);
+
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoEntrada.findUnique.mockResolvedValue({
+      id: 2,
+      descricao: 'Doação Recebida',
+      isDoacao: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const result = await useCase.execute({
+      ...baseDto,
+      tipoEntradaId: 2,
+      custoUnitario: 50,
+    });
+
+    expect(result.success).toBe(true);
+    const createCall = txMock.entrada.create.mock.calls[0][0] as {
+      data: {
+        custoUnitario: { toString(): string };
+        valorTotal: { toString(): string };
+        tipoEntradaId: number;
+      };
+    };
+    expect(createCall.data.tipoEntradaId).toBe(2);
+    expect(createCall.data.custoUnitario.toString()).toBe('0');
+    expect(createCall.data.valorTotal.toString()).toBe('0');
   });
 
   it('should reject if book is inactive (RULE LIV-03)', async () => {
@@ -56,10 +117,7 @@ describe('CreateEntradaUseCase', () => {
     txMock.estoque.findUnique.mockResolvedValue(mockEstoqueVazio);
     txMock.entrada.create.mockResolvedValue({ id: 1 } as Entrada);
 
-    prismaMock.$transaction.mockImplementation(
-      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
-        cb(txMock),
-    );
+    mockTransaction(txMock);
 
     prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
 
@@ -84,10 +142,7 @@ describe('CreateEntradaUseCase', () => {
     txMock.estoque.findUnique.mockResolvedValue(mockEstoqueComSaldo);
     txMock.entrada.create.mockResolvedValue({ id: 2 } as Entrada);
 
-    prismaMock.$transaction.mockImplementation(
-      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
-        cb(txMock),
-    );
+    mockTransaction(txMock);
 
     prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
 
@@ -113,10 +168,7 @@ describe('CreateEntradaUseCase', () => {
     txMock.estoque.findUnique.mockResolvedValue(mockEstoqueComSaldo);
     txMock.entrada.create.mockResolvedValue({ id: 3 } as Entrada);
 
-    prismaMock.$transaction.mockImplementation(
-      (cb: (tx: DeepMockProxy<PrismaService>) => Promise<unknown>) =>
-        cb(txMock),
-    );
+    mockTransaction(txMock);
 
     const result = await useCase.execute({ ...baseDto, custoUnitario: 0 });
 

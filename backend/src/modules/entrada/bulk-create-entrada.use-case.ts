@@ -21,7 +21,16 @@ export class BulkCreateEntradaUseCase {
           if (!book) throw new Error(`LIVRO_NOT_FOUND:${item.bookId}`);
           if (!book.isActive) throw new Error(`LIVRO_INATIVO:${item.bookId}`);
 
-          const custoUnitario = new Prisma.Decimal(item.custoUnitario ?? 0);
+          const tipoEntrada = await tx.tipoEntrada.findUnique({
+            where: { id: item.tipoEntradaId },
+          });
+          if (!tipoEntrada || !tipoEntrada.isActive) {
+            throw new Error(`TIPO_ENTRADA_NOT_FOUND:${item.tipoEntradaId}`);
+          }
+
+          const custoUnitario = tipoEntrada.isDoacao
+            ? new Prisma.Decimal(0)
+            : new Prisma.Decimal(item.custoUnitario ?? 0);
           const valorTotal = custoUnitario.mul(item.quantidade);
 
           const record = await tx.estoque.findUnique({
@@ -61,6 +70,7 @@ export class BulkCreateEntradaUseCase {
             data: {
               bookId: item.bookId,
               usuarioId: dto.usuarioId,
+              tipoEntradaId: item.tipoEntradaId,
               dataEntrada,
               quantidade: item.quantidade,
               custoUnitario,

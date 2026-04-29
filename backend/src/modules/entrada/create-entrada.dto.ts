@@ -14,6 +14,10 @@ export class CreateEntradaDto {
   @IsNotEmpty()
   bookId: number;
 
+  @IsInt()
+  @IsNotEmpty()
+  tipoEntradaId: number;
+
   @IsUUID()
   @IsNotEmpty()
   usuarioId: string;
