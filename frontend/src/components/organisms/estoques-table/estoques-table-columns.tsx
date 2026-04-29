@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, History, Edit } from 'lucide-react';
 import type { Book } from '@/types';
+import { Condition } from '@/types';
 import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
 import { formatCurrency } from '@/lib/formatters';
@@ -54,9 +55,9 @@ export function getEstoquesTableColumns({
       accessorKey: 'condition',
       header: 'Condição',
       cell: ({ row }) => {
-        const cond = String(row.getValue('condition'));
+        const cond = row.original.condition;
         return (
-          <Badge variant={cond === 'NOVO' ? 'default' : 'secondary'} className="uppercase text-[10px]">
+          <Badge variant={cond === Condition.NOVO ? 'success' : 'warning'} className="uppercase text-[10px]">
             {cond}
           </Badge>
         );

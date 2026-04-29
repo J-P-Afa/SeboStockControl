@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/atoms/button';
+import { Badge } from '@/components/atoms/badge';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/atoms/card';
@@ -566,12 +567,9 @@ export default function EntradasPage() {
                       <TableCell className="font-medium max-w-[300px] truncate">{item.title}</TableCell>
                       <TableCell className="text-center font-mono text-xs text-muted-foreground">{item.isbn || '-'}</TableCell>
                       <TableCell className="text-center">
-                        <span className={cn(
-                          "text-[10px] uppercase font-bold px-2 py-0.5 rounded-full",
-                          item.condition === Condition.NOVO ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
-                        )}>
+                        <Badge variant={item.condition === Condition.NOVO ? 'success' : 'warning'} className="uppercase text-[10px]">
                           {item.condition}
-                        </span>
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right font-bold">{item.quantidade}</TableCell>
                       <TableCell className="text-right">{formatCurrency(item.custoUnitario)}</TableCell>
