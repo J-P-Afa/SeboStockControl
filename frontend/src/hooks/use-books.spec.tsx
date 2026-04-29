@@ -45,7 +45,13 @@ describe('useBooks hook', () => {
       http.get(`${API_URL}/books`, () => {
         return HttpResponse.json({
           success: true,
-          data: mockBooks
+          data: {
+            items: mockBooks,
+            total: 2,
+            page: 1,
+            limit: 10,
+            totalPages: 1,
+          },
         });
       })
     );
@@ -55,6 +61,7 @@ describe('useBooks hook', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data?.items).toEqual(mockBooks);
+    expect(result.current.data?.total).toBe(2);
   });
 
   it('should create a book successfully', async () => {
