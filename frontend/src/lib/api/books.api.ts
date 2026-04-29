@@ -20,14 +20,28 @@ export async function listBooks(
   sortOrder?: 'asc' | 'desc',
   filters?: ListBooksFilters,
 ): Promise<PaginatedResponse<Book>> {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('limit', String(limit));
+
+  if (sortBy) params.set('sortBy', sortBy);
+  if (sortOrder) params.set('sortOrder', sortOrder);
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return;
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => params.append(key, String(item)));
+        return;
+      }
+
+      params.set(key, String(value));
+    });
+  }
+
   const { data: books = [] } = await apiClient.get<Book[]>('/books', {
-    params: {
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-      ...filters,
-    },
+    params,
   });
 
   const total = books.length;

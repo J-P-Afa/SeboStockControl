@@ -4,10 +4,11 @@ import { useCallback, useMemo, useState } from 'react';
 import type { SortingState } from '@tanstack/react-table';
 import { Download, Filter, X, Boxes } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
+import { Checkbox } from '@/components/atoms/checkbox';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
 import { Switch } from '@/components/atoms/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/molecules/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/molecules/popover';
 import { EstoquesTable } from '@/components/organisms/estoques-table';
 import { EstoqueHistoryModal } from '@/components/organisms/estoque-history-modal';
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
@@ -17,6 +18,84 @@ import { useLanguages } from '@/hooks/use-languages';
 import { Condition, EditionType, Status, type Book, type ListBooksFilters } from '@/types';
 
 const DEFAULT_PAGE_SIZE = 10;
+
+interface MultiSelectOption {
+  label: string;
+  value: string;
+}
+
+interface FilterMultiSelectProps {
+  label: string;
+  options: MultiSelectOption[];
+  selectedValues: string[];
+  onChange: (values: string[]) => void;
+  emptyMessage?: string;
+}
+
+function FilterMultiSelect({
+  label,
+  options,
+  selectedValues,
+  onChange,
+  emptyMessage = 'Nenhuma opção encontrada.',
+}: FilterMultiSelectProps) {
+  const selectedLabel =
+    selectedValues.length > 0 ? `${label} (${selectedValues.length})` : `Todas`;
+
+  const toggleValue = (value: string) => {
+    onChange(
+      selectedValues.includes(value)
+        ? selectedValues.filter((item) => item !== value)
+        : [...selectedValues, value],
+    );
+  };
+
+  return (
+    <div className="space-y-1">
+      <Label className="text-xs font-semibold text-muted-foreground mb-1 block">{label}</Label>
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button variant="outline" size="sm" className="h-9 w-full justify-between font-normal">
+              <span className="truncate">{selectedLabel}</span>
+              <Filter className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+            </Button>
+          }
+        />
+        <PopoverContent align="start" className="w-56 p-2">
+          <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
+            {options.map((option) => (
+              <Label
+                key={option.value}
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted cursor-pointer transition-colors"
+              >
+                <Checkbox
+                  checked={selectedValues.includes(option.value)}
+                  onCheckedChange={() => toggleValue(option.value)}
+                />
+                <span className="text-sm truncate">{option.label}</span>
+              </Label>
+            ))}
+            {options.length === 0 && (
+              <p className="text-sm text-muted-foreground px-2 py-1.5">{emptyMessage}</p>
+            )}
+          </div>
+          {selectedValues.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-2 h-8 w-full"
+              onClick={() => onChange([])}
+            >
+              Limpar {label.toLowerCase()}
+            </Button>
+          )}
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
 
 export default function EstoquesPage() {
   const [page, setPage] = useState(1);
@@ -29,12 +108,12 @@ export default function EstoquesPage() {
   
   // Advanced Filters toggle
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [condition, setCondition] = useState<string>('Todos');
-  const [editionType, setEditionType] = useState<string>('Todos');
-  const [status, setStatus] = useState<string>('Todos');
+  const [conditions, setConditions] = useState<string[]>([]);
+  const [editionTypes, setEditionTypes] = useState<string[]>([]);
+  const [statuses, setStatuses] = useState<string[]>([]);
   const [isActiveOnly, setIsActiveOnly] = useState(true);
-  const [publisherId, setPublisherId] = useState<string>('Todos');
-  const [languageId, setLanguageId] = useState<string>('Todos');
+  const [publisherIds, setPublisherIds] = useState<string[]>([]);
+  const [languageIds, setLanguageIds] = useState<string[]>([]);
 
   const { data: publishers } = usePublishers(1, 100);
   const { data: languages } = useLanguages(1, 100);
@@ -46,14 +125,14 @@ export default function EstoquesPage() {
     () => ({
       search: search || undefined,
       inStock: inStockOnly || undefined,
-      condition: (condition !== 'Todos' ? condition : undefined) as Condition | undefined,
-      editionType: (editionType !== 'Todos' ? editionType : undefined) as EditionType | undefined,
-      status: (status !== 'Todos' ? status : undefined) as Status | undefined,
+      conditions: conditions.length > 0 ? (conditions as Condition[]) : undefined,
+      editionTypes: editionTypes.length > 0 ? (editionTypes as EditionType[]) : undefined,
+      statuses: statuses.length > 0 ? (statuses as Status[]) : undefined,
       isActive: isActiveOnly,
-      publisherId: publisherId !== 'Todos' ? Number(publisherId) : undefined,
-      languageId: languageId !== 'Todos' ? Number(languageId) : undefined,
+      publisherIds: publisherIds.length > 0 ? publisherIds.map(Number) : undefined,
+      languageIds: languageIds.length > 0 ? languageIds.map(Number) : undefined,
     }),
-    [search, inStockOnly, condition, editionType, status, isActiveOnly, publisherId, languageId],
+    [search, inStockOnly, conditions, editionTypes, statuses, isActiveOnly, publisherIds, languageIds],
   );
 
   const { data, isLoading } = useBooks(
@@ -91,12 +170,12 @@ export default function EstoquesPage() {
   const handleClearFilters = useCallback(() => {
     setSearch('');
     setInStockOnly(false);
-    setCondition('Todos');
-    setEditionType('Todos');
-    setStatus('Todos');
+    setConditions([]);
+    setEditionTypes([]);
+    setStatuses([]);
     setIsActiveOnly(true);
-    setPublisherId('Todos');
-    setLanguageId('Todos');
+    setPublisherIds([]);
+    setLanguageIds([]);
     setPage(1);
   }, []);
 
@@ -214,51 +293,48 @@ export default function EstoquesPage() {
 
         {showAdvanced && (
           <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 bg-muted/20 p-4 rounded-2xl border border-border/40 animate-in slide-in-from-top-4 fade-in duration-200">
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Condição</Label>
-              <Select value={condition} onValueChange={(v) => { if (v) { setCondition(v); setPage(1); } }}>
-                <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value={Condition.NOVO}>Novo</SelectItem>
-                  <SelectItem value={Condition.USADO}>Usado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <FilterMultiSelect
+              label="Condição"
+              selectedValues={conditions}
+              onChange={(values) => { setConditions(values); setPage(1); }}
+              options={[
+                { value: Condition.NOVO, label: 'Novo' },
+                { value: Condition.USADO, label: 'Usado' },
+              ]}
+            />
             
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Edição</Label>
-              <Select value={editionType} onValueChange={(v) => { if (v) { setEditionType(v); setPage(1); } }}>
-                <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value={EditionType.NORMAL}>Normal</SelectItem>
-                  <SelectItem value={EditionType.VARIANTE}>Variante</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <FilterMultiSelect
+              label="Edição"
+              selectedValues={editionTypes}
+              onChange={(values) => { setEditionTypes(values); setPage(1); }}
+              options={[
+                { value: EditionType.NORMAL, label: 'Normal' },
+                { value: EditionType.VARIANTE, label: 'Variante' },
+              ]}
+            />
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Editora</Label>
-              <Select value={publisherId} onValueChange={(v) => { setPublisherId(v || 'Todos'); setPage(1); }}>
-                <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todas</SelectItem>
-                  {publishers?.items?.map(p => <SelectItem key={p.id} value={p.id.toString()}>{p.description}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <FilterMultiSelect
+              label="Status"
+              selectedValues={statuses}
+              onChange={(values) => { setStatuses(values); setPage(1); }}
+              options={Object.values(Status).map((value) => ({ value, label: value }))}
+            />
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Idioma</Label>
-              <Select value={languageId} onValueChange={(v) => { setLanguageId(v || 'Todos'); setPage(1); }}>
-                <SelectTrigger className="h-9 mb-0"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  {languages?.items?.map(l => <SelectItem key={l.id} value={l.id.toString()}>{l.description}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <FilterMultiSelect
+              label="Editora"
+              selectedValues={publisherIds}
+              onChange={(values) => { setPublisherIds(values); setPage(1); }}
+              options={publishers?.items?.map((p) => ({ value: p.id.toString(), label: p.description })) ?? []}
+              emptyMessage="Nenhuma editora encontrada."
+            />
+
+            <FilterMultiSelect
+              label="Idioma"
+              selectedValues={languageIds}
+              onChange={(values) => { setLanguageIds(values); setPage(1); }}
+              options={languages?.items?.map((l) => ({ value: l.id.toString(), label: l.description })) ?? []}
+              emptyMessage="Nenhum idioma encontrado."
+            />
 
             <div className="space-y-1 flex flex-col justify-end pb-1.5 ml-2">
               <Label className="flex items-center gap-2 cursor-pointer">

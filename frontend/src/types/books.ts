@@ -72,10 +72,16 @@ export interface ListBooksFilters {
   search?: string;
   classificacaoId?: number;
   publisherId?: number;
+  publisherIds?: number[];
   languageId?: number;
+  languageIds?: number[];
   genreId?: number;
   condition?: Condition;
+  conditions?: Condition[];
+  editionType?: EditionType;
+  editionTypes?: EditionType[];
   status?: Status;
+  statuses?: Status[];
   isActive?: boolean;
   inStock?: boolean;
 }

@@ -97,18 +97,28 @@ export class PrismaBookRepository implements IBookRepository {
         ...(filters?.classificacaoId && {
           classificacaoId: filters.classificacaoId,
         }),
-        ...(filters?.publisherId && { publisherId: filters.publisherId }),
-        ...(filters?.languageId && { languageId: filters.languageId }),
+        ...(filters?.publisherIds?.length
+          ? { publisherId: { in: filters.publisherIds } }
+          : filters?.publisherId && { publisherId: filters.publisherId }),
+        ...(filters?.languageIds?.length
+          ? { languageId: { in: filters.languageIds } }
+          : filters?.languageId && { languageId: filters.languageId }),
         ...(filters?.genreId && { genreId: filters.genreId }),
-        ...(filters?.editionType && { editionType: filters.editionType }),
+        ...(filters?.editionTypes?.length
+          ? { editionType: { in: filters.editionTypes } }
+          : filters?.editionType && { editionType: filters.editionType }),
         ...(filters?.volume && {
           volume: { contains: filters.volume, mode: 'insensitive' },
         }),
         ...(filters?.collection && {
           collection: { contains: filters.collection, mode: 'insensitive' },
         }),
-        ...(filters?.condition && { condition: filters.condition }),
-        ...(filters?.status && { status: filters.status }),
+        ...(filters?.conditions?.length
+          ? { condition: { in: filters.conditions } }
+          : filters?.condition && { condition: filters.condition }),
+        ...(filters?.statuses?.length
+          ? { status: { in: filters.statuses } }
+          : filters?.status && { status: filters.status }),
         ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
         ...(filters?.inStock && { estoque: { quantidade: { gt: 0 } } }),
       },

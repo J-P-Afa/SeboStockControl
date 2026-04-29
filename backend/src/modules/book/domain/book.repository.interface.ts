@@ -56,16 +56,21 @@ export interface BookFilters {
   search?: string;
   classificacaoId?: number;
   publisherId?: number;
+  publisherIds?: number[];
   languageId?: number;
+  languageIds?: number[];
   genreId?: number;
   /** @ai-context Filtro por edição: normal | variante */
   editionType?: EditionType;
+  editionTypes?: EditionType[];
   /** @ai-context Filtro por volume (ex: "1", "2", "Único") */
   volume?: string;
   /** @ai-context Filtro por coleção */
   collection?: string;
   condition?: Condition;
+  conditions?: Condition[];
   status?: Status;
+  statuses?: Status[];
   isActive?: boolean;
   /** @ai-context Filtro por itens que possuem estoque positivo */
   inStock?: boolean;
