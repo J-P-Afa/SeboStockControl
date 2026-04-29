@@ -136,26 +136,16 @@ describe('BookController', () => {
 
   describe('findAll', () => {
     it('should parse query parameters correctly and delegate to UseCase', async () => {
-      listBooksUseCase.execute.mockResolvedValue(Result.ok([mockBookDto]));
+      const paginatedResult = {
+        items: [mockBookDto],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
+      listBooksUseCase.execute.mockResolvedValue(Result.ok(paginatedResult));
 
-      const response = await controller.findAll(
-        '1', // id
-        'isbn123', // isbn
-        'quixote', // search
-        '2', // classificacaoId
-        '3', // publisherId
-        '4', // languageId
-        Condition.novo, // condition
-        'true', // isActive
-        EditionType.normal, // editionType
-        Status.completo, // status
-        '1', // volume
-        'Col', // collection
-        'false', // inStock
-      );
-
-      expect(response).toStrictEqual({ success: true, data: [mockBookDto] });
-      expect(listBooksUseCase.execute).toHaveBeenCalledWith({
+      const query = {
         id: 1,
         isbn: 'isbn123',
         search: 'quixote',
@@ -169,7 +159,12 @@ describe('BookController', () => {
         volume: '1',
         collection: 'Col',
         inStock: false,
-      });
+      };
+
+      const response = await controller.findAll(query);
+
+      expect(response).toStrictEqual({ success: true, data: paginatedResult });
+      expect(listBooksUseCase.execute).toHaveBeenCalledWith(query);
     });
   });
 
@@ -184,7 +179,14 @@ describe('BookController', () => {
     });
 
     it('should use ListBooksUseCase if condition is provided and return first result', async () => {
-      listBooksUseCase.execute.mockResolvedValue(Result.ok([mockBookDto]));
+      const paginatedResult = {
+        items: [mockBookDto],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
+      listBooksUseCase.execute.mockResolvedValue(Result.ok(paginatedResult));
 
       const response = await controller.getByIsbn('123', Condition.usado);
 
@@ -196,7 +198,15 @@ describe('BookController', () => {
     });
 
     it('should return Result.fail if condition is provided but no books found', async () => {
-      listBooksUseCase.execute.mockResolvedValue(Result.ok([]));
+      listBooksUseCase.execute.mockResolvedValue(
+        Result.ok({
+          items: [],
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPages: 0,
+        }),
+      );
 
       const response = await controller.getByIsbn('123', Condition.usado);
       expect(response.success).toBe(false);
