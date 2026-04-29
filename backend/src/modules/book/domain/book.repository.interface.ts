@@ -74,11 +74,17 @@ export interface BookFilters {
   isActive?: boolean;
   /** @ai-context Filtro por itens que possuem estoque positivo */
   inStock?: boolean;
+
+  // Pagination and Sorting
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface IBookRepository {
   findById(id: number): Promise<BookEntity | null>;
-  findAll(filters?: BookFilters): Promise<BookEntity[]>;
+  findAll(filters?: BookFilters): Promise<{ items: BookEntity[]; total: number }>;
   findByIsbn(isbn: string): Promise<BookEntity | null>;
   findByIsbn13AndCondition(
     isbn13: string,
