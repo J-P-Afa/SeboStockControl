@@ -12,6 +12,11 @@ import {
   Store,
   CreditCard,
   ClipboardList,
+  ClipboardPlus,
+  ShoppingCart,
+  Database,
+  ArrowRightLeft,
+  Shield,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -29,11 +34,6 @@ export const menuItems: MenuItem[] = [
     icon: LayoutDashboard,
   },
   {
-    label: 'Livros',
-    href: '/books',
-    icon: BookOpen,
-  },
-  {
     label: 'Estoques',
     href: '/estoques',
     icon: Boxes,
@@ -49,43 +49,77 @@ export const menuItems: MenuItem[] = [
     icon: PackageMinus,
   },
   {
-    label: 'Gêneros',
-    href: '/genres',
-    icon: Tag,
+    label: 'Livros',
+    href: '/books',
+    icon: BookOpen,
   },
   {
-    label: 'Idiomas',
-    href: '/languages',
-    icon: Globe,
+    label: 'Vendas',
+    icon: ShoppingCart,
+    children: [
+      {
+        label: 'Canais de Venda',
+        href: '/canais-venda',
+        icon: Store,
+      },
+      {
+        label: 'Formas de Pagamento',
+        href: '/formas-pagamento',
+        icon: CreditCard,
+      },
+    ],
   },
   {
-    label: 'Editoras',
-    href: '/publishers',
-    icon: Archive,
+    label: 'Cadastros',
+    icon: Database,
+    children: [
+      {
+        label: 'Gêneros',
+        href: '/genres',
+        icon: Tag,
+      },
+      {
+        label: 'Idiomas',
+        href: '/languages',
+        icon: Globe,
+      },
+      {
+        label: 'Editoras',
+        href: '/publishers',
+        icon: Archive,
+      },
+    ],
   },
   {
-    label: 'Canais de Venda',
-    href: '/canais-venda',
-    icon: Store,
+    label: 'Tipos de transação',
+    icon: ArrowRightLeft,
+    children: [
+      {
+        label: 'Tipos de Saída',
+        href: '/tipos-saida',
+        icon: ClipboardList,
+      },
+      {
+        label: 'Tipos de Entrada',
+        href: '/tipos-entrada',
+        icon: ClipboardPlus,
+      },
+    ],
   },
   {
-    label: 'Formas de Pagamento',
-    href: '/formas-pagamento',
-    icon: CreditCard,
-  },
-  {
-    label: 'Tipos de Saída',
-    href: '/tipos-saida',
-    icon: ClipboardList,
-  },
-  {
-    label: 'Usuários',
-    href: '/users',
-    icon: Users,
-  },
-  {
-    label: 'Perfis',
-    href: '/roles',
-    icon: ShieldCheck,
+    label: 'Acessos',
+    icon: Shield,
+    children: [
+      {
+        label: 'Usuários',
+        href: '/users',
+        icon: Users,
+      },
+      {
+        label: 'Perfis',
+        href: '/roles',
+        icon: ShieldCheck,
+      },
+    ],
   },
 ];

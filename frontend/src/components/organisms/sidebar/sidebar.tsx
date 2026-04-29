@@ -29,7 +29,7 @@ export function Sidebar() {
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col bg-sidebar/80 backdrop-blur-xl border-r border-white/10 dark:border-r-white/5 shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        'fixed left-0 top-0 z-40 flex h-screen flex-col bg-sidebar/80 backdrop-blur-xl border-r border-white/10 dark:border-r-white/5 shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] custom-scrollbar',
         isExpanded ? 'w-64' : 'w-16',
       )}
       aria-label="Menu Lateral"
@@ -43,7 +43,7 @@ export function Sidebar() {
       </div>
 
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden p-2 custom-scrollbar">
         {menuItems.map((item) => (
           <SidebarItem
             key={item.label}
