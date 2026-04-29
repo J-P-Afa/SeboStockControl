@@ -77,56 +77,73 @@ export class PrismaBookRepository implements IBookRepository {
     return book ? this.toEntity(book) : null;
   }
 
-  async findAll(filters?: BookFilters): Promise<BookEntity[]> {
+  async findAll(
+    filters?: BookFilters,
+  ): Promise<{ items: BookEntity[]; total: number }> {
+    const where: Prisma.BookWhereInput = {
+      ...(filters?.id && { id: filters.id }),
+      ...(filters?.isbn && {
+        OR: [
+          { isbn13: { contains: filters.isbn } },
+          { isbn10: { contains: filters.isbn } },
+        ],
+      }),
+      ...(filters?.search && {
+        OR: [
+          { title: { contains: filters.search, mode: 'insensitive' } },
+          { isbn13: { contains: filters.search } },
+          { isbn10: { contains: filters.search } },
+        ],
+      }),
+      ...(filters?.classificacaoId && {
+        classificacaoId: filters.classificacaoId,
+      }),
+      ...(filters?.publisherIds?.length
+        ? { publisherId: { in: filters.publisherIds } }
+        : filters?.publisherId && { publisherId: filters.publisherId }),
+      ...(filters?.languageIds?.length
+        ? { languageId: { in: filters.languageIds } }
+        : filters?.languageId && { languageId: filters.languageId }),
+      ...(filters?.genreId && { genreId: filters.genreId }),
+      ...(filters?.editionTypes?.length
+        ? { editionType: { in: filters.editionTypes } }
+        : filters?.editionType && { editionType: filters.editionType }),
+      ...(filters?.volume && {
+        volume: { contains: filters.volume, mode: 'insensitive' },
+      }),
+      ...(filters?.collection && {
+        collection: { contains: filters.collection, mode: 'insensitive' },
+      }),
+      ...(filters?.conditions?.length
+        ? { condition: { in: filters.conditions } }
+        : filters?.condition && { condition: filters.condition }),
+      ...(filters?.statuses?.length
+        ? { status: { in: filters.statuses } }
+        : filters?.status && { status: filters.status }),
+      ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
+      ...(filters?.inStock && { estoque: { quantidade: { gt: 0 } } }),
+    };
+
+    const total = await this.prisma.book.count({ where });
+
+    const skip =
+      filters?.page && filters?.limit ? (filters.page - 1) * filters.limit : 0;
+    const take = filters?.limit ?? undefined;
+
     const books = await this.prisma.book.findMany({
-      where: {
-        ...(filters?.id && { id: filters.id }),
-        ...(filters?.isbn && {
-          OR: [
-            { isbn13: { contains: filters.isbn } },
-            { isbn10: { contains: filters.isbn } },
-          ],
-        }),
-        ...(filters?.search && {
-          OR: [
-            { title: { contains: filters.search, mode: 'insensitive' } },
-            { isbn13: { contains: filters.search } },
-            { isbn10: { contains: filters.search } },
-          ],
-        }),
-        ...(filters?.classificacaoId && {
-          classificacaoId: filters.classificacaoId,
-        }),
-        ...(filters?.publisherIds?.length
-          ? { publisherId: { in: filters.publisherIds } }
-          : filters?.publisherId && { publisherId: filters.publisherId }),
-        ...(filters?.languageIds?.length
-          ? { languageId: { in: filters.languageIds } }
-          : filters?.languageId && { languageId: filters.languageId }),
-        ...(filters?.genreId && { genreId: filters.genreId }),
-        ...(filters?.editionTypes?.length
-          ? { editionType: { in: filters.editionTypes } }
-          : filters?.editionType && { editionType: filters.editionType }),
-        ...(filters?.volume && {
-          volume: { contains: filters.volume, mode: 'insensitive' },
-        }),
-        ...(filters?.collection && {
-          collection: { contains: filters.collection, mode: 'insensitive' },
-        }),
-        ...(filters?.conditions?.length
-          ? { condition: { in: filters.conditions } }
-          : filters?.condition && { condition: filters.condition }),
-        ...(filters?.statuses?.length
-          ? { status: { in: filters.statuses } }
-          : filters?.status && { status: filters.status }),
-        ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
-        ...(filters?.inStock && { estoque: { quantidade: { gt: 0 } } }),
-      },
+      where,
       include: { estoque: { select: { quantidade: true, custoMedio: true } } },
-      orderBy: { title: 'asc' },
+      orderBy: filters?.sortBy
+        ? { [filters.sortBy]: filters.sortOrder ?? 'asc' }
+        : { title: 'asc' },
+      skip,
+      take,
     });
 
-    return books.map((book) => this.toEntity(book));
+    return {
+      items: books.map((book) => this.toEntity(book)),
+      total,
+    };
   }
 
   async findByIsbn13AndCondition(
