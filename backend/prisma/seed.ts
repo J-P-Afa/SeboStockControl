@@ -34,12 +34,20 @@ async function main() {
     // Entradas e Saídas
     { action: 'entrada:read', description: 'Ler entradas de estoque' },
     { action: 'entrada:create', description: 'Registrar entradas de estoque' },
+    { action: 'entrada:update', description: 'Atualizar entradas de estoque' },
+    { action: 'entrada:delete', description: 'Deletar entradas de estoque' },
     { action: 'saida:read', description: 'Ler saídas de estoque' },
     { action: 'saida:create', description: 'Registrar saídas de estoque' },
+    { action: 'saida:update', description: 'Atualizar saídas de estoque' },
+    { action: 'saida:delete', description: 'Deletar saídas de estoque' },
     { action: 'canal-venda:read', description: 'Ler canais de venda' },
-    { action: 'canal-venda:create', description: 'Criar/Atualizar canais de venda' },
+    { action: 'canal-venda:create', description: 'Criar canais de venda' },
+    { action: 'canal-venda:update', description: 'Atualizar canais de venda' },
+    { action: 'canal-venda:delete', description: 'Deletar canais de venda' },
     { action: 'forma-pagamento:read', description: 'Ler formas de pagamento' },
-    { action: 'forma-pagamento:create', description: 'Criar/Atualizar formas de pagamento' },
+    { action: 'forma-pagamento:create', description: 'Criar formas de pagamento' },
+    { action: 'forma-pagamento:update', description: 'Atualizar formas de pagamento' },
+    { action: 'forma-pagamento:delete', description: 'Deletar formas de pagamento' },
 
     // Gêneros
     { action: 'genre:read', description: 'Ler gêneros' },
@@ -135,7 +143,21 @@ async function main() {
     });
   }
 
-  // 6. Canais de Venda (com comissões)
+  // 6. Tipos de Entrada
+  const tiposEntrada = [
+    { descricao: 'Compra', isDoacao: false },
+    { descricao: 'Doação Recebida', isDoacao: true },
+  ];
+
+  for (const t of tiposEntrada) {
+    await prisma.tipoEntrada.upsert({
+      where: { descricao: t.descricao },
+      update: { isDoacao: t.isDoacao },
+      create: t,
+    });
+  }
+
+  // 7. Canais de Venda (com comissões)
   const canais = [
     { descricao: 'Estante Virtual', comissaoFixa: 1.0, comissaoVariavel: 0.12 },
     { descricao: 'Shopee', comissaoFixa: 3.0, comissaoVariavel: 0.18 },
@@ -151,7 +173,7 @@ async function main() {
     });
   }
 
-  // 7. Formas de Pagamento (com taxas)
+  // 8. Formas de Pagamento (com taxas)
   const formas = [
     { descricao: 'Dinheiro', taxa: 0 },
     { descricao: 'Pix', taxa: 0 },
@@ -167,7 +189,7 @@ async function main() {
     });
   }
 
-  // 8. Publishers, Languages, Genres
+  // 9. Publishers, Languages, Genres
   const publishers = ['Companhia das Letras', 'Record', 'Rocco', 'Arqueiro'];
   for (const p of publishers) {
     await prisma.publisher.upsert({
