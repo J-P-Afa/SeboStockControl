@@ -6,7 +6,6 @@ import {
   Trash2, 
   Edit2, 
   Plus, 
-  Calendar as CalendarIcon,
   Search,
   Barcode,
   Info,
@@ -39,6 +38,7 @@ import {
 } from '@/components/molecules/select';
 import { BookSearchAutocomplete } from '@/components/molecules/book-search-autocomplete';
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
+import { DateField } from '@/components/molecules/date-field';
 import { 
   bulkCreateSaida, 
   getBookStock, 
@@ -387,15 +387,11 @@ export default function RegistrarSaidaPage() {
 
             <div className="space-y-2">
               <Label>Data da Saída</Label>
-              <div className="relative">
-                <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input 
-                  type="date" 
-                  value={dataSaida} 
-                  onChange={(e) => setDataSaida(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
+              <DateField
+                label="Saída"
+                value={dataSaida}
+                onChange={(e) => setDataSaida(e.target.value)}
+              />
             </div>
           </div>
           <div className="mt-4 space-y-2">

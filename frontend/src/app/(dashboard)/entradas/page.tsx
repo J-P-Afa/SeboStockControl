@@ -6,7 +6,6 @@ import {
   Trash2, 
   Edit2, 
   Plus, 
-  Calendar as CalendarIcon,
   Search,
   Barcode,
   Info,
@@ -39,11 +38,11 @@ import {
 } from '@/components/molecules/select';
 import { BookSearchAutocomplete } from '@/components/molecules/book-search-autocomplete';
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
+import { DateField } from '@/components/molecules/date-field';
 import { bulkCreateEntrada, getLastCost, getBookStock, createBook, getErrorMessage } from '@/lib/api';
 import { lookupExternalBook } from '@/lib/api/books.api';
 import { formatCurrency } from '@/lib/formatters';
 import { Condition, type Book, type ExternalBook, type CreateBookPayload } from '@/types';
-import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api/client';
 
 enum TipoEntrada {
@@ -329,15 +328,11 @@ export default function EntradasPage() {
             
             <div className="space-y-2">
               <Label>Data</Label>
-              <div className="relative">
-                <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input 
-                  type="date" 
-                  value={dataEntrada} 
-                  onChange={(e) => setDataEntrada(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
+              <DateField
+                label="Entrada"
+                value={dataEntrada}
+                onChange={(e) => setDataEntrada(e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
