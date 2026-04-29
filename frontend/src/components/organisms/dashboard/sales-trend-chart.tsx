@@ -28,7 +28,7 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
     <Card className={cn("bg-surface-container border-none shadow-sm", className)}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold tracking-tight">
-          Tendência de Vendas (Últimos 30 Dias)
+          Tendência de Vendas
         </CardTitle>
       </CardHeader>
       <CardContent className="h-[300px] w-full pt-4">
