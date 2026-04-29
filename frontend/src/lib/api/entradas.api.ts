@@ -2,6 +2,7 @@ import { apiClient } from './client';
 
 export interface CreateEntradaPayload {
   bookId: number;
+  tipoEntradaId: number;
   usuarioId: string;
   dataEntrada: string;
   quantidade: number;
