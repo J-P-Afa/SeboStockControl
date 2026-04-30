@@ -77,7 +77,7 @@ export class PrismaEstoqueRepository implements IStockRepository {
   async getHistory(bookId: number) {
     const entradas = await this.prisma.entrada.findMany({
       where: { bookId },
-      include: { usuario: true },
+      include: { usuario: true, tipoEntrada: true },
     });
 
     const saidas = await this.prisma.saida.findMany({
@@ -88,7 +88,7 @@ export class PrismaEstoqueRepository implements IStockRepository {
     const historyItems = [
       ...entradas.map((e) => ({
         data: e.dataEntrada,
-        tipoTransacao: 'Entrada', // Idealmente pode ter tipo_entrada no futuro
+        tipoTransacao: e.tipoEntrada.descricao,
         quantidade: e.quantidade, // Positivo
         observacao: e.observacao,
         responsavel: e.usuario.name,

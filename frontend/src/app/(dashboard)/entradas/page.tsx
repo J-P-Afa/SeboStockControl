@@ -55,6 +55,7 @@ interface EntradaItem {
   quantidade: number;
   custoUnitario: number;
   custoTotal: number;
+  tipoEntradaDesc: string;
 }
 
 export default function EntradasPage() {
@@ -199,6 +200,7 @@ export default function EntradasPage() {
       quantidade,
       custoUnitario,
       custoTotal: custoTotalItem,
+      tipoEntradaDesc: selectedTipoEntrada?.descricao || '',
     };
 
     if (editingId) {
@@ -344,7 +346,9 @@ export default function EntradasPage() {
                 disabled={isLoadingTiposEntrada || tiposEntrada.length === 0}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione" />
+                  <span>
+                    {tiposEntrada.find(t => t.id === tipoEntradaId)?.descricao || "Selecione..."}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {tiposEntrada.map((tipo) => (
@@ -571,6 +575,7 @@ export default function EntradasPage() {
               <TableHeader className="bg-muted/50">
                 <TableRow>
                   <TableHead>Descrição</TableHead>
+                  <TableHead className="text-center">Tipo</TableHead>
                   <TableHead className="text-center">ISBN</TableHead>
                   <TableHead className="text-center">Condição</TableHead>
                   <TableHead className="text-right">Qtd</TableHead>
@@ -582,7 +587,7 @@ export default function EntradasPage() {
               <TableBody>
                 {items.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground italic">
+                    <TableCell colSpan={8} className="h-32 text-center text-muted-foreground italic">
                       Nenhum item adicionado à lista.
                     </TableCell>
                   </TableRow>
@@ -590,6 +595,11 @@ export default function EntradasPage() {
                   items.map((item) => (
                     <TableRow key={item.id} className="group hover:bg-muted/30 transition-colors">
                       <TableCell className="font-medium max-w-[300px] truncate">{item.title}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline" className="text-[10px] uppercase">
+                          {item.tipoEntradaDesc}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-center font-mono text-xs text-muted-foreground">{item.isbn || '-'}</TableCell>
                       <TableCell className="text-center">
                         <Badge variant={item.condition === Condition.NOVO ? 'success' : 'warning'} className="uppercase text-[10px]">
