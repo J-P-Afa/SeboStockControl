@@ -332,7 +332,7 @@ export default function EntradasPage() {
             <div className="space-y-2">
               <Label>Tipo de Entrada</Label>
               <Select 
-                value={tipoEntradaId ? String(tipoEntradaId) : undefined}
+                value={tipoEntradaId ? String(tipoEntradaId) : ""}
                 onValueChange={(val) => {
                   const nextTipoEntradaId = Number(val);
                   const nextTipoEntrada = tiposEntrada.find(
