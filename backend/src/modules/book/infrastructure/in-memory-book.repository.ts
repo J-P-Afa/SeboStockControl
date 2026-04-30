@@ -95,8 +95,25 @@ export class InMemoryBookRepository implements IBookRepository {
       const field = filters.sortBy as keyof BookEntity;
       const order = filters.sortOrder === 'desc' ? -1 : 1;
       result.sort((a, b) => {
-        if (a[field] < b[field]) return -1 * order;
-        if (a[field] > b[field]) return 1 * order;
+        const valA = a[field];
+        const valB = b[field];
+
+        if (valA === valB) return 0;
+        if (valA === null || valA === undefined) return 1;
+        if (valB === null || valB === undefined) return -1;
+
+        // Convert common non-primitive comparable types
+        const normalize = (v: any) => {
+          if (v instanceof Date) return v.getTime();
+          if (v && typeof v.toNumber === 'function') return v.toNumber();
+          return v;
+        };
+
+        const normA = normalize(valA);
+        const normB = normalize(valB);
+
+        if (normA < normB) return -1 * order;
+        if (normA > normB) return 1 * order;
         return 0;
       });
     }
