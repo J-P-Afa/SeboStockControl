@@ -112,6 +112,19 @@ describe('getEstoquesTableColumns', () => {
     expect(screen.getByText('R$ 136,50')).toBeInTheDocument();
   });
 
+  it('renders the book cover in the description cell when available', () => {
+    renderCell('title', {
+      ...baseBook,
+      coverUrl: '/uploads/book-covers/42/cover.webp',
+    });
+
+    const cover = document.querySelector('img');
+    expect(cover).toHaveAttribute(
+      'src',
+      'http://localhost:3001/uploads/book-covers/42/cover.webp',
+    );
+  });
+
   it('falls back from isbn13 to isbn10 and then to a dash', () => {
     renderCell('isbn13', { ...baseBook, isbn13: null, isbn10: '0321125215' });
     expect(screen.getByText('0321125215')).toBeInTheDocument();

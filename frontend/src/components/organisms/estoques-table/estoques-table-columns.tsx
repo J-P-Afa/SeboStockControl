@@ -1,11 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { History, Edit } from 'lucide-react';
+import { History, Edit, ImageIcon } from 'lucide-react';
 import type { Book } from '@/types';
 import { Condition } from '@/types';
 import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
 import { SortableHeader } from '@/components/molecules/data-table';
 import { formatCurrency } from '@/lib/formatters';
+import { resolveBookCoverUrl } from '@/lib/api/books.api';
 
 interface GetColumnsParams {
   onHistory: (book: Book) => void;
@@ -28,11 +29,25 @@ export function getEstoquesTableColumns({
       header: ({ column }) => (
         <SortableHeader column={column}>Descrição</SortableHeader>
       ),
-      cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">{row.original.title}</span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const coverUrl = resolveBookCoverUrl(row.original.coverUrl);
+
+        return (
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-8 shrink-0 overflow-hidden rounded border border-border bg-muted">
+              {coverUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                  <ImageIcon className="h-4 w-4" />
+                </div>
+              )}
+            </div>
+            <span className="font-medium text-foreground">{row.original.title}</span>
+          </div>
+        );
+      },
       enableSorting: true,
     },
     {
