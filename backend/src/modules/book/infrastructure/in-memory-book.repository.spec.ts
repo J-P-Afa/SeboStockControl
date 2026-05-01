@@ -1,6 +1,5 @@
 import { Condition, Status, EditionType } from '@prisma/client';
 import { InMemoryBookRepository } from './in-memory-book.repository';
-import { BookEntity } from '../domain/book.entity';
 
 describe('InMemoryBookRepository', () => {
   let repository: InMemoryBookRepository;
@@ -25,7 +24,10 @@ describe('InMemoryBookRepository', () => {
       weight: 500 as any,
     });
 
-    const result = await repository.findAll({ sortBy: 'title', sortOrder: 'asc' });
+    const result = await repository.findAll({
+      sortBy: 'title',
+      sortOrder: 'asc',
+    });
     expect(result.items[0].title).toBe('A');
     expect(result.items[1].title).toBe('B');
   });
@@ -46,7 +48,10 @@ describe('InMemoryBookRepository', () => {
       weight: 500 as any,
     });
 
-    const result = await repository.findAll({ sortBy: 'title', sortOrder: 'desc' });
+    const result = await repository.findAll({
+      sortBy: 'title',
+      sortOrder: 'desc',
+    });
     expect(result.items[0].title).toBe('B');
     expect(result.items[1].title).toBe('A');
   });
@@ -69,7 +74,10 @@ describe('InMemoryBookRepository', () => {
       weight: 500 as any,
     });
 
-    const result = await repository.findAll({ sortBy: 'subtitle', sortOrder: 'asc' });
+    const result = await repository.findAll({
+      sortBy: 'subtitle',
+      sortOrder: 'asc',
+    });
     // 'Sub' vs null. Null should be last in my implementation (return 1 for valA == null)
     expect(result.items[0].subtitle).toBe('Sub');
     expect(result.items[1].subtitle).toBeNull();
@@ -92,7 +100,10 @@ describe('InMemoryBookRepository', () => {
       editionType: EditionType.normal,
     });
 
-    const result = await repository.findAll({ sortBy: 'weight', sortOrder: 'asc' });
+    const result = await repository.findAll({
+      sortBy: 'weight',
+      sortOrder: 'asc',
+    });
     expect(result.items[0].title).toBe('B'); // 50 < 100
     expect(result.items[1].title).toBe('A');
   });

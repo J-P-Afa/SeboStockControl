@@ -74,14 +74,17 @@ export function getErrorMessage(error: unknown, fallback: string): string {
 function getErrorResponseData(error: unknown): ApiErrorResponse | null {
   if (error === null || typeof error !== 'object') return null;
 
+  const err = error as { response?: { data?: unknown } };
+  const data = err.response?.data;
+  if (data !== null && typeof data === 'object') {
+    return data as ApiErrorResponse;
+  }
+
   if (hasApiErrorShape(error)) {
     return error;
   }
 
-  const err = error as { response?: { data?: unknown } };
-  const data = err.response?.data;
-  if (data === null || typeof data !== 'object') return null;
-  return data as ApiErrorResponse;
+  return null;
 }
 
 function hasApiErrorShape(error: object): error is ApiErrorResponse {

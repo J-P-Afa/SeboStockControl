@@ -25,7 +25,7 @@ import {
   UpdateBookDto,
   ListBooksQueryDto,
 } from '../application/dtos';
-import { Condition, EditionType, Status } from '@prisma/client';
+import { Condition } from '@prisma/client';
 import { Result, RequirePermission } from '../../../common';
 
 @Controller('books')

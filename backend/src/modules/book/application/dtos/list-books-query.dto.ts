@@ -10,6 +10,17 @@ import {
 } from 'class-validator';
 import { Condition, EditionType, Status } from '@prisma/client';
 
+function parseNumberList(value: unknown): unknown {
+  if (typeof value === 'string') return value.split(',').map(Number);
+  if (Array.isArray(value)) return value.map(Number);
+  return value;
+}
+
+function parseEnumList(value: unknown): unknown {
+  if (typeof value === 'string') return value.split(',');
+  return value;
+}
+
 export class ListBooksQueryDto {
   @IsOptional()
   @Type(() => Number)
@@ -35,11 +46,7 @@ export class ListBooksQueryDto {
   publisherId?: number;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') return value.split(',').map(Number);
-    if (Array.isArray(value)) return value.map(Number);
-    return value;
-  })
+  @Transform(({ value }: { value: unknown }) => parseNumberList(value))
   @IsArray()
   @IsInt({ each: true })
   publisherIds?: number[];
@@ -50,11 +57,7 @@ export class ListBooksQueryDto {
   languageId?: number;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') return value.split(',').map(Number);
-    if (Array.isArray(value)) return value.map(Number);
-    return value;
-  })
+  @Transform(({ value }: { value: unknown }) => parseNumberList(value))
   @IsArray()
   @IsInt({ each: true })
   languageIds?: number[];
@@ -64,7 +67,7 @@ export class ListBooksQueryDto {
   condition?: Condition;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? value.split(',') : value))
+  @Transform(({ value }: { value: unknown }) => parseEnumList(value))
   @IsArray()
   @IsEnum(Condition, { each: true })
   conditions?: Condition[];
@@ -79,7 +82,7 @@ export class ListBooksQueryDto {
   editionType?: EditionType;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? value.split(',') : value))
+  @Transform(({ value }: { value: unknown }) => parseEnumList(value))
   @IsArray()
   @IsEnum(EditionType, { each: true })
   editionTypes?: EditionType[];
@@ -89,7 +92,7 @@ export class ListBooksQueryDto {
   status?: Status;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? value.split(',') : value))
+  @Transform(({ value }: { value: unknown }) => parseEnumList(value))
   @IsArray()
   @IsEnum(Status, { each: true })
   statuses?: Status[];

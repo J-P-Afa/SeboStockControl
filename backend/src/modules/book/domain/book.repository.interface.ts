@@ -84,7 +84,9 @@ export interface BookFilters {
 
 export interface IBookRepository {
   findById(id: number): Promise<BookEntity | null>;
-  findAll(filters?: BookFilters): Promise<{ items: BookEntity[]; total: number }>;
+  findAll(
+    filters?: BookFilters,
+  ): Promise<{ items: BookEntity[]; total: number }>;
   findByIsbn(isbn: string): Promise<BookEntity | null>;
   findByIsbn13AndCondition(
     isbn13: string,

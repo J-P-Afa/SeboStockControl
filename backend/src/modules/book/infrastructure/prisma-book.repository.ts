@@ -84,13 +84,9 @@ export class PrismaBookRepository implements IBookRepository {
       if (valB === null || valB === undefined) return -1;
 
       const normA =
-        typeof valA === 'object' && 'toNumber' in valA
-          ? valA.toNumber()
-          : valA;
+        typeof valA === 'object' && 'toNumber' in valA ? valA.toNumber() : valA;
       const normB =
-        typeof valB === 'object' && 'toNumber' in valB
-          ? valB.toNumber()
-          : valB;
+        typeof valB === 'object' && 'toNumber' in valB ? valB.toNumber() : valB;
 
       if (normA < normB) return -1 * order;
       if (normA > normB) return 1 * order;
@@ -220,11 +216,10 @@ export class PrismaBookRepository implements IBookRepository {
     });
 
     const paginatedBooks = stockSortField
-      ? this.sortByStockField(
-          books,
-          stockSortField,
-          filters?.sortOrder,
-        ).slice(skip, take ? skip + take : undefined)
+      ? this.sortByStockField(books, stockSortField, filters?.sortOrder).slice(
+          skip,
+          take ? skip + take : undefined,
+        )
       : books;
 
     return {

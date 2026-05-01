@@ -7,6 +7,31 @@ import {
 import { BookEntity, BookProps } from '../domain/book.entity';
 import { Condition } from '@prisma/client';
 
+type SortableValue = string | number | boolean;
+type DecimalLike = { toNumber: () => number };
+
+function hasToNumber(value: unknown): value is DecimalLike {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'toNumber' in value &&
+    typeof value.toNumber === 'function'
+  );
+}
+
+function normalizeSortableValue(value: unknown): SortableValue {
+  if (value instanceof Date) return value.getTime();
+  if (hasToNumber(value)) return value.toNumber();
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return value;
+  }
+  return String(value);
+}
+
 export class InMemoryBookRepository implements IBookRepository {
   public items: BookEntity[] = [];
   private autoIncrementId = 1;
@@ -102,15 +127,8 @@ export class InMemoryBookRepository implements IBookRepository {
         if (valA === null || valA === undefined) return 1;
         if (valB === null || valB === undefined) return -1;
 
-        // Convert common non-primitive comparable types
-        const normalize = (v: any) => {
-          if (v instanceof Date) return v.getTime();
-          if (v && typeof v.toNumber === 'function') return v.toNumber();
-          return v;
-        };
-
-        const normA = normalize(valA);
-        const normB = normalize(valB);
+        const normA = normalizeSortableValue(valA);
+        const normB = normalizeSortableValue(valB);
 
         if (normA < normB) return -1 * order;
         if (normA > normB) return 1 * order;
