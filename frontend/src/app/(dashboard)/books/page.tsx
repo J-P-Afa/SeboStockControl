@@ -125,6 +125,9 @@ export default function BooksPage() {
       savedBook = await createMutation.mutateAsync(commonPayload as CreateBookPayload);
     }
 
+    setFormOpen(false);
+    setSelectedBook(null);
+
     try {
       if (formData.coverFile) {
         await uploadBookCover(savedBook.id, formData.coverFile);
@@ -137,9 +140,6 @@ export default function BooksPage() {
     } catch {
       toast.error('Livro salvo, mas não foi possível salvar a capa');
     }
-
-    setFormOpen(false);
-    setSelectedBook(null);
   }
 
   async function handleDeleteConfirm() {
