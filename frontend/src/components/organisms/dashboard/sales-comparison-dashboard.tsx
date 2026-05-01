@@ -605,7 +605,7 @@ export function SalesComparisonDashboard({
                     tickFormatter={(value) => formatCurrency(Number(value))}
                   />
                   <Tooltip
-                    trigger="axis"
+                    shared={true}
                     content={({ active, payload, label }) => {
                       if (!active || !payload?.length) return null
                       const row = payload[0].payload as Record<string, string | number>
