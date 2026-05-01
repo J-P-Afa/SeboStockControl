@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import type { KeyboardEvent } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAutocomplete } from './use-autocomplete';
 
@@ -8,6 +9,13 @@ beforeEach(() => {
 });
 
 const items = ['apple', 'banana', 'cherry'];
+
+function createKeyboardEvent(key: string): KeyboardEvent<HTMLInputElement> {
+  return {
+    key,
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent<HTMLInputElement>;
+}
 
 function setup(overrides: Partial<Parameters<typeof useAutocomplete<string>>[0]> = {}) {
   const onSelect = vi.fn();
@@ -41,20 +49,20 @@ describe('useAutocomplete', () => {
     const { result } = setup();
     act(() => { result.current.setOpen(true); });
 
-    const event = { key: 'ArrowDown', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
+    const event = createKeyboardEvent('ArrowDown');
 
-    act(() => { result.current.handleKeyDown(event as any); });
+    act(() => { result.current.handleKeyDown(event); });
     expect(result.current.highlightedIndex).toBe(0);
 
-    act(() => { result.current.handleKeyDown(event as any); });
+    act(() => { result.current.handleKeyDown(event); });
     expect(result.current.highlightedIndex).toBe(1);
 
     // Advance to last item
-    act(() => { result.current.handleKeyDown(event as any); });
+    act(() => { result.current.handleKeyDown(event); });
     expect(result.current.highlightedIndex).toBe(2);
 
     // Wrap around back to 0
-    act(() => { result.current.handleKeyDown(event as any); });
+    act(() => { result.current.handleKeyDown(event); });
     expect(result.current.highlightedIndex).toBe(0);
   });
 
@@ -62,13 +70,13 @@ describe('useAutocomplete', () => {
     const { result } = setup();
     act(() => { result.current.setOpen(true); });
 
-    const upEvent = { key: 'ArrowUp', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
+    const upEvent = createKeyboardEvent('ArrowUp');
 
     // At -1, ArrowUp goes to last item
-    act(() => { result.current.handleKeyDown(upEvent as any); });
+    act(() => { result.current.handleKeyDown(upEvent); });
     expect(result.current.highlightedIndex).toBe(2);
 
-    act(() => { result.current.handleKeyDown(upEvent as any); });
+    act(() => { result.current.handleKeyDown(upEvent); });
     expect(result.current.highlightedIndex).toBe(1);
   });
 
@@ -80,8 +88,8 @@ describe('useAutocomplete', () => {
     act(() => { result.current.setOpen(true); });
     act(() => { result.current.setHighlightedIndex(1); });
 
-    const enterEvent = { key: 'Enter', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
-    act(() => { result.current.handleKeyDown(enterEvent as any); });
+    const enterEvent = createKeyboardEvent('Enter');
+    act(() => { result.current.handleKeyDown(enterEvent); });
 
     expect(onSelect).toHaveBeenCalledWith('banana');
     expect(result.current.open).toBe(false);
@@ -95,8 +103,8 @@ describe('useAutocomplete', () => {
     act(() => { result.current.setOpen(true); });
     // highlightedIndex is -1 by default
 
-    const enterEvent = { key: 'Enter', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
-    act(() => { result.current.handleKeyDown(enterEvent as any); });
+    const enterEvent = createKeyboardEvent('Enter');
+    act(() => { result.current.handleKeyDown(enterEvent); });
 
     expect(onSelect).not.toHaveBeenCalled();
     expect(result.current.open).toBe(true);
@@ -109,8 +117,8 @@ describe('useAutocomplete', () => {
     );
     act(() => { result.current.setOpen(true); });
 
-    const escEvent = { key: 'Escape', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
-    act(() => { result.current.handleKeyDown(escEvent as any); });
+    const escEvent = createKeyboardEvent('Escape');
+    act(() => { result.current.handleKeyDown(escEvent); });
 
     expect(result.current.open).toBe(false);
     expect(onClose).toHaveBeenCalled();
@@ -123,8 +131,8 @@ describe('useAutocomplete', () => {
     );
     // open is false by default
 
-    const downEvent = { key: 'ArrowDown', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
-    act(() => { result.current.handleKeyDown(downEvent as any); });
+    const downEvent = createKeyboardEvent('ArrowDown');
+    act(() => { result.current.handleKeyDown(downEvent); });
 
     expect(result.current.highlightedIndex).toBe(-1);
     expect(onSelect).not.toHaveBeenCalled();
@@ -137,8 +145,8 @@ describe('useAutocomplete', () => {
     );
     act(() => { result.current.setOpen(true); });
 
-    const downEvent = { key: 'ArrowDown', preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLInputElement>;
-    act(() => { result.current.handleKeyDown(downEvent as any); });
+    const downEvent = createKeyboardEvent('ArrowDown');
+    act(() => { result.current.handleKeyDown(downEvent); });
 
     expect(result.current.highlightedIndex).toBe(-1);
   });

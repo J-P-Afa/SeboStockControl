@@ -44,6 +44,13 @@ function renderComponent(props: Partial<React.ComponentProps<typeof BookSearchAu
   );
 }
 
+function mockUseBooksResult(items: Book[]) {
+  vi.mocked(useBooks).mockReturnValue({
+    data: { items },
+    isLoading: false,
+  } as unknown as ReturnType<typeof useBooks>);
+}
+
 describe('BookSearchAutocomplete', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,10 +58,7 @@ describe('BookSearchAutocomplete', () => {
   });
 
   it('renders correctly and handles input', async () => {
-    (useBooks as any).mockReturnValue({
-      data: { items: [] },
-      isLoading: false,
-    });
+    mockUseBooksResult([]);
 
     const user = userEvent.setup();
     renderComponent();
@@ -66,10 +70,7 @@ describe('BookSearchAutocomplete', () => {
   });
 
   it('displays suggestions and allows selection', async () => {
-    (useBooks as any).mockReturnValue({
-      data: { items: [mockBook] },
-      isLoading: false,
-    });
+    mockUseBooksResult([mockBook]);
 
     const onSelect = vi.fn();
     const user = userEvent.setup();
@@ -95,10 +96,7 @@ describe('BookSearchAutocomplete', () => {
   });
 
   it('handles empty results and allows adding new', async () => {
-    (useBooks as any).mockReturnValue({
-      data: { items: [] },
-      isLoading: false,
-    });
+    mockUseBooksResult([]);
 
     const onAddNew = vi.fn();
     const user = userEvent.setup();
@@ -118,10 +116,7 @@ describe('BookSearchAutocomplete', () => {
   });
 
   it('handles clearing the input', async () => {
-    (useBooks as any).mockReturnValue({
-      data: { items: [] },
-      isLoading: false,
-    });
+    mockUseBooksResult([]);
 
     const onClear = vi.fn();
     const user = userEvent.setup();
