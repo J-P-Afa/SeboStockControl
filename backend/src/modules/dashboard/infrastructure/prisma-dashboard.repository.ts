@@ -135,6 +135,11 @@ const SALES_COMPARISON_DIMENSION_SQL: Record<
     idColumn: Prisma.sql`la.id`,
     labelColumn: Prisma.sql`la.description`,
   },
+  publisherId: {
+    join: Prisma.sql`INNER JOIN publishers p ON l.publisher_id = p.id`,
+    idColumn: Prisma.sql`p.id`,
+    labelColumn: Prisma.sql`p.description`,
+  },
 };
 
 @Injectable()

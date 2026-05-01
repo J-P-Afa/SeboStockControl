@@ -10,6 +10,7 @@ import { Switch } from '@/components/atoms/switch';
 import { Input } from '@/components/atoms/input';
 
 import { PublisherTable } from '@/components/organisms/publisher-table';
+import { SalesComparisonDashboard } from '@/components/organisms/dashboard/sales-comparison-dashboard';
 import { PublisherFormDialog } from '@/components/molecules/publisher-form-dialog';
 import { DeleteConfirmDialog } from '@/components/molecules/delete-confirm-dialog';
 
@@ -52,6 +53,10 @@ export default function PublishersPage() {
     sorting.length > 0 ? sortOrder : undefined,
     filters,
   );
+  const { data: dashboardPublishers, isLoading: isLoadingDashboardPublishers } =
+    usePublishers(1, 100, 'description', 'asc', undefined, {
+      staleTime: 5 * 60 * 1000,
+    });
 
   const createMutation = useCreatePublisher();
   const updateMutation = useUpdatePublisher();
@@ -192,6 +197,18 @@ export default function PublishersPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
+      />
+
+      <SalesComparisonDashboard
+        title="Comparativo de vendas por editora"
+        description="Compare faturamento, lucro e margem líquida das editoras no período selecionado."
+        dimension="publisherId"
+        options={(dashboardPublishers?.items ?? []).map((publisher) => ({
+          id: publisher.id,
+          label: publisher.description,
+          isActive: publisher.isActive,
+        }))}
+        isLoadingOptions={isLoadingDashboardPublishers}
       />
 
       <PublisherFormDialog

@@ -38,6 +38,7 @@ export const SALES_COMPARISON_DIMENSIONS = [
   'formaPagamento',
   'genreId',
   'languageId',
+  'publisherId',
 ] as const;
 
 export type SalesComparisonDimension =

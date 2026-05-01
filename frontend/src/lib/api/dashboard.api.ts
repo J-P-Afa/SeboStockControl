@@ -24,6 +24,7 @@ export type SalesComparisonDimension =
   | "formaPagamento"
   | "genreId"
   | "languageId"
+  | "publisherId"
 
 export interface SalesComparisonFilters extends DashboardFilters {
   dimension: SalesComparisonDimension

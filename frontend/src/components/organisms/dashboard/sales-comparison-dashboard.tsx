@@ -455,80 +455,8 @@ export function SalesComparisonDashboard({
             : "Nenhuma categoria com faturamento no período."}
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-7">
-          <Card className="border-none bg-card shadow-sm lg:col-span-4">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
-                <LineChartIcon className="h-5 w-5 text-primary" />
-                Faturamento por dia
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="h-[320px] w-full pt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendRows} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="var(--border)"
-                  />
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-                    tickFormatter={formatDateLabel}
-                    minTickGap={30}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-                    tickFormatter={(value) => formatCurrency(Number(value))}
-                  />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (!active || !payload?.length) return null
-                      const row = payload[0].payload as Record<string, number>
-
-                      return (
-                        <ChartMetricTooltip
-                          title={
-                            label
-                              ? new Date(String(label)).toLocaleDateString("pt-BR", {
-                                  day: "numeric",
-                                  month: "long",
-                                  year: "numeric",
-                                })
-                              : undefined
-                          }
-                          rows={selectedGroups.map((group, index) => ({
-                            label: group.label,
-                            totalSales: Number(row[salesKey(group.id)] ?? 0),
-                            netProfit: Number(row[profitKey(group.id)] ?? 0),
-                            color: SERIES_COLORS[index % SERIES_COLORS.length],
-                          }))}
-                        />
-                      )
-                    }}
-                  />
-                  {selectedGroups.map((group, index) => (
-                    <Line
-                      key={group.id}
-                      type="monotone"
-                      dataKey={salesKey(group.id)}
-                      name={group.label}
-                      stroke={SERIES_COLORS[index % SERIES_COLORS.length]}
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none bg-card shadow-sm lg:col-span-3">
+        <div className="grid gap-6 grid-cols-1">
+          <Card className="border-none bg-card shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
                 <BarChart3 className="h-5 w-5 text-secondary" />
@@ -640,6 +568,78 @@ export function SalesComparisonDashboard({
                   Nenhuma venda encontrada no período.
                 </p>
               )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-none bg-card shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+                <LineChartIcon className="h-5 w-5 text-primary" />
+                Faturamento por dia
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="h-[320px] w-full pt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendRows} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="var(--border)"
+                  />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                    tickFormatter={formatDateLabel}
+                    minTickGap={30}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                    tickFormatter={(value) => formatCurrency(Number(value))}
+                  />
+                  <Tooltip
+                    content={({ active, payload, label }) => {
+                      if (!active || !payload?.length) return null
+                      const row = payload[0].payload as Record<string, number>
+
+                      return (
+                        <ChartMetricTooltip
+                          title={
+                            label
+                              ? new Date(String(label)).toLocaleDateString("pt-BR", {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                })
+                              : undefined
+                          }
+                          rows={selectedGroups.map((group, index) => ({
+                            label: group.label,
+                            totalSales: Number(row[salesKey(group.id)] ?? 0),
+                            netProfit: Number(row[profitKey(group.id)] ?? 0),
+                            color: SERIES_COLORS[index % SERIES_COLORS.length],
+                          }))}
+                        />
+                      )
+                    }}
+                  />
+                  {selectedGroups.map((group, index) => (
+                    <Line
+                      key={group.id}
+                      type="monotone"
+                      dataKey={salesKey(group.id)}
+                      name={group.label}
+                      stroke={SERIES_COLORS[index % SERIES_COLORS.length]}
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
