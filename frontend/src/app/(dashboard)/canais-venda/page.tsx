@@ -11,6 +11,7 @@ import { Switch } from '@/components/atoms/switch';
 import { DeleteConfirmDialog } from '@/components/molecules/delete-confirm-dialog';
 import { CanalVendaFormDialog } from '@/components/molecules/canal-venda-form-dialog';
 import { CanaisVendaTable } from '@/components/organisms/canais-venda-table';
+import { SalesComparisonDashboard } from '@/components/organisms/dashboard/sales-comparison-dashboard';
 import {
   useCanaisVenda,
   useCreateCanalVenda,
@@ -236,6 +237,18 @@ export default function CanaisVendaPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
+      />
+
+      <SalesComparisonDashboard
+        title="Comparativo de vendas por canal"
+        description="Compare faturamento, lucro e margem líquida dos canais no período selecionado."
+        dimension="canalVenda"
+        options={(data ?? []).map((canalVenda) => ({
+          id: canalVenda.id,
+          label: canalVenda.descricao,
+          isActive: canalVenda.isActive,
+        }))}
+        isLoadingOptions={isLoading}
       />
 
       <CanalVendaFormDialog

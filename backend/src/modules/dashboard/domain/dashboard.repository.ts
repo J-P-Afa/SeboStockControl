@@ -33,6 +33,27 @@ export interface SalesTrendData {
   netProfit: number;
 }
 
+export const SALES_COMPARISON_DIMENSIONS = [
+  'canalVenda',
+  'formaPagamento',
+] as const;
+
+export type SalesComparisonDimension =
+  (typeof SALES_COMPARISON_DIMENSIONS)[number];
+
+export interface SalesComparisonFilters extends DashboardFilters {
+  dimension: SalesComparisonDimension;
+  groupIds?: number[];
+}
+
+export interface SalesComparisonData {
+  date: string;
+  groupId: number;
+  groupLabel: string;
+  totalSales: number;
+  netProfit: number;
+}
+
 export const DASHBOARD_BOOK_ATTRIBUTES = [
   'classificacaoId',
   'genreId',
@@ -76,6 +97,9 @@ export interface DashboardRepository {
     filters?: DashboardFilters,
     days?: number,
   ): Promise<SalesTrendData[]>;
+  getSalesComparison(
+    filters: SalesComparisonFilters,
+  ): Promise<SalesComparisonData[]>;
   getBookAttributeValues(
     attribute: DashboardBookAttribute,
   ): Promise<DashboardBookAttributeValue[]>;

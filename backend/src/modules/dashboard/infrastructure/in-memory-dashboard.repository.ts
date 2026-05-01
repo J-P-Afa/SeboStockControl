@@ -5,6 +5,8 @@ import {
   BookSalesData,
   RecentTransactionData,
   SalesTrendData,
+  SalesComparisonData,
+  SalesComparisonFilters,
   DashboardFilters,
   DashboardBookAttribute,
   DashboardBookAttributeValue,
@@ -21,6 +23,7 @@ export class InMemoryDashboardRepository implements DashboardRepository {
   public topBooks: BookSalesData[] = [];
   public transactions: RecentTransactionData[] = [];
   public trends: SalesTrendData[] = [];
+  public salesComparison: SalesComparisonData[] = [];
   public bookAttributeValues: DashboardBookAttributeValue[] = [];
 
   getKPIs(filters?: DashboardFilters): Promise<DashboardKPIs> {
@@ -59,6 +62,13 @@ export class InMemoryDashboardRepository implements DashboardRepository {
     void filters;
     void days;
     return Promise.resolve(this.trends);
+  }
+
+  getSalesComparison(
+    filters: SalesComparisonFilters,
+  ): Promise<SalesComparisonData[]> {
+    void filters;
+    return Promise.resolve(this.salesComparison);
   }
 
   getBookAttributeValues(

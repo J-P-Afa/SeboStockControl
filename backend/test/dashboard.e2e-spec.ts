@@ -66,6 +66,17 @@ describe('Dashboard (e2e)', () => {
     }
   });
 
+  it('/api/dashboard/sales-comparison (GET) - should be accessible with correct permission', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/dashboard/sales-comparison')
+      .query({ dimension: 'canalVenda', groupIds: ['1', '2'] })
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
   it('/api/dashboard/top-categories (GET) - should be accessible with correct permission', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/dashboard/top-categories')

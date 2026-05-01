@@ -8,6 +8,9 @@ import {
   BookSalesData,
   RecentTransactionData,
   SalesTrendData,
+  SalesComparisonData,
+  SalesComparisonDimension,
+  SalesComparisonFilters,
   DashboardFilters,
   DashboardBookAttribute,
   DashboardBookAttributeValue,
@@ -53,6 +56,20 @@ interface RawBookAttributeValue {
   label: string;
 }
 
+interface RawSalesComparison {
+  date: string;
+  group_id: number;
+  group_label: string;
+  total_vendas: number;
+  lucro_liquido: number;
+}
+
+interface SalesComparisonDimensionSql {
+  join: Prisma.Sql;
+  idColumn: Prisma.Sql;
+  labelColumn: Prisma.Sql;
+}
+
 const NUMERIC_BOOK_ATTRIBUTE_COLUMNS: Partial<
   Record<DashboardBookAttribute, Prisma.Sql>
 > = {
@@ -92,6 +109,22 @@ const STATIC_BOOK_ATTRIBUTE_VALUES: Partial<
     { value: 'normal', label: 'Normal' },
     { value: 'variante', label: 'Variante' },
   ],
+};
+
+const SALES_COMPARISON_DIMENSION_SQL: Record<
+  SalesComparisonDimension,
+  SalesComparisonDimensionSql
+> = {
+  canalVenda: {
+    join: Prisma.sql`INNER JOIN canal_venda cv ON s.canal_venda_id = cv.id`,
+    idColumn: Prisma.sql`cv.id`,
+    labelColumn: Prisma.sql`cv.descricao`,
+  },
+  formaPagamento: {
+    join: Prisma.sql`INNER JOIN forma_pagamento fp ON s.forma_pagamento_id = fp.id`,
+    idColumn: Prisma.sql`fp.id`,
+    labelColumn: Prisma.sql`fp.descricao`,
+  },
 };
 
 @Injectable()
@@ -311,6 +344,59 @@ export class PrismaDashboardRepository implements DashboardRepository {
       totalSales: Number(row.total_vendas) || 0,
       netProfit: Number(row.lucro_liquido) || 0,
     }));
+  }
+
+  async getSalesComparison(
+    filters: SalesComparisonFilters,
+  ): Promise<SalesComparisonData[]> {
+    const where = this.buildSalesComparisonWhere(filters);
+    const dimensionSql = SALES_COMPARISON_DIMENSION_SQL[filters.dimension];
+
+    const result = await this.prisma.$queryRaw<RawSalesComparison[]>`
+      SELECT
+        TO_CHAR(s.data_saida, 'YYYY-MM-DD') AS date,
+        ${dimensionSql.idColumn} AS group_id,
+        ${dimensionSql.labelColumn} AS group_label,
+        SUM(s.valor_total) AS total_vendas,
+        SUM(s.lucro_venda) AS lucro_liquido
+      FROM saida s
+      INNER JOIN tipo_saida ts ON s.tipo_saida_id = ts.id
+      INNER JOIN books l ON s.book_id = l.id
+      ${dimensionSql.join}
+      ${where}
+      GROUP BY
+        TO_CHAR(s.data_saida, 'YYYY-MM-DD'),
+        ${dimensionSql.idColumn},
+        ${dimensionSql.labelColumn}
+      ORDER BY date ASC, total_vendas DESC
+    `;
+
+    return result.map((row) => ({
+      date: String(row.date),
+      groupId: Number(row.group_id),
+      groupLabel: String(row.group_label),
+      totalSales: Number(row.total_vendas) || 0,
+      netProfit: Number(row.lucro_liquido) || 0,
+    }));
+  }
+
+  private buildSalesComparisonWhere(
+    filters: SalesComparisonFilters,
+  ): Prisma.Sql {
+    const clauses: Prisma.Sql[] = [this.buildDashboardWhere(filters)];
+    const dimensionSql = SALES_COMPARISON_DIMENSION_SQL[filters.dimension];
+    const groupIds =
+      filters.groupIds?.filter(
+        (value) => Number.isInteger(value) && value > 0,
+      ) ?? [];
+
+    if (groupIds.length > 0) {
+      clauses.push(
+        Prisma.sql`AND ${dimensionSql.idColumn} IN (${Prisma.join(groupIds)})`,
+      );
+    }
+
+    return Prisma.sql`${Prisma.join(clauses, ' ')}`;
   }
 
   async getBookAttributeValues(

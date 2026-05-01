@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import { ChartMetricTooltip } from "@/components/molecules/dashboard/chart-metric-tooltip"
 import { cn, formatCurrency } from "@/lib/utils"
 
 interface SalesTrend {
@@ -72,35 +73,23 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
                   const profitData = payload.find((p) => p.dataKey === "netProfit")
 
                   return (
-                    <div className="rounded-lg border border-border bg-popover/90 p-3 shadow-xl backdrop-blur-md">
-                      <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-                        {label ? new Date(label).toLocaleDateString("pt-BR", {
+                    <ChartMetricTooltip
+                      title={
+                        label ? new Date(label).toLocaleDateString("pt-BR", {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
-                        }) : ""}
-                      </p>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between gap-4">
-                          <span className="flex items-center gap-2 text-xs text-popover-foreground">
-                            <span className="h-2 w-2 rounded-full bg-[#7C4DFF]" />
-                            Vendas
-                          </span>
-                          <span className="text-xs font-mono font-bold text-popover-foreground">
-                            {formatCurrency(Number(salesData?.value ?? 0))}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-4">
-                          <span className="flex items-center gap-2 text-xs text-popover-foreground">
-                            <span className="h-2 w-2 rounded-full bg-[#00BFA5]" />
-                            Lucro
-                          </span>
-                          <span className="text-xs font-mono font-bold text-popover-foreground">
-                            {formatCurrency(Number(profitData?.value ?? 0))}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                        }) : undefined
+                      }
+                      rows={[
+                        {
+                          label: "Vendas",
+                          totalSales: Number(salesData?.value ?? 0),
+                          netProfit: Number(profitData?.value ?? 0),
+                          color: "#7C4DFF",
+                        },
+                      ]}
+                    />
                   )
                 }
                 return null

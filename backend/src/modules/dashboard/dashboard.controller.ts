@@ -5,12 +5,14 @@ import { GetTopCategoriesUseCase } from './application/use-cases/get-top-categor
 import { GetTopBooksUseCase } from './application/use-cases/get-top-books.use-case';
 import { GetRecentTransactionsUseCase } from './application/use-cases/get-recent-transactions.use-case';
 import { GetBookAttributeValuesUseCase } from './application/use-cases/get-book-attribute-values.use-case';
+import { GetSalesComparisonUseCase } from './application/use-cases/get-sales-comparison.use-case';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { RequirePermission } from '../../common/decorators/require-permission.decorator';
 import {
   DashboardBookAttributeValuesQueryDto,
   DashboardFiltersQueryDto,
+  SalesComparisonQueryDto,
 } from './presentation/dtos/dashboard-filters-query.dto';
 
 @Controller('dashboard')
@@ -24,6 +26,7 @@ export class DashboardController {
     private readonly getTopBooksUseCase: GetTopBooksUseCase,
     private readonly getRecentTransactionsUseCase: GetRecentTransactionsUseCase,
     private readonly getBookAttributeValuesUseCase: GetBookAttributeValuesUseCase,
+    private readonly getSalesComparisonUseCase: GetSalesComparisonUseCase,
   ) {}
 
   @Get('kpis')
@@ -34,6 +37,11 @@ export class DashboardController {
   @Get('sales-trend')
   async getSalesTrend(@Query() query: DashboardFiltersQueryDto) {
     return this.getSalesTrendUseCase.execute(query);
+  }
+
+  @Get('sales-comparison')
+  async getSalesComparison(@Query() query: SalesComparisonQueryDto) {
+    return this.getSalesComparisonUseCase.execute(query);
   }
 
   @Get('top-categories')

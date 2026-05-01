@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import { ChartMetricTooltip } from "@/components/molecules/dashboard/chart-metric-tooltip"
 import { cn, formatCurrency } from "@/lib/utils"
 
 interface BookSalesData {
@@ -87,31 +88,17 @@ export function TopBooksChart({ data, className }: TopBooksChartProps) {
                     const row = payload[0].payload as BookSalesChartData
 
                     return (
-                      <div className="rounded-lg border border-border bg-popover/90 p-3 shadow-xl backdrop-blur-md">
-                        <p className="mb-1 text-xs font-semibold text-popover-foreground uppercase">
-                          {row.bookName}
-                        </p>
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs text-muted-foreground">Unidades:</span>
-                            <span className="text-xs font-mono font-bold">
-                              {row.quantitySold}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs text-muted-foreground">Faturamento:</span>
-                            <span className="text-xs font-mono font-bold text-[#7C4DFF]">
-                              {formatCurrency(row.totalSales)}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs text-muted-foreground">Lucro líquido:</span>
-                            <span className="text-xs font-mono font-bold text-emerald-500">
-                              {formatCurrency(row.netProfit)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <ChartMetricTooltip
+                        title={row.bookName}
+                        rows={[
+                          {
+                            label: row.bookName,
+                            quantity: row.quantitySold,
+                            totalSales: row.totalSales,
+                            netProfit: row.netProfit,
+                          },
+                        ]}
+                      />
                     )
                   }
                   return null

@@ -86,6 +86,49 @@ describe('dashboardApi', () => {
     ]);
   });
 
+  it('loads sales comparison with dimension and repeated group ids', async () => {
+    server.use(
+      http.get(`${API_URL}/dashboard/sales-comparison`, ({ request }) => {
+        const params = new URL(request.url).searchParams;
+
+        expect(params.get('dimension')).toBe('canalVenda');
+        expect(params.get('startDate')).toBe('2026-04-01');
+        expect(params.get('endDate')).toBe('2026-04-29');
+        expect(params.getAll('groupIds')).toEqual(['1', '2']);
+
+        return HttpResponse.json({
+          success: true,
+          data: [
+            {
+              date: '2026-04-01',
+              groupId: 1,
+              groupLabel: 'Loja fisica',
+              totalSales: 100,
+              netProfit: 35,
+            },
+          ],
+        });
+      }),
+    );
+
+    await expect(
+      dashboardApi.getSalesComparison({
+        dimension: 'canalVenda',
+        startDate: '2026-04-01',
+        endDate: '2026-04-29',
+        groupIds: [1, 2],
+      }),
+    ).resolves.toEqual([
+      {
+        date: '2026-04-01',
+        groupId: 1,
+        groupLabel: 'Loja fisica',
+        totalSales: 100,
+        netProfit: 35,
+      },
+    ]);
+  });
+
   it('loads values for the selected book attribute', async () => {
     server.use(
       http.get(`${API_URL}/dashboard/book-attribute-values`, ({ request }) => {

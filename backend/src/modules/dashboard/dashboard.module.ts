@@ -6,6 +6,7 @@ import { GetTopCategoriesUseCase } from './application/use-cases/get-top-categor
 import { GetTopBooksUseCase } from './application/use-cases/get-top-books.use-case';
 import { GetRecentTransactionsUseCase } from './application/use-cases/get-recent-transactions.use-case';
 import { GetBookAttributeValuesUseCase } from './application/use-cases/get-book-attribute-values.use-case';
+import { GetSalesComparisonUseCase } from './application/use-cases/get-sales-comparison.use-case';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaDashboardRepository } from './infrastructure/prisma-dashboard.repository';
 
@@ -19,6 +20,7 @@ import { PrismaDashboardRepository } from './infrastructure/prisma-dashboard.rep
     GetTopBooksUseCase,
     GetRecentTransactionsUseCase,
     GetBookAttributeValuesUseCase,
+    GetSalesComparisonUseCase,
     {
       provide: 'DashboardRepository',
       useClass: PrismaDashboardRepository,

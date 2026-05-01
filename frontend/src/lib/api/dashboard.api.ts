@@ -19,6 +19,21 @@ export interface SalesTrend {
   netProfit: number
 }
 
+export type SalesComparisonDimension = "canalVenda" | "formaPagamento"
+
+export interface SalesComparisonFilters extends DashboardFilters {
+  dimension: SalesComparisonDimension
+  groupIds?: number[]
+}
+
+export interface SalesComparisonData {
+  date: string
+  groupId: number
+  groupLabel: string
+  totalSales: number
+  netProfit: number
+}
+
 export interface BookSalesData {
   bookId: number
   bookName: string
@@ -46,6 +61,19 @@ export const dashboardApi = {
     const { data } = await client.get<SalesTrend[]>("/dashboard/sales-trend", {
       params: buildDashboardSearchParams(filters),
     })
+    return data
+  },
+  getSalesComparison: async (filters: SalesComparisonFilters) => {
+    const params = buildDashboardSearchParams(filters)
+    params.set("dimension", filters.dimension)
+    filters.groupIds
+      ?.filter((value) => Number.isInteger(value) && value > 0)
+      .forEach((value) => params.append("groupIds", String(value)))
+
+    const { data } = await client.get<SalesComparisonData[]>(
+      "/dashboard/sales-comparison",
+      { params },
+    )
     return data
   },
   getTopBooks: async (filters?: DashboardFilters) => {
