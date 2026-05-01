@@ -19,8 +19,10 @@ export interface SalesTrend {
   netProfit: number
 }
 
-export interface CategoryData {
-  category: string
+export interface BookSalesData {
+  bookId: number
+  bookName: string
+  quantitySold: number
   totalSales: number
   netProfit: number
 }
@@ -46,8 +48,8 @@ export const dashboardApi = {
     })
     return data
   },
-  getTopCategories: async (filters?: DashboardFilters) => {
-    const { data } = await client.get<CategoryData[]>("/dashboard/top-categories", {
+  getTopBooks: async (filters?: DashboardFilters) => {
+    const { data } = await client.get<BookSalesData[]>("/dashboard/top-books", {
       params: buildDashboardSearchParams(filters),
     })
     return data

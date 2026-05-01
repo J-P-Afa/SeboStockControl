@@ -43,6 +43,49 @@ describe('dashboardApi', () => {
     });
   });
 
+  it('loads top books with dashboard filters', async () => {
+    server.use(
+      http.get(`${API_URL}/dashboard/top-books`, ({ request }) => {
+        const params = new URL(request.url).searchParams;
+
+        expect(params.get('startDate')).toBe('2026-04-01');
+        expect(params.get('endDate')).toBe('2026-04-29');
+        expect(params.get('bookAttribute')).toBe('genreId');
+        expect(params.getAll('bookAttributeValues')).toEqual(['4']);
+
+        return HttpResponse.json({
+          success: true,
+          data: [
+            {
+              bookId: 1,
+              bookName: 'O Senhor dos Anéis',
+              quantitySold: 4,
+              totalSales: 200,
+              netProfit: 80,
+            },
+          ],
+        });
+      }),
+    );
+
+    await expect(
+      dashboardApi.getTopBooks({
+        startDate: '2026-04-01',
+        endDate: '2026-04-29',
+        bookAttribute: 'genreId',
+        bookAttributeValues: ['4'],
+      }),
+    ).resolves.toEqual([
+      {
+        bookId: 1,
+        bookName: 'O Senhor dos Anéis',
+        quantitySold: 4,
+        totalSales: 200,
+        netProfit: 80,
+      },
+    ]);
+  });
+
   it('loads values for the selected book attribute', async () => {
     server.use(
       http.get(`${API_URL}/dashboard/book-attribute-values`, ({ request }) => {

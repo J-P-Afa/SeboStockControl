@@ -11,6 +11,14 @@ export interface CategoryData {
   netProfit: number;
 }
 
+export interface BookSalesData {
+  bookId: number;
+  bookName: string;
+  quantitySold: number;
+  totalSales: number;
+  netProfit: number;
+}
+
 export interface RecentTransactionData {
   id: number;
   bookName: string;
@@ -55,6 +63,10 @@ export interface DashboardRepository {
     filters?: DashboardFilters,
     limit?: number,
   ): Promise<CategoryData[]>;
+  getTopBooks(
+    filters?: DashboardFilters,
+    limit?: number,
+  ): Promise<BookSalesData[]>;
   getRecentTransactions(
     filters?: DashboardFilters,
     limit?: number,

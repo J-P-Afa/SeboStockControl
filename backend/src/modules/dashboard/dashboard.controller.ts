@@ -2,6 +2,7 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { GetKPIsUseCase } from './application/use-cases/get-kpis.use-case';
 import { GetSalesTrendUseCase } from './application/use-cases/get-sales-trend.use-case';
 import { GetTopCategoriesUseCase } from './application/use-cases/get-top-categories.use-case';
+import { GetTopBooksUseCase } from './application/use-cases/get-top-books.use-case';
 import { GetRecentTransactionsUseCase } from './application/use-cases/get-recent-transactions.use-case';
 import { GetBookAttributeValuesUseCase } from './application/use-cases/get-book-attribute-values.use-case';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -20,6 +21,7 @@ export class DashboardController {
     private readonly getKPIsUseCase: GetKPIsUseCase,
     private readonly getSalesTrendUseCase: GetSalesTrendUseCase,
     private readonly getTopCategoriesUseCase: GetTopCategoriesUseCase,
+    private readonly getTopBooksUseCase: GetTopBooksUseCase,
     private readonly getRecentTransactionsUseCase: GetRecentTransactionsUseCase,
     private readonly getBookAttributeValuesUseCase: GetBookAttributeValuesUseCase,
   ) {}
@@ -37,6 +39,11 @@ export class DashboardController {
   @Get('top-categories')
   async getTopCategories(@Query() query: DashboardFiltersQueryDto) {
     return this.getTopCategoriesUseCase.execute(query);
+  }
+
+  @Get('top-books')
+  async getTopBooks(@Query() query: DashboardFiltersQueryDto) {
+    return this.getTopBooksUseCase.execute(query);
   }
 
   @Get('recent-transactions')

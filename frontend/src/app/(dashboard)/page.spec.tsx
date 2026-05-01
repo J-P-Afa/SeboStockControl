@@ -16,8 +16,8 @@ vi.mock('@/components/organisms/dashboard/sales-trend-chart', () => ({
   SalesTrendChart: () => <section>Tendência de Vendas</section>,
 }));
 
-vi.mock('@/components/organisms/dashboard/top-categories-chart', () => ({
-  TopCategoriesChart: () => <section>Categorias Mais Lucrativas</section>,
+vi.mock('@/components/organisms/dashboard/top-books-chart', () => ({
+  TopBooksChart: () => <section>Livros com Maior Faturamento</section>,
 }));
 
 vi.mock('@/components/organisms/dashboard/recent-transactions-table', () => ({
@@ -75,7 +75,7 @@ describe('DashboardPage', () => {
 
         return HttpResponse.json({ success: true, data: [] });
       }),
-      http.get(`${API_URL}/dashboard/top-categories`, ({ request }) => {
+      http.get(`${API_URL}/dashboard/top-books`, ({ request }) => {
         expectDefaultDateParams(request);
 
         return HttpResponse.json({ success: true, data: [] });
@@ -128,7 +128,7 @@ describe('DashboardPage', () => {
       http.get(`${API_URL}/dashboard/sales-trend`, () =>
         HttpResponse.json({ success: true, data: [] }),
       ),
-      http.get(`${API_URL}/dashboard/top-categories`, () =>
+      http.get(`${API_URL}/dashboard/top-books`, () =>
         HttpResponse.json({ success: true, data: [] }),
       ),
       http.get(`${API_URL}/dashboard/recent-transactions`, () =>
@@ -188,7 +188,7 @@ describe('DashboardPage', () => {
       http.get(`${API_URL}/dashboard/sales-trend`, () =>
         HttpResponse.json({ success: true, data: [] }),
       ),
-      http.get(`${API_URL}/dashboard/top-categories`, () =>
+      http.get(`${API_URL}/dashboard/top-books`, () =>
         HttpResponse.json({ success: true, data: [] }),
       ),
       http.get(`${API_URL}/dashboard/recent-transactions`, () =>

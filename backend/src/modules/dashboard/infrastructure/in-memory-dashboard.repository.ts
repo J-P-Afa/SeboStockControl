@@ -2,6 +2,7 @@ import {
   DashboardRepository,
   DashboardKPIs,
   CategoryData,
+  BookSalesData,
   RecentTransactionData,
   SalesTrendData,
   DashboardFilters,
@@ -17,6 +18,7 @@ export class InMemoryDashboardRepository implements DashboardRepository {
     ticketMedio: 0,
   };
   public categories: CategoryData[] = [];
+  public topBooks: BookSalesData[] = [];
   public transactions: RecentTransactionData[] = [];
   public trends: SalesTrendData[] = [];
   public bookAttributeValues: DashboardBookAttributeValue[] = [];
@@ -32,6 +34,14 @@ export class InMemoryDashboardRepository implements DashboardRepository {
   ): Promise<CategoryData[]> {
     void filters;
     return Promise.resolve(this.categories.slice(0, limit));
+  }
+
+  getTopBooks(
+    filters?: DashboardFilters,
+    limit?: number,
+  ): Promise<BookSalesData[]> {
+    void filters;
+    return Promise.resolve(this.topBooks.slice(0, limit));
   }
 
   getRecentTransactions(

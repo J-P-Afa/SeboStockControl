@@ -5,6 +5,7 @@ import {
   DashboardRepository,
   DashboardKPIs,
   CategoryData,
+  BookSalesData,
   RecentTransactionData,
   SalesTrendData,
   DashboardFilters,
@@ -21,6 +22,14 @@ interface RawKPIRow {
 
 interface RawCategoryData {
   category: string;
+  total_vendas: number;
+  lucro_liquido: number;
+}
+
+interface RawBookSalesData {
+  book_id: number;
+  book_name: string;
+  quantidade_vendida: number;
   total_vendas: number;
   lucro_liquido: number;
 }
@@ -203,6 +212,36 @@ export class PrismaDashboardRepository implements DashboardRepository {
 
     return result.map((row) => ({
       category: String(row.category),
+      totalSales: Number(row.total_vendas) || 0,
+      netProfit: Number(row.lucro_liquido) || 0,
+    }));
+  }
+
+  async getTopBooks(
+    filters: DashboardFilters = {},
+    limit = 5,
+  ): Promise<BookSalesData[]> {
+    const where = this.buildDashboardWhere(filters);
+    const result = await this.prisma.$queryRaw<RawBookSalesData[]>`
+      SELECT 
+        l.id AS book_id,
+        l.title AS book_name,
+        SUM(s.quantidade) AS quantidade_vendida,
+        SUM(s.valor_total) AS total_vendas,
+        SUM(s.lucro_venda) AS lucro_liquido
+      FROM saida s
+      INNER JOIN tipo_saida ts ON s.tipo_saida_id = ts.id
+      INNER JOIN books l ON s.book_id = l.id
+      ${where}
+      GROUP BY l.id, l.title
+      ORDER BY total_vendas DESC, quantidade_vendida DESC
+      LIMIT ${limit}
+    `;
+
+    return result.map((row) => ({
+      bookId: Number(row.book_id),
+      bookName: String(row.book_name),
+      quantitySold: Number(row.quantidade_vendida) || 0,
       totalSales: Number(row.total_vendas) || 0,
       netProfit: Number(row.lucro_liquido) || 0,
     }));

@@ -106,14 +106,20 @@ export const test = base.extend<{
         });
       }
 
-      if (path.endsWith('/api/dashboard/top-categories') && method === 'GET') {
+      if (path.endsWith('/api/dashboard/top-books') && method === 'GET') {
         return route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
             data: [
-              { category: 'Ficção', totalSales: 5000, netProfit: 1500 },
+              {
+                bookId: 1,
+                bookName: 'O Senhor dos Anéis',
+                quantitySold: 8,
+                totalSales: 1200,
+                netProfit: 360,
+              },
             ],
           }),
         });

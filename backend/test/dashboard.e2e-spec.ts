@@ -76,6 +76,16 @@ describe('Dashboard (e2e)', () => {
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 
+  it('/api/dashboard/top-books (GET) - should be accessible with correct permission', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/dashboard/top-books')
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
   it('/api/dashboard/recent-transactions (GET) - should be accessible with correct permission', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/dashboard/recent-transactions')

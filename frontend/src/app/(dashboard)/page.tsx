@@ -16,7 +16,7 @@ import {
 } from "@/components/molecules/select"
 import { RecentTransactionsTable } from "@/components/organisms/dashboard/recent-transactions-table"
 import { SalesTrendChart } from "@/components/organisms/dashboard/sales-trend-chart"
-import { TopCategoriesChart } from "@/components/organisms/dashboard/top-categories-chart"
+import { TopBooksChart } from "@/components/organisms/dashboard/top-books-chart"
 import {
   DASHBOARD_BOOK_ATTRIBUTE_OPTIONS,
   getDashboardBookAttributeLabel,
@@ -171,9 +171,9 @@ export default function DashboardPage() {
     placeholderData: keepPreviousData,
   })
 
-  const { data: topCategories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ["dashboard", "top-categories", filters],
-    queryFn: () => dashboardApi.getTopCategories(filters),
+  const { data: topBooks, isLoading: isLoadingTopBooks } = useQuery({
+    queryKey: ["dashboard", "top-books", filters],
+    queryFn: () => dashboardApi.getTopBooks(filters),
     placeholderData: keepPreviousData,
   })
 
@@ -183,7 +183,7 @@ export default function DashboardPage() {
     placeholderData: keepPreviousData,
   })
 
-  const isLoading = isLoadingKPIs || isLoadingTrend || isLoadingCategories || isLoadingTransactions
+  const isLoading = isLoadingKPIs || isLoadingTrend || isLoadingTopBooks || isLoadingTransactions
 
   const handleStartDateChange = (value: string) => {
     setStartDate(value)
@@ -348,7 +348,7 @@ export default function DashboardPage() {
       {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-7">
         <SalesTrendChart data={salesTrend ?? []} className="lg:col-span-4" />
-        <TopCategoriesChart data={topCategories ?? []} className="lg:col-span-3" />
+        <TopBooksChart data={topBooks ?? []} className="lg:col-span-3" />
       </div>
 
       {/* Recent Transactions */}
