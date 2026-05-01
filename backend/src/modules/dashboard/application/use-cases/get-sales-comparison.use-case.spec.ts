@@ -42,10 +42,7 @@ describe('GetSalesComparisonUseCase', () => {
       endDate: '2026-04-29',
       groupIds: [2, 3],
     };
-    const getSalesComparisonSpy = jest.spyOn(
-      repository,
-      'getSalesComparison',
-    );
+    const getSalesComparisonSpy = jest.spyOn(repository, 'getSalesComparison');
 
     await useCase.execute(filters);
 

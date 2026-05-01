@@ -19,7 +19,11 @@ export interface SalesTrend {
   netProfit: number
 }
 
-export type SalesComparisonDimension = "canalVenda" | "formaPagamento"
+export type SalesComparisonDimension =
+  | "canalVenda"
+  | "formaPagamento"
+  | "genreId"
+  | "languageId"
 
 export interface SalesComparisonFilters extends DashboardFilters {
   dimension: SalesComparisonDimension

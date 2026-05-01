@@ -10,6 +10,7 @@ import { Switch } from '@/components/atoms/switch';
 import { Input } from '@/components/atoms/input';
 
 import { LanguageTable } from '@/components/organisms/language-table';
+import { SalesComparisonDashboard } from '@/components/organisms/dashboard/sales-comparison-dashboard';
 import { LanguageFormDialog } from '@/components/molecules/language-form-dialog';
 import { DeleteConfirmDialog } from '@/components/molecules/delete-confirm-dialog';
 
@@ -52,6 +53,10 @@ export default function LanguagesPage() {
     sorting.length > 0 ? sortOrder : undefined,
     filters,
   );
+  const { data: dashboardLanguages, isLoading: isLoadingDashboardLanguages } =
+    useLanguages(1, 100, 'description', 'asc', undefined, {
+      staleTime: 5 * 60 * 1000,
+    });
 
   const createMutation = useCreateLanguage();
   const updateMutation = useUpdateLanguage();
@@ -107,7 +112,6 @@ export default function LanguagesPage() {
 
   async function handleFormSubmit(formData: LanguageFormData) {
     if (selectedLanguage) {
-      // Update: monta o payload manualmente
       const payload: UpdateLanguagePayload = {};
 
       if (formData.description)
@@ -121,13 +125,11 @@ export default function LanguagesPage() {
         payload,
       });
     } else {
-      // Create: envia só os campos que o backend espera
       await createMutation.mutateAsync({
         description: formData.description,
-        // não envia isActive se o backend não espera
-    });
+      });
+    }
   }
-}
 
   async function handleDeleteConfirm() {
     if (selectedLanguage) {
@@ -195,6 +197,18 @@ export default function LanguagesPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
+      />
+
+      <SalesComparisonDashboard
+        title="Comparativo de vendas por idioma"
+        description="Compare faturamento, lucro e margem líquida dos idiomas no período selecionado."
+        dimension="languageId"
+        options={(dashboardLanguages?.items ?? []).map((language) => ({
+          id: language.id,
+          label: language.description,
+          isActive: language.isActive,
+        }))}
+        isLoadingOptions={isLoadingDashboardLanguages}
       />
 
       <LanguageFormDialog

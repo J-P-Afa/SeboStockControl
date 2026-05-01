@@ -125,6 +125,16 @@ const SALES_COMPARISON_DIMENSION_SQL: Record<
     idColumn: Prisma.sql`fp.id`,
     labelColumn: Prisma.sql`fp.descricao`,
   },
+  genreId: {
+    join: Prisma.sql`INNER JOIN genres g ON l.genre_id = g.id`,
+    idColumn: Prisma.sql`g.id`,
+    labelColumn: Prisma.sql`g.description`,
+  },
+  languageId: {
+    join: Prisma.sql`INNER JOIN languages la ON l.language_id = la.id`,
+    idColumn: Prisma.sql`la.id`,
+    labelColumn: Prisma.sql`la.description`,
+  },
 };
 
 @Injectable()

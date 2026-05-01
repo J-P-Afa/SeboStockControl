@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { SortingState } from '@tanstack/react-table';
-import { Plus, X } from 'lucide-react';
+import { LibraryBig, Plus, X } from 'lucide-react';
 
 import { Button } from '@/components/atoms/button';
 import { Label } from '@/components/atoms/label';
@@ -10,6 +10,7 @@ import { Switch } from '@/components/atoms/switch';
 import { Input } from '@/components/atoms/input';
 
 import { GenreTable } from '@/components/organisms/genre-table';
+import { SalesComparisonDashboard } from '@/components/organisms/dashboard/sales-comparison-dashboard';
 import { GenreFormDialog } from '@/components/molecules/genre-form-dialog';
 import { DeleteConfirmDialog } from '@/components/molecules/delete-confirm-dialog';
 
@@ -56,6 +57,10 @@ export default function GenresPage() {
     sorting.length > 0 ? sortOrder : undefined,
     filters,
   );
+  const { data: dashboardGenres, isLoading: isLoadingDashboardGenres } =
+    useGenres(1, 100, 'description', 'asc', undefined, {
+      staleTime: 5 * 60 * 1000,
+    });
 
   const createMutation = useCreateGenre();
   const updateMutation = useUpdateGenre();
@@ -139,14 +144,16 @@ export default function GenresPage() {
     }
   }
 
-  console.log('DATA:', data);
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-            Gêneros
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+              Gêneros
+            </h1>
+            <LibraryBig className="h-6 w-6 text-primary" />
+          </div>
           <p className="text-muted-foreground/80 text-base">
             Gerencie os gêneros dos livros.
           </p>
@@ -196,6 +203,18 @@ export default function GenresPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
+      />
+
+      <SalesComparisonDashboard
+        title="Comparativo de vendas por gênero"
+        description="Compare faturamento, lucro e margem líquida dos gêneros no período selecionado."
+        dimension="genreId"
+        options={(dashboardGenres?.items ?? []).map((genre) => ({
+          id: genre.id,
+          label: genre.description,
+          isActive: genre.isActive,
+        }))}
+        isLoadingOptions={isLoadingDashboardGenres}
       />
 
       <GenreFormDialog

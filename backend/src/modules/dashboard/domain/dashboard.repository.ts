@@ -36,6 +36,8 @@ export interface SalesTrendData {
 export const SALES_COMPARISON_DIMENSIONS = [
   'canalVenda',
   'formaPagamento',
+  'genreId',
+  'languageId',
 ] as const;
 
 export type SalesComparisonDimension =

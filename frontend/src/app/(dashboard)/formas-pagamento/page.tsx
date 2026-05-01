@@ -11,6 +11,7 @@ import { Switch } from '@/components/atoms/switch';
 import { DeleteConfirmDialog } from '@/components/molecules/delete-confirm-dialog';
 import { FormaPagamentoFormDialog } from '@/components/molecules/forma-pagamento-form-dialog';
 import { FormasPagamentoTable } from '@/components/organisms/formas-pagamento-table';
+import { SalesComparisonDashboard } from '@/components/organisms/dashboard/sales-comparison-dashboard';
 import {
   useCreateFormaPagamento,
   useDeleteFormaPagamento,
@@ -231,6 +232,18 @@ export default function FormasPagamentoPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
+      />
+
+      <SalesComparisonDashboard
+        title="Comparativo de vendas por forma de pagamento"
+        description="Compare faturamento, lucro e margem líquida das formas de pagamento no período selecionado."
+        dimension="formaPagamento"
+        options={(data ?? []).map((formaPagamento) => ({
+          id: formaPagamento.id,
+          label: formaPagamento.descricao,
+          isActive: formaPagamento.isActive,
+        }))}
+        isLoadingOptions={isLoading}
       />
 
       <FormaPagamentoFormDialog

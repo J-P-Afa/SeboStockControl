@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, type TransformFnParams } from 'class-transformer';
 import {
   IsIn,
   IsInt,
@@ -42,8 +42,8 @@ export class DashboardFiltersQueryDto {
   endDate?: string;
 
   @IsOptional()
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() || undefined : value,
+  @Transform(({ value }: TransformFnParams): string | undefined =>
+    typeof value === 'string' ? value.trim() || undefined : undefined,
   )
   @IsString()
   search?: string;
