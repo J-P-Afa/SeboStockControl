@@ -24,18 +24,18 @@ const DEFAULT_PAGE_SIZE = 10;
 
 type SortableValue = string | number | boolean | null | undefined;
 
-function normalizeSearch(value: string) {
+export function normalizeSearch(value: string) {
   return value.trim().toLocaleLowerCase('pt-BR');
 }
 
-function toNumber(value: SortableValue) {
+export function toNumber(value: SortableValue) {
   const numericValue = typeof value === 'string' ? Number(value) : value;
   return typeof numericValue === 'number' && Number.isFinite(numericValue)
     ? numericValue
     : null;
 }
 
-function compareValues(a: SortableValue, b: SortableValue) {
+export function compareValues(a: SortableValue, b: SortableValue) {
   if (typeof a === 'boolean' || typeof b === 'boolean') {
     return Number(a) - Number(b);
   }

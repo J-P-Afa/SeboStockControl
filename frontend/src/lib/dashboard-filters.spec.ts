@@ -41,9 +41,30 @@ describe('dashboard filters', () => {
     expect(params.has('bookAttributeValues')).toBe(false);
   });
 
+  it('returns empty params when filters are omitted', () => {
+    const params = buildDashboardSearchParams();
+
+    expect(Array.from(params.entries())).toEqual([]);
+  });
+
+  it('omits optional dates and blank attribute values', () => {
+    const params = buildDashboardSearchParams({
+      bookAttribute: 'genreId',
+      bookAttributeValues: [' ', ''],
+    });
+
+    expect(params.has('startDate')).toBe(false);
+    expect(params.has('endDate')).toBe(false);
+    expect(params.has('bookAttribute')).toBe(false);
+    expect(params.has('bookAttributeValues')).toBe(false);
+  });
+
   it('maps book attribute field names to display labels', () => {
     expect(getDashboardBookAttributeLabel()).toBe('Sem atributo');
     expect(getDashboardBookAttributeLabel('genreId')).toBe('Gênero');
     expect(getDashboardBookAttributeLabel('publisherId')).toBe('Editora');
+    expect(getDashboardBookAttributeLabel('unknown' as never)).toBe(
+      'Sem atributo',
+    );
   });
 });

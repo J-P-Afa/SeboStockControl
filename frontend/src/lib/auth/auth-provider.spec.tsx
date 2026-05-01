@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AuthProvider } from './auth-provider';
+import { AuthProvider, parseJwtPayload } from './auth-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/lib/api/mocks/server';
@@ -120,5 +120,48 @@ describe('AuthProvider & useAuth', () => {
 
     // Cleanup
     vi.unstubAllGlobals();
+  });
+});
+
+describe('parseJwtPayload', () => {
+  it('parses permissions when present and defaults them when omitted', () => {
+    const tokenWithPermissions =
+      'header.' +
+      btoa(
+        JSON.stringify({
+          sub: '1',
+          email: 'admin@test.com',
+          role: 'ADMIN',
+          permissions: ['books:read'],
+        }),
+      ) +
+      '.signature';
+    const tokenWithoutPermissions =
+      'header.' +
+      btoa(
+        JSON.stringify({
+          sub: '2',
+          email: 'user@test.com',
+          role: 'USER',
+        }),
+      ) +
+      '.signature';
+
+    expect(parseJwtPayload(tokenWithPermissions)).toEqual({
+      id: '1',
+      email: 'admin@test.com',
+      role: 'ADMIN',
+      permissions: ['books:read'],
+    });
+    expect(parseJwtPayload(tokenWithoutPermissions)).toEqual({
+      id: '2',
+      email: 'user@test.com',
+      role: 'USER',
+      permissions: [],
+    });
+  });
+
+  it('returns null for malformed tokens', () => {
+    expect(parseJwtPayload('not-a-jwt')).toBeNull();
   });
 });

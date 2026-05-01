@@ -19,7 +19,7 @@ interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-function parseJwtPayload(token: string): AuthUser | null {
+export function parseJwtPayload(token: string): AuthUser | null {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
