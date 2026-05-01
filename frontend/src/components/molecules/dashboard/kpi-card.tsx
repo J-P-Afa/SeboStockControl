@@ -31,7 +31,7 @@ export function KPICard({
       : value.toLocaleString("pt-BR")
 
   return (
-    <Card className={cn("relative overflow-hidden border-none bg-surface-container shadow-sm transition-all hover:bg-surface-bright", className)}>
+    <Card className={cn("relative overflow-hidden border-none bg-card shadow-sm transition-all hover:bg-accent", className)}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}

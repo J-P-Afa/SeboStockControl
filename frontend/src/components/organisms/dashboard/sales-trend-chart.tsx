@@ -25,9 +25,9 @@ interface SalesTrendChartProps {
 
 export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
   return (
-    <Card className={cn("bg-surface-container border-none shadow-sm", className)}>
+    <Card className={cn("bg-card border-none shadow-sm", className)}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold tracking-tight">
+        <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
           Tendência de Vendas
         </CardTitle>
       </CardHeader>
@@ -47,13 +47,13 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="#2c2c2c"
+              stroke="var(--border)"
             />
             <XAxis
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#666", fontSize: 12 }}
+              tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
               tickFormatter={(date) =>
                 new Date(date).toLocaleDateString("pt-BR", { day: "numeric", month: "short" })
               }
@@ -62,7 +62,7 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#666", fontSize: 12 }}
+              tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
               tickFormatter={(value) => `R$ ${value}`}
             />
             <Tooltip
@@ -72,7 +72,7 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
                   const profitData = payload.find((p) => p.dataKey === "netProfit")
 
                   return (
-                    <div className="rounded-lg border border-neutral-800 bg-surface-container-highest p-3 shadow-xl backdrop-blur-md">
+                    <div className="rounded-lg border border-border bg-popover/90 p-3 shadow-xl backdrop-blur-md">
                       <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
                         {label ? new Date(label).toLocaleDateString("pt-BR", {
                           day: "numeric",
@@ -82,20 +82,20 @@ export function SalesTrendChart({ data, className }: SalesTrendChartProps) {
                       </p>
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center justify-between gap-4">
-                          <span className="flex items-center gap-2 text-xs text-white">
+                          <span className="flex items-center gap-2 text-xs text-popover-foreground">
                             <span className="h-2 w-2 rounded-full bg-[#7C4DFF]" />
                             Vendas
                           </span>
-                          <span className="text-xs font-mono font-bold text-white">
+                          <span className="text-xs font-mono font-bold text-popover-foreground">
                             {formatCurrency(Number(salesData?.value ?? 0))}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                          <span className="flex items-center gap-2 text-xs text-white">
+                          <span className="flex items-center gap-2 text-xs text-popover-foreground">
                             <span className="h-2 w-2 rounded-full bg-[#00BFA5]" />
                             Lucro
                           </span>
-                          <span className="text-xs font-mono font-bold text-white">
+                          <span className="text-xs font-mono font-bold text-popover-foreground">
                             {formatCurrency(Number(profitData?.value ?? 0))}
                           </span>
                         </div>

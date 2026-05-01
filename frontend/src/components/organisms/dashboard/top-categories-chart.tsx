@@ -25,9 +25,9 @@ const COLORS = ["#7C4DFF", "#00BFA5", "#3D5AFE", "#FF4081", "#FFD740"]
 
 export function TopCategoriesChart({ data, className }: TopCategoriesChartProps) {
   return (
-    <Card className={cn("bg-surface-container border-none shadow-sm", className)}>
+    <Card className={cn("bg-card border-none shadow-sm", className)}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold tracking-tight">
+        <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
           Categorias Mais Lucrativas
         </CardTitle>
       </CardHeader>
@@ -49,8 +49,8 @@ export function TopCategoriesChart({ data, className }: TopCategoriesChartProps)
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="rounded-lg border border-neutral-800 bg-surface-container-highest p-3 shadow-xl backdrop-blur-md">
-                      <p className="mb-1 text-xs font-semibold text-white uppercase">
+                    <div className="rounded-lg border border-border bg-popover/90 p-3 shadow-xl backdrop-blur-md">
+                      <p className="mb-1 text-xs font-semibold text-popover-foreground uppercase">
                         {payload[0].name}
                       </p>
                       <div className="flex flex-col gap-1">

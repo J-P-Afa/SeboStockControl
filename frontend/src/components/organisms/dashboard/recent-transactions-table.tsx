@@ -30,17 +30,17 @@ export function RecentTransactionsTable({
   className,
 }: RecentTransactionsTableProps) {
   return (
-    <Card className={cn("bg-surface-container border-none shadow-sm", className)}>
+    <Card className={cn("bg-card border-none shadow-sm", className)}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold tracking-tight">
+        <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
           Últimas Transações
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border border-neutral-800/20">
+        <div className="rounded-md border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-neutral-800/20 hover:bg-transparent">
+              <TableRow className="border-border hover:bg-transparent">
                 <TableHead className="font-semibold text-muted-foreground w-[40%]">Livro</TableHead>
                 <TableHead className="font-semibold text-muted-foreground">Data</TableHead>
                 <TableHead className="font-semibold text-muted-foreground text-right">Valor Total</TableHead>
@@ -56,7 +56,7 @@ export function RecentTransactionsTable({
                 </TableRow>
               ) : (
                 transactions.map((tx) => (
-                  <TableRow key={tx.id} className="border-neutral-800/20 hover:bg-neutral-800/10">
+                  <TableRow key={tx.id} className="border-border hover:bg-accent/50">
                     <TableCell className="font-medium">{tx.bookName}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(tx.date).toLocaleDateString("pt-BR")}
