@@ -22,6 +22,7 @@ export interface BookProps {
   pages?: number | null;
   synopsis?: string | null;
   dimensions?: string | null;
+  coverUrl?: string | null;
   weight: Prisma.Decimal;
   publisherId?: number | null;
   languageId?: number | null;
@@ -138,6 +139,9 @@ export class BookEntity {
   }
   get dimensions(): string | null | undefined {
     return this.props.dimensions;
+  }
+  get coverUrl(): string | null | undefined {
+    return this.props.coverUrl;
   }
   get weight(): Prisma.Decimal {
     return this.props.weight;

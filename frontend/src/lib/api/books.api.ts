@@ -8,6 +8,16 @@ import type {
 } from '@/types';
 import { apiClient } from './client';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
+
+export function resolveBookCoverUrl(coverUrl?: string | null): string | null {
+  if (!coverUrl) return null;
+  if (/^https?:\/\//i.test(coverUrl)) return coverUrl;
+
+  const apiOrigin = API_URL.replace(/\/api\/?$/, '');
+  return `${apiOrigin}${coverUrl.startsWith('/') ? coverUrl : `/${coverUrl}`}`;
+}
+
 export async function lookupExternalBook(isbn: string): Promise<ExternalBook | null> {
   const { data } = await apiClient.get<ExternalBook | null>(`/books/external-lookup/${isbn}`);
   return data;
@@ -57,6 +67,31 @@ export async function updateBook(
   payload: UpdateBookPayload,
 ): Promise<Book> {
   const { data } = await apiClient.patch<Book>(`/books/${id}`, payload);
+  return data;
+}
+
+export async function importBookCover(
+  id: number,
+  sourceUrl: string,
+): Promise<Book> {
+  const { data } = await apiClient.post<Book>(`/books/${id}/cover/import`, {
+    sourceUrl,
+  });
+  return data;
+}
+
+export async function uploadBookCover(id: number, file: File): Promise<Book> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const { data } = await apiClient.post<Book>(`/books/${id}/cover`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
+export async function removeBookCover(id: number): Promise<Book> {
+  const { data } = await apiClient.delete<Book>(`/books/${id}/cover`);
   return data;
 }
 

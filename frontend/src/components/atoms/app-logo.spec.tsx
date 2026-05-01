@@ -30,6 +30,12 @@ describe('AppLogo', () => {
     expect(logo.className).toMatch(/h-56/);
   });
 
+  it('eagerly loads the logo because it appears above the fold', () => {
+    render(<AppLogo />);
+    const image = screen.getByRole('presentation');
+    expect(image).toHaveAttribute('loading', 'eager');
+  });
+
   it('applies custom className', () => {
     render(<AppLogo className="my-custom-class" />);
     const logo = screen.getByRole('img', { name: /sebo alfa/i });

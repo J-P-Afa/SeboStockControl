@@ -52,7 +52,7 @@ export function AppLogo({
         alt=""
         width={1200}
         height={1200}
-        priority={size === 'lg'}
+        loading="eager"
         className={cn(
           'object-contain',
           isMark ? classes.mark : classes.image,

@@ -2,7 +2,9 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import type { SortingState } from '@tanstack/react-table';
+import { useQueryClient } from '@tanstack/react-query';
 import { Plus, X, BookOpen } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Label } from '@/components/atoms/label';
@@ -11,11 +13,17 @@ import { BooksTable } from '@/components/organisms/books-table';
 import { BookFormDialog, type BookFormData } from '@/components/molecules/book-form-dialog';
 import { DeleteConfirmDialog } from '@/components/molecules/delete-confirm-dialog';
 import { useBooks, useCreateBook, useUpdateBook, useDeleteBook } from '@/hooks/use-books';
+import {
+  importBookCover,
+  removeBookCover,
+  uploadBookCover,
+} from '@/lib/api/books.api';
 import type { Book, CreateBookPayload, UpdateBookPayload, ListBooksFilters } from '@/types';
 
 const DEFAULT_PAGE_SIZE = 10;
 
 export default function BooksPage() {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -107,13 +115,27 @@ export default function BooksPage() {
       dimensions: formData.dimensions,
     };
 
+    let savedBook: Book;
     if (selectedBook) {
-      await updateMutation.mutateAsync({ 
+      savedBook = await updateMutation.mutateAsync({ 
         id: selectedBook.id, 
         payload: commonPayload as UpdateBookPayload 
       });
     } else {
-      await createMutation.mutateAsync(commonPayload as CreateBookPayload);
+      savedBook = await createMutation.mutateAsync(commonPayload as CreateBookPayload);
+    }
+
+    try {
+      if (formData.coverFile) {
+        await uploadBookCover(savedBook.id, formData.coverFile);
+      } else if (formData.externalCoverUrl) {
+        await importBookCover(savedBook.id, formData.externalCoverUrl);
+      } else if (formData.removeCover && savedBook.coverUrl) {
+        await removeBookCover(savedBook.id);
+      }
+      await queryClient.invalidateQueries({ queryKey: ['books'] });
+    } catch {
+      toast.error('Livro salvo, mas não foi possível salvar a capa');
     }
 
     setFormOpen(false);

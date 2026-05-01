@@ -10,6 +10,7 @@ import { OpenBDService } from './infrastructure/openbd.service';
 import { GoogleBooksService } from './infrastructure/google-books.service';
 import { BrasilApiService } from './infrastructure/brasil-api.service';
 import { CompositeExternalBookService } from './infrastructure/composite-external-book.service';
+import { BookCoverStorageService } from './infrastructure/book-cover-storage.service';
 import { BOOK_REPOSITORY } from './domain/book.repository.interface';
 import { EXTERNAL_BOOK_SERVICE } from './domain/external-book-service.interface';
 import {
@@ -46,6 +47,7 @@ import {
     ListBooksUseCase,
     GetBookByIsbnUseCase,
     LookupExternalBookUseCase,
+    BookCoverStorageService,
   ],
   exports: [BOOK_REPOSITORY],
 })

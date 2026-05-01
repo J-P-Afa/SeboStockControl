@@ -41,7 +41,7 @@ import { BookFormDialog, type BookFormData } from '@/components/molecules/book-f
 import { DateField } from '@/components/molecules/date-field';
 import { useTiposEntrada } from '@/hooks/use-tipos-entrada';
 import { bulkCreateEntrada, getLastCost, getBookStock, createBook, getErrorMessage } from '@/lib/api';
-import { lookupExternalBook } from '@/lib/api/books.api';
+import { importBookCover, lookupExternalBook, uploadBookCover } from '@/lib/api/books.api';
 import { formatCurrency } from '@/lib/formatters';
 import { Condition, type Book, type ExternalBook, type CreateBookPayload } from '@/types';
 import { apiClient } from '@/lib/api/client';
@@ -290,12 +290,22 @@ export default function EntradasPage() {
 
   const handleNewBookSubmit = async (formData: BookFormData) => {
     try {
-      const book = await createBook({
+      let book = await createBook({
         ...formData,
         publisherId: formData.publisherId ? Number(formData.publisherId) : undefined,
         languageId: formData.languageId ? Number(formData.languageId) : undefined,
         genreId: formData.genreId ? Number(formData.genreId) : undefined,
       } as CreateBookPayload);
+
+      try {
+        if (formData.coverFile) {
+          book = await uploadBookCover(book.id, formData.coverFile);
+        } else if (formData.externalCoverUrl) {
+          book = await importBookCover(book.id, formData.externalCoverUrl);
+        }
+      } catch {
+        toast.error('Livro cadastrado, mas não foi possível salvar a capa');
+      }
       
       setBookFormOpen(false);
       if (book) {

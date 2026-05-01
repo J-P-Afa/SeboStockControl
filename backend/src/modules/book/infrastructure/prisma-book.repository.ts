@@ -111,6 +111,7 @@ export class PrismaBookRepository implements IBookRepository {
       pages: prisma.pages,
       synopsis: prisma.synopsis,
       dimensions: prisma.dimensions,
+      coverUrl: prisma.coverUrl,
       weight: prisma.weight,
       publisherId: prisma.publisherId,
       languageId: prisma.languageId,
@@ -270,6 +271,7 @@ export class PrismaBookRepository implements IBookRepository {
           pages: data.pages,
           synopsis: data.synopsis,
           dimensions: data.dimensions,
+          coverUrl: data.coverUrl,
           weight: data.weight,
           publisherId:
             data.publisherId && data.publisherId > 0

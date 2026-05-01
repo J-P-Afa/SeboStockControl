@@ -72,6 +72,10 @@ export class UpdateBookDto {
   dimensions?: string;
 
   @IsOptional()
+  @IsString()
+  coverUrl?: string | null;
+
+  @IsOptional()
   @IsNumber()
   @Min(0)
   weight?: number;

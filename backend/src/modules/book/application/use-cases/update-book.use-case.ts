@@ -34,6 +34,7 @@ export class UpdateBookUseCase {
       pages: book.pages,
       synopsis: book.synopsis,
       dimensions: book.dimensions,
+      coverUrl: book.coverUrl,
       weight: book.weight,
       publisherId: book.publisherId,
       languageId: book.languageId,

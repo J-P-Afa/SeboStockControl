@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ImageIcon, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
 import { MoreHorizontal } from 'lucide-react';
 import { SortableHeader } from '@/components/molecules/data-table';
 import { formatCurrency } from '@/lib/formatters';
+import { resolveBookCoverUrl } from '@/lib/api/books.api';
 import type { Book } from '@/types';
 import { Badge } from '@/components/atoms/badge';
 
@@ -28,11 +29,25 @@ export function getBooksTableColumns({
       header: ({ column }) => (
         <SortableHeader column={column}>Título</SortableHeader>
       ),
-      cell: ({ row }) => (
-        <div className="flex flex-col">
+      cell: ({ row }) => {
+        const coverUrl = resolveBookCoverUrl(row.original.coverUrl);
+
+        return (
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-8 shrink-0 overflow-hidden rounded border border-border bg-muted">
+            {coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                <ImageIcon className="h-4 w-4" />
+              </div>
+            )}
+          </div>
           <span className="font-medium">{row.original.title}</span>
         </div>
-      )
+        );
+      }
     },
     {
       accessorKey: 'volume',

@@ -18,6 +18,10 @@ export {
   listBooks,
   createBook,
   updateBook,
+  importBookCover,
+  uploadBookCover,
+  removeBookCover,
+  resolveBookCoverUrl,
   deleteBook,
 } from './books.api';
 export {

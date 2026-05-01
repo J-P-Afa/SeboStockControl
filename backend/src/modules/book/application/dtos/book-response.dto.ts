@@ -18,6 +18,7 @@ export class BookResponseDto {
   pages: number | null | undefined;
   synopsis: string | null | undefined;
   dimensions: string | null | undefined;
+  coverUrl: string | null | undefined;
   weight: Prisma.Decimal;
   publisherId: number | null | undefined;
   languageId: number | null | undefined;
@@ -48,6 +49,7 @@ export class BookResponseDto {
     dto.pages = entity.pages;
     dto.synopsis = entity.synopsis;
     dto.dimensions = entity.dimensions;
+    dto.coverUrl = entity.coverUrl;
     dto.weight = entity.weight;
     dto.publisherId = entity.publisherId;
     dto.languageId = entity.languageId;

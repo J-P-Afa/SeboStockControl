@@ -103,6 +103,7 @@ model Book {
   pages           Int?
   synopsis        String?     @db.VarChar(1000)
   dimensions      String?     @db.VarChar(50)
+  coverUrl        String?     @map("cover_url") @db.VarChar(500)
   weight          Decimal     @db.Decimal(8, 2)
 
   publisher   Publisher? @relation(fields: [publisherId], references: [id])

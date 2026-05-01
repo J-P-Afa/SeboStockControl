@@ -10,7 +10,10 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateBookUseCase,
   UpdateBookUseCase,
@@ -24,9 +27,14 @@ import {
   CreateBookDto,
   UpdateBookDto,
   ListBooksQueryDto,
+  ImportBookCoverDto,
 } from '../application/dtos';
 import { Condition } from '@prisma/client';
 import { Result, RequirePermission } from '../../../common';
+import {
+  BookCoverStorageService,
+  type UploadedCoverFile,
+} from '../infrastructure/book-cover-storage.service';
 
 @Controller('books')
 export class BookController {
@@ -38,6 +46,7 @@ export class BookController {
     private readonly listBooksUseCase: ListBooksUseCase,
     private readonly getBookByIsbnUseCase: GetBookByIsbnUseCase,
     private readonly lookupExternalBookUseCase: LookupExternalBookUseCase,
+    private readonly bookCoverStorageService: BookCoverStorageService,
   ) {}
 
   @Post()
@@ -80,6 +89,41 @@ export class BookController {
   @RequirePermission('book:read')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.getBookUseCase.execute(id);
+  }
+
+  @Post(':id/cover/import')
+  @RequirePermission('book:update')
+  async importCover(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ImportBookCoverDto,
+  ) {
+    const book = await this.bookCoverStorageService.importCover(
+      id,
+      dto.sourceUrl,
+    );
+    return Result.ok(book);
+  }
+
+  @Post(':id/cover')
+  @RequirePermission('book:update')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadCover(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: UploadedCoverFile,
+  ) {
+    const book = await this.bookCoverStorageService.uploadCover(id, file);
+    return Result.ok(book);
+  }
+
+  @Delete(':id/cover')
+  @RequirePermission('book:update')
+  async removeCover(@Param('id', ParseIntPipe) id: number) {
+    const book = await this.bookCoverStorageService.removeCover(id);
+    return Result.ok(book);
   }
 
   @Patch(':id')

@@ -14,6 +14,7 @@ export interface Book {
   pages?: number | null;
   synopsis?: string | null;
   dimensions?: string | null;
+  coverUrl?: string | null;
   weight: number;
   publisherId?: number | null;
   languageId?: number | null;
@@ -59,6 +60,7 @@ export interface CreateBookPayload {
   pages?: number | null;
   synopsis?: string | null;
   dimensions?: string | null;
+  coverUrl?: string | null;
   weight: number;
   publisherId?: number | null;
   languageId?: number | null;

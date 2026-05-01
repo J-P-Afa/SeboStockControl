@@ -66,6 +66,10 @@ export class CreateBookDto {
   @IsString()
   dimensions?: string;
 
+  @IsOptional()
+  @IsString()
+  coverUrl?: string;
+
   @IsNumber()
   @Min(0)
   weight: number;

@@ -184,6 +184,7 @@ export class InMemoryBookRepository implements IBookRepository {
       isActive: data.isActive ?? true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      coverUrl: data.coverUrl ?? null,
       stock: 0,
       stockUnitCost: null,
       stockTotalCost: null,

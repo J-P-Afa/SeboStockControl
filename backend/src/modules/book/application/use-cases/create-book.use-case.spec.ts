@@ -58,6 +58,24 @@ describe('CreateBookUseCase', () => {
     expect(bookRepository.items[0].isbn13).toBe(dto.isbn13);
   });
 
+  it('should preserve coverUrl in the response when provided by the repository', async () => {
+    const dto = getBaseDto();
+
+    jest
+      .spyOn(bookRepository, 'create')
+      .mockImplementationOnce(async (data) => {
+        return bookRepository.create({
+          ...data,
+          coverUrl: '/uploads/book-covers/1/cover.webp',
+        } as CreateBookParams);
+      });
+
+    const result = await useCase.execute(dto);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.coverUrl).toBe('/uploads/book-covers/1/cover.webp');
+  });
+
   it('should create successfully when ISBN exists for a DIFFERENT condition (Edge case)', async () => {
     // Arrange: Adiciona no repositório um livro USADO
     await bookRepository.create({

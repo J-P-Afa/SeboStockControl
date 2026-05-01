@@ -18,6 +18,7 @@ import {
   UpdateBookDto,
 } from '../application/dtos';
 import { ExternalBookLookupDto } from '../application/dtos/external-book-lookup.dto';
+import { BookCoverStorageService } from '../infrastructure/book-cover-storage.service';
 
 describe('BookController', () => {
   let controller: BookController;
@@ -28,6 +29,7 @@ describe('BookController', () => {
   let listBooksUseCase: MockProxy<ListBooksUseCase>;
   let getBookByIsbnUseCase: MockProxy<GetBookByIsbnUseCase>;
   let lookupExternalBookUseCase: MockProxy<LookupExternalBookUseCase>;
+  let bookCoverStorageService: MockProxy<BookCoverStorageService>;
 
   const mockBookDto = {
     id: 1,
@@ -42,6 +44,7 @@ describe('BookController', () => {
     listBooksUseCase = mockDeep<ListBooksUseCase>();
     getBookByIsbnUseCase = mockDeep<GetBookByIsbnUseCase>();
     lookupExternalBookUseCase = mockDeep<LookupExternalBookUseCase>();
+    bookCoverStorageService = mockDeep<BookCoverStorageService>();
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BookController],
@@ -56,6 +59,7 @@ describe('BookController', () => {
           provide: LookupExternalBookUseCase,
           useValue: lookupExternalBookUseCase,
         },
+        { provide: BookCoverStorageService, useValue: bookCoverStorageService },
       ],
     }).compile();
 
@@ -229,6 +233,57 @@ describe('BookController', () => {
       const response = await controller.findOne(1);
       expect(response.success).toBe(false);
       expect(response.error?.code).toBe('NF');
+    });
+  });
+
+  describe('cover', () => {
+    it('should import a cover and return the updated book', async () => {
+      const bookWithCover = {
+        ...mockBookDto,
+        coverUrl: '/uploads/book-covers/1/cover.png',
+      } as BookResponseDto;
+      bookCoverStorageService.importCover.mockResolvedValue(bookWithCover);
+
+      const response = await controller.importCover(1, {
+        sourceUrl: 'https://example.com/cover.png',
+      });
+
+      expect(response).toStrictEqual({ success: true, data: bookWithCover });
+      expect(bookCoverStorageService.importCover).toHaveBeenCalledWith(
+        1,
+        'https://example.com/cover.png',
+      );
+    });
+
+    it('should upload a cover and return the updated book', async () => {
+      const bookWithCover = {
+        ...mockBookDto,
+        coverUrl: '/uploads/book-covers/1/cover.webp',
+      } as BookResponseDto;
+      const file = {
+        buffer: Buffer.from('image'),
+        mimetype: 'image/webp',
+        size: 5,
+      };
+      bookCoverStorageService.uploadCover.mockResolvedValue(bookWithCover);
+
+      const response = await controller.uploadCover(1, file);
+
+      expect(response).toStrictEqual({ success: true, data: bookWithCover });
+      expect(bookCoverStorageService.uploadCover).toHaveBeenCalledWith(1, file);
+    });
+
+    it('should remove a cover and return the updated book', async () => {
+      const bookWithoutCover = {
+        ...mockBookDto,
+        coverUrl: null,
+      } as BookResponseDto;
+      bookCoverStorageService.removeCover.mockResolvedValue(bookWithoutCover);
+
+      const response = await controller.removeCover(1);
+
+      expect(response).toStrictEqual({ success: true, data: bookWithoutCover });
+      expect(bookCoverStorageService.removeCover).toHaveBeenCalledWith(1);
     });
   });
 
