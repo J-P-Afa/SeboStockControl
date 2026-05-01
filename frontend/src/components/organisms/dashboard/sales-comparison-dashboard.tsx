@@ -456,14 +456,14 @@ export function SalesComparisonDashboard({
         </div>
       ) : (
         <div className="grid gap-6 grid-cols-1">
-          <Card className="border-none bg-card shadow-sm">
+          <Card className="border-none bg-card shadow-sm overflow-visible">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
                 <BarChart3 className="h-5 w-5 text-secondary" />
                 Faturamento e margem
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex min-h-[320px] w-full flex-col pt-2">
+            <CardContent className="flex min-h-[360px] w-full flex-col pt-2">
               <div className="min-h-0 flex-1">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -487,7 +487,7 @@ export function SalesComparisonDashboard({
                     <YAxis
                       type="category"
                       dataKey="groupLabel"
-                      width={112}
+                      width={120}
                       tickFormatter={(value) =>
                         String(value).length > 22
                           ? `${String(value).slice(0, 22)}...`
@@ -521,7 +521,7 @@ export function SalesComparisonDashboard({
                       name="Lucro líquido"
                       stackId="income"
                       fill={PROFIT_COLOR}
-                      barSize={10}
+                      barSize={12}
                       radius={[4, 0, 0, 4]}
                     />
                     <Bar
@@ -529,7 +529,7 @@ export function SalesComparisonDashboard({
                       name="Faturamento restante"
                       stackId="income"
                       fill={INCOME_COLOR}
-                      barSize={10}
+                      barSize={12}
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
@@ -571,14 +571,14 @@ export function SalesComparisonDashboard({
             </CardContent>
           </Card>
 
-          <Card className="border-none bg-card shadow-sm">
+          <Card className="border-none bg-card shadow-sm overflow-visible">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
                 <LineChartIcon className="h-5 w-5 text-primary" />
                 Faturamento por dia
               </CardTitle>
             </CardHeader>
-            <CardContent className="h-[320px] w-full pt-4">
+            <CardContent className="h-[360px] w-full pt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendRows} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
                   <CartesianGrid
@@ -601,9 +601,10 @@ export function SalesComparisonDashboard({
                     tickFormatter={(value) => formatCurrency(Number(value))}
                   />
                   <Tooltip
+                    trigger="axis"
                     content={({ active, payload, label }) => {
                       if (!active || !payload?.length) return null
-                      const row = payload[0].payload as Record<string, number>
+                      const row = payload[0].payload as Record<string, string | number>
 
                       return (
                         <ChartMetricTooltip
@@ -636,6 +637,7 @@ export function SalesComparisonDashboard({
                       strokeWidth={2}
                       dot={false}
                       activeDot={{ r: 4 }}
+                      connectNulls
                     />
                   ))}
                 </LineChart>
