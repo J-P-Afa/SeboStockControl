@@ -546,13 +546,16 @@ export function SalesComparisonDashboard({
                 </div>
               </div>
               {hasDisplayedGroups ? (
-                <div className="mt-3 grid grid-cols-1 gap-2">
+                <div className="mt-4 grid grid-cols-1 gap-2.5 max-w-[320px]">
                   {summaries.map((summary) => (
-                    <div key={summary.groupId} className="flex min-w-0 items-center gap-2">
-                      <span className="truncate text-xs text-muted-foreground">
+                    <div
+                      key={summary.groupId}
+                      className="group flex items-center justify-between gap-4"
+                    >
+                      <span className="truncate text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                         {summary.groupLabel}
                       </span>
-                      <span className="ml-auto shrink-0 font-mono text-xs font-medium">
+                      <span className="shrink-0 font-mono text-[11px] font-bold text-foreground bg-secondary/10 px-2 py-0.5 rounded-md border border-secondary/20">
                         {formatPercent(
                           calculateNetMarginPercent(
                             summary.totalSales,
