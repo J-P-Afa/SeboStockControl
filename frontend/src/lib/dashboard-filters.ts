@@ -14,6 +14,7 @@ export type DashboardBookAttribute =
 export interface DashboardFilters {
   startDate?: string;
   endDate?: string;
+  search?: string;
   bookAttribute?: DashboardBookAttribute;
   bookAttributeValues?: string[];
 }
@@ -75,6 +76,7 @@ export function buildDashboardSearchParams(
 
   if (filters.startDate) params.set('startDate', filters.startDate);
   if (filters.endDate) params.set('endDate', filters.endDate);
+  if (filters.search?.trim()) params.set('search', filters.search.trim());
 
   const values =
     filters.bookAttributeValues?.filter((value) => value.trim().length > 0) ??

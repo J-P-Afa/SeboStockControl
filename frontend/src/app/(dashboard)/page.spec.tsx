@@ -101,6 +101,58 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Atributo')).toBeInTheDocument();
     expect(screen.getByText('Sem atributo')).toBeInTheDocument();
     expect(screen.getByText('Valores')).toBeInTheDocument();
+    expect(screen.getByLabelText('Buscar')).toHaveAttribute(
+      'placeholder',
+      'Descrição ou ISBN',
+    );
+  });
+
+  it('requests dashboard data filtered by description or ISBN search', async () => {
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime,
+      pointerEventsCheck: 0,
+    });
+    let kpisRequests = 0;
+    let lastKpisSearch: string | null = null;
+
+    server.use(
+      http.get(`${API_URL}/dashboard/kpis`, ({ request }) => {
+        kpisRequests += 1;
+        lastKpisSearch = new URL(request.url).searchParams.get('search');
+
+        return HttpResponse.json({
+          success: true,
+          data: {
+            totalVendas: 100,
+            lucroLiquido: 40,
+            margemLucro: 40,
+            ticketMedio: 50,
+          },
+        });
+      }),
+      http.get(`${API_URL}/dashboard/sales-trend`, () =>
+        HttpResponse.json({ success: true, data: [] }),
+      ),
+      http.get(`${API_URL}/dashboard/top-books`, () =>
+        HttpResponse.json({ success: true, data: [] }),
+      ),
+      http.get(`${API_URL}/dashboard/recent-transactions`, () =>
+        HttpResponse.json({ success: true, data: [] }),
+      ),
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Vendas Totais')).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByLabelText('Buscar'), '9788535913033');
+
+    await waitFor(() => {
+      expect(kpisRequests).toBeGreaterThan(1);
+      expect(lastKpisSearch).toBe('9788535913033');
+    });
   });
 
   it('does not reload dashboard data when only the attribute changes', async () => {

@@ -45,6 +45,7 @@ describe('GetKPIsUseCase', () => {
     const filters = {
       startDate: '2026-04-01',
       endDate: '2026-04-29',
+      search: 'Duna',
       bookAttribute: 'publisherId' as const,
       bookAttributeValues: ['2', '3'],
     };

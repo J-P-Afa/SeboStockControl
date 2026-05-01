@@ -19,12 +19,14 @@ describe('dashboard filters', () => {
     const params = buildDashboardSearchParams({
       startDate: '2026-04-01',
       endDate: '2026-04-29',
+      search: ' 9788535913033 ',
       bookAttribute: 'publisherId',
       bookAttributeValues: ['2', '3'],
     });
 
     expect(params.get('startDate')).toBe('2026-04-01');
     expect(params.get('endDate')).toBe('2026-04-29');
+    expect(params.get('search')).toBe('9788535913033');
     expect(params.get('bookAttribute')).toBe('publisherId');
     expect(params.getAll('bookAttributeValues')).toEqual(['2', '3']);
   });

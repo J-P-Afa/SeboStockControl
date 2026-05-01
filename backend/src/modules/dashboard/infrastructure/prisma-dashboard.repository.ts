@@ -123,6 +123,18 @@ export class PrismaDashboardRepository implements DashboardRepository {
       );
     }
 
+    const searchTerm = filters.search?.trim();
+    if (searchTerm) {
+      const searchPattern = `%${searchTerm}%`;
+      clauses.push(
+        Prisma.sql`(
+          l.title ILIKE ${searchPattern}
+          OR l.isbn13 ILIKE ${searchPattern}
+          OR l.isbn10 ILIKE ${searchPattern}
+        )`,
+      );
+    }
+
     const bookAttributeClause = this.buildBookAttributeClause(filters);
     if (bookAttributeClause) {
       clauses.push(bookAttributeClause);

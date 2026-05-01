@@ -48,6 +48,7 @@ export type DashboardBookAttribute = (typeof DASHBOARD_BOOK_ATTRIBUTES)[number];
 export interface DashboardFilters {
   startDate?: string;
   endDate?: string;
+  search?: string;
   bookAttribute?: DashboardBookAttribute;
   bookAttributeValues?: string[];
 }

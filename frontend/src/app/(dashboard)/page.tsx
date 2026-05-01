@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { Button } from "@/components/atoms/button"
 import { Checkbox } from "@/components/atoms/checkbox"
+import { Input } from "@/components/atoms/input"
 import { Label } from "@/components/atoms/label"
 import { KPICard } from "@/components/molecules/dashboard/kpi-card"
 import { DateField } from "@/components/molecules/date-field"
@@ -69,7 +70,7 @@ function DashboardValuePicker({
   }
 
   return (
-    <div className="flex min-w-[14rem] flex-1 flex-col gap-1.5">
+    <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[14rem]">
       <Label className="text-xs font-semibold uppercase text-muted-foreground">
         {label}
       </Label>
@@ -134,6 +135,7 @@ export default function DashboardPage() {
   const defaultDateRange = useMemo(() => getDefaultDashboardDateRange(), [])
   const [startDate, setStartDate] = useState(defaultDateRange.startDate)
   const [endDate, setEndDate] = useState(defaultDateRange.endDate)
+  const [search, setSearch] = useState("")
   const [bookAttribute, setBookAttribute] = useState<DashboardBookAttribute | null>(null)
   const [bookAttributeValues, setBookAttributeValues] = useState<string[]>([])
 
@@ -141,6 +143,7 @@ export default function DashboardPage() {
     () => ({
       startDate,
       endDate,
+      search: search.trim() || undefined,
       bookAttribute:
         bookAttribute && bookAttributeValues.length > 0
           ? bookAttribute
@@ -150,7 +153,7 @@ export default function DashboardPage() {
           ? bookAttributeValues
           : undefined,
     }),
-    [bookAttribute, bookAttributeValues, endDate, startDate],
+    [bookAttribute, bookAttributeValues, endDate, search, startDate],
   )
 
   const { data: attributeValues = [], isFetching: isLoadingAttributeValues } = useQuery({
@@ -208,6 +211,7 @@ export default function DashboardPage() {
     const range = getDefaultDashboardDateRange()
     setStartDate(range.startDate)
     setEndDate(range.endDate)
+    setSearch("")
     setBookAttribute(null)
     setBookAttributeValues([])
   }
@@ -231,8 +235,8 @@ export default function DashboardPage() {
 
       <section className="relative overflow-hidden rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm">
         <div className="absolute left-0 top-0 h-full w-1 bg-primary" aria-hidden="true" />
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-          <div className="flex min-w-[18rem] flex-col gap-1.5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+          <div className="flex min-w-0 flex-col gap-1.5 lg:flex-[1_1_18rem]">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               Período
             </Label>
@@ -262,7 +266,20 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex min-w-[13rem] flex-1 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1.5 sm:min-w-[14rem] lg:flex-[1_1_14rem]">
+            <Label htmlFor="dashboard-book-search" className="text-xs font-semibold uppercase text-muted-foreground">
+              Buscar
+            </Label>
+            <Input
+              id="dashboard-book-search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Descrição ou ISBN"
+              className="h-11 bg-background/50"
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-1.5 sm:min-w-[13rem] lg:flex-[1_1_13rem]">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               Atributo
             </Label>
@@ -298,7 +315,7 @@ export default function DashboardPage() {
           <Button
             type="button"
             variant="outline"
-            className="h-11 shrink-0"
+            className="h-11 shrink-0 lg:flex-[0_0_auto]"
             onClick={handleResetFilters}
           >
             <RotateCcw className="h-4 w-4" />
@@ -306,7 +323,7 @@ export default function DashboardPage() {
           </Button>
 
           <div
-            className="hidden items-center gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs font-medium text-muted-foreground xl:flex"
+            className="hidden items-center gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs font-medium text-muted-foreground 2xl:flex"
             aria-hidden="true"
           >
             <CalendarRange className="h-4 w-4 text-primary" />

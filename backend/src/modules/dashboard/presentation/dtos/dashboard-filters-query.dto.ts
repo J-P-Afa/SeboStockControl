@@ -24,6 +24,13 @@ export class DashboardFiltersQueryDto {
   endDate?: string;
 
   @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() || undefined : value,
+  )
+  @IsString()
+  search?: string;
+
+  @IsOptional()
   @IsIn(DASHBOARD_BOOK_ATTRIBUTES)
   bookAttribute?: (typeof DASHBOARD_BOOK_ATTRIBUTES)[number];
 
