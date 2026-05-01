@@ -14,6 +14,8 @@ type BookWithEstoque = Book & {
   estoque?: { quantidade: number; custoMedio: Prisma.Decimal } | null;
 };
 
+type StockSortField = 'stock' | 'stockUnitCost' | 'stockTotalCost';
+
 /**
  * @ai-context Implementação do repositório usando Prisma.
  * A criação do Estoque (RULE [LIV-01]) é feita via transação atômica neste repositório.
@@ -21,6 +23,80 @@ type BookWithEstoque = Book & {
 @Injectable()
 export class PrismaBookRepository implements IBookRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  private isStockSortField(sortBy?: string): sortBy is StockSortField {
+    return (
+      sortBy === 'stock' ||
+      sortBy === 'stockUnitCost' ||
+      sortBy === 'stockTotalCost'
+    );
+  }
+
+  private buildBookOrderBy(
+    sortBy?: string,
+    sortOrder?: 'asc' | 'desc',
+  ): Prisma.BookOrderByWithRelationInput {
+    const order = sortOrder ?? 'asc';
+
+    switch (sortBy) {
+      case 'id':
+      case 'title':
+      case 'isbn13':
+      case 'isbn10':
+      case 'condition':
+      case 'listPrice':
+      case 'editionType':
+      case 'volume':
+      case 'status':
+      case 'publicationYear':
+      case 'pages':
+      case 'weight':
+      case 'createdAt':
+      case 'updatedAt':
+        return { [sortBy]: order };
+      default:
+        return { title: 'asc' };
+    }
+  }
+
+  private getStockSortValue(book: BookWithEstoque, sortBy: StockSortField) {
+    if (sortBy === 'stock') return book.estoque?.quantidade ?? null;
+    if (sortBy === 'stockUnitCost') return book.estoque?.custoMedio ?? null;
+
+    return book.estoque
+      ? book.estoque.custoMedio.mul(book.estoque.quantidade)
+      : null;
+  }
+
+  private sortByStockField(
+    books: BookWithEstoque[],
+    sortBy: StockSortField,
+    sortOrder?: 'asc' | 'desc',
+  ): BookWithEstoque[] {
+    const order = sortOrder === 'desc' ? -1 : 1;
+
+    return [...books].sort((a, b) => {
+      const valA = this.getStockSortValue(a, sortBy);
+      const valB = this.getStockSortValue(b, sortBy);
+
+      if (valA === valB) return a.title.localeCompare(b.title);
+      if (valA === null || valA === undefined) return 1;
+      if (valB === null || valB === undefined) return -1;
+
+      const normA =
+        typeof valA === 'object' && 'toNumber' in valA
+          ? valA.toNumber()
+          : valA;
+      const normB =
+        typeof valB === 'object' && 'toNumber' in valB
+          ? valB.toNumber()
+          : valB;
+
+      if (normA < normB) return -1 * order;
+      if (normA > normB) return 1 * order;
+      return a.title.localeCompare(b.title);
+    });
+  }
 
   private toEntity(prisma: BookWithEstoque): BookEntity {
     const props: BookProps = {
@@ -129,19 +205,30 @@ export class PrismaBookRepository implements IBookRepository {
     const skip =
       filters?.page && filters?.limit ? (filters.page - 1) * filters.limit : 0;
     const take = filters?.limit ?? undefined;
+    const stockSortField = this.isStockSortField(filters?.sortBy)
+      ? filters.sortBy
+      : undefined;
 
     const books = await this.prisma.book.findMany({
       where,
       include: { estoque: { select: { quantidade: true, custoMedio: true } } },
-      orderBy: filters?.sortBy
-        ? { [filters.sortBy]: filters.sortOrder ?? 'asc' }
-        : { title: 'asc' },
-      skip,
-      take,
+      orderBy: stockSortField
+        ? { title: 'asc' }
+        : this.buildBookOrderBy(filters?.sortBy, filters?.sortOrder),
+      skip: stockSortField ? undefined : skip,
+      take: stockSortField ? undefined : take,
     });
 
+    const paginatedBooks = stockSortField
+      ? this.sortByStockField(
+          books,
+          stockSortField,
+          filters?.sortOrder,
+        ).slice(skip, take ? skip + take : undefined)
+      : books;
+
     return {
-      items: books.map((book) => this.toEntity(book)),
+      items: paginatedBooks.map((book) => this.toEntity(book)),
       total,
     };
   }

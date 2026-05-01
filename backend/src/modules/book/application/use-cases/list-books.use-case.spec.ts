@@ -157,6 +157,49 @@ describe('ListBooksUseCase', () => {
     expect(result.data?.items[0].stockTotalCost?.toString()).toBe('37.5');
   });
 
+  it('should sort books by stock unit cost and stock total cost', async () => {
+    const cheapHighVolume = await bookRepository.create({
+      ...mockBookData,
+      title: 'Custo unitario menor',
+    });
+    const expensiveLowVolume = await bookRepository.create({
+      ...mockBookData,
+      title: 'Custo total menor',
+    });
+
+    const cheapStoredBook = bookRepository.items.find(
+      (b) => b.id === cheapHighVolume.id,
+    );
+    const expensiveStoredBook = bookRepository.items.find(
+      (b) => b.id === expensiveLowVolume.id,
+    );
+
+    (cheapStoredBook as any).props.stock = 10;
+    (cheapStoredBook as any).props.stockUnitCost = new Prisma.Decimal('5');
+    (expensiveStoredBook as any).props.stock = 2;
+    (expensiveStoredBook as any).props.stockUnitCost = new Prisma.Decimal('20');
+
+    const byUnitCost = await useCase.execute({
+      sortBy: 'stockUnitCost',
+      sortOrder: 'asc',
+    });
+    const byTotalCost = await useCase.execute({
+      sortBy: 'stockTotalCost',
+      sortOrder: 'asc',
+    });
+
+    expect(byUnitCost.success).toBe(true);
+    expect(byUnitCost.data?.items.map((item) => item.title)).toEqual([
+      'Custo unitario menor',
+      'Custo total menor',
+    ]);
+    expect(byTotalCost.success).toBe(true);
+    expect(byTotalCost.data?.items.map((item) => item.title)).toEqual([
+      'Custo total menor',
+      'Custo unitario menor',
+    ]);
+  });
+
   it('should handle generic errors from repository gracefully', async () => {
     // Arrange: provocando um erro na infraestrutura
     jest

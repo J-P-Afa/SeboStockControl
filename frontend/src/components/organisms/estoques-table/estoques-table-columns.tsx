@@ -1,9 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, History, Edit } from 'lucide-react';
+import { History, Edit } from 'lucide-react';
 import type { Book } from '@/types';
 import { Condition } from '@/types';
 import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
+import { SortableHeader } from '@/components/molecules/data-table';
 import { formatCurrency } from '@/lib/formatters';
 
 interface GetColumnsParams {
@@ -25,14 +26,7 @@ export function getEstoquesTableColumns({
     {
       accessorKey: 'title',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="hover:bg-transparent px-0 font-semibold"
-        >
-          Descrição
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <SortableHeader column={column}>Descrição</SortableHeader>
       ),
       cell: ({ row }) => (
         <div className="flex flex-col">
@@ -53,7 +47,9 @@ export function getEstoquesTableColumns({
     },
     {
       accessorKey: 'condition',
-      header: 'Condição',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Condição</SortableHeader>
+      ),
       cell: ({ row }) => {
         const cond = row.original.condition;
         return (
@@ -67,14 +63,7 @@ export function getEstoquesTableColumns({
     {
       accessorKey: 'stock',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="hover:bg-transparent px-0 font-semibold"
-        >
-          Estoque
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <SortableHeader column={column}>Estoque</SortableHeader>
       ),
       cell: ({ row }) => {
         const stock = row.original.stock ?? 0;
@@ -88,7 +77,9 @@ export function getEstoquesTableColumns({
     },
     {
       accessorKey: 'stockUnitCost',
-      header: 'Custo Unit.',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Custo Unit.</SortableHeader>
+      ),
       cell: ({ row }) => {
         const price = Number(row.original.stockUnitCost ?? 0);
         return <span className="font-mono text-sm">{formatCurrency(price)}</span>;
@@ -96,13 +87,15 @@ export function getEstoquesTableColumns({
       enableSorting: true,
     },
     {
-      id: 'totalPrice',
-      header: 'Custo Total',
+      accessorKey: 'stockTotalCost',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Custo Total</SortableHeader>
+      ),
       cell: ({ row }) => {
         const totalCost = Number(row.original.stockTotalCost ?? 0);
         return <span className="font-mono text-sm font-semibold">{formatCurrency(totalCost)}</span>;
       },
-      enableSorting: false,
+      enableSorting: true,
     },
     {
       id: 'actions',
