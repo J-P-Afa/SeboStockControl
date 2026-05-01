@@ -498,6 +498,7 @@ export function SalesComparisonDashboard({
                       tickLine={false}
                     />
                     <Tooltip
+                      cursor={{ fill: "rgba(255, 255, 255, 0.1)", radius: 4 }}
                       content={({ active, payload }) => {
                         if (!active || !payload?.length) return null
                         const row = payload[0].payload as GroupSummary
