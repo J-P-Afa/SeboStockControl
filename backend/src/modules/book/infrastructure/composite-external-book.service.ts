@@ -32,15 +32,34 @@ export class CompositeExternalBookService implements IExternalBookService {
 
   async lookupByIsbn(isbn: string): Promise<ExternalBookLookupDto | null> {
     const cleanIsbn = isbn.replace(/[^0-9X]/gi, '');
+    let primaryResult: ExternalBookLookupDto | null = null;
 
     for (const service of this.services) {
       try {
         const result = await service.lookupByIsbn(cleanIsbn);
-        if (result) {
+        if (!result) {
+          continue;
+        }
+
+        if (!primaryResult) {
+          primaryResult = result;
           this.logger.debug(
             `Book ${cleanIsbn} found using ${service.constructor.name}`,
           );
-          return result;
+          if (primaryResult.coverUrl) {
+            return primaryResult;
+          }
+          continue;
+        }
+
+        if (!primaryResult.coverUrl && result.coverUrl) {
+          this.logger.debug(
+            `Cover for ${cleanIsbn} found using ${service.constructor.name}`,
+          );
+          return {
+            ...primaryResult,
+            coverUrl: result.coverUrl,
+          };
         }
       } catch (error) {
         this.logger.error(
@@ -48,6 +67,10 @@ export class CompositeExternalBookService implements IExternalBookService {
           error,
         );
       }
+    }
+
+    if (primaryResult) {
+      return primaryResult;
     }
 
     this.logger.debug(`Book ${cleanIsbn} not found in any external service`);
