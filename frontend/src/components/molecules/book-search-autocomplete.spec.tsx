@@ -51,6 +51,13 @@ function mockUseBooksResult(items: Book[]) {
   } as unknown as ReturnType<typeof useBooks>);
 }
 
+function mockUseBooksLoading() {
+  vi.mocked(useBooks).mockReturnValue({
+    data: undefined,
+    isLoading: true,
+  } as unknown as ReturnType<typeof useBooks>);
+}
+
 describe('BookSearchAutocomplete', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -130,5 +137,60 @@ describe('BookSearchAutocomplete', () => {
 
     expect(input).toHaveValue('');
     expect(onClear).toHaveBeenCalled();
+  });
+
+  it('submits the current term with Enter when no suggestion is highlighted', async () => {
+    mockUseBooksResult([]);
+
+    const onSubmitSearch = vi.fn();
+    const user = userEvent.setup();
+    renderComponent({ onSubmitSearch });
+
+    const input = screen.getByRole('combobox');
+    await user.type(input, '6555943785{enter}');
+
+    expect(onSubmitSearch).toHaveBeenCalledWith('6555943785');
+  });
+
+  it('renders loading state and disables input while submitting', async () => {
+    mockUseBooksLoading();
+
+    const user = userEvent.setup();
+    renderComponent({ isSubmitting: true });
+
+    const input = screen.getByRole('combobox');
+    expect(input).toBeDisabled();
+
+    renderComponent({ isSubmitting: false });
+    const enabledInput = screen.getAllByRole('combobox')[1];
+    await user.type(enabledInput, 'Busca');
+
+    expect(screen.getByText('Buscando...')).toBeInTheDocument();
+  });
+
+  it('renders used books, missing ISBN, and missing volume fallbacks', async () => {
+    const usedBook: Book = {
+      ...mockBook,
+      id: 2,
+      title: 'Livro Usado',
+      isbn10: null,
+      isbn13: null,
+      condition: Condition.USADO,
+      volume: null,
+    };
+    mockUseBooksResult([usedBook]);
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByRole('combobox'), 'Usado');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(Condition.USADO)).toHaveClass('bg-amber-100');
+    expect(screen.getByText('ISBN: -')).toBeInTheDocument();
+    expect(screen.getByText('Volume: -')).toBeInTheDocument();
   });
 });
