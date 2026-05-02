@@ -91,6 +91,48 @@ describe('GoogleBooksService', () => {
     );
   });
 
+  it('should not include placeholder API key in URL', async () => {
+    const isbn = '6525925436';
+    configService.get.mockReturnValue('your-google-books-api-key-here');
+    const serviceWithPlaceholderKey = new GoogleBooksService(configService);
+
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ totalItems: 0 }),
+    });
+
+    await serviceWithPlaceholderKey.lookupByIsbn(isbn);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.not.stringContaining('key='),
+      expect.any(Object),
+    );
+  });
+
+  it('should warn and return null on invalid API key error', async () => {
+    const isbn = '6525925436';
+    const warnSpy = jest.spyOn(Logger.prototype, 'warn');
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request',
+      json: jest.fn().mockResolvedValue({
+        error: {
+          message: 'API key not valid. Please pass a valid API key.',
+          status: 'INVALID_ARGUMENT',
+          details: [{ reason: 'API_KEY_INVALID' }],
+        },
+      }),
+    });
+
+    const result = await service.lookupByIsbn(isbn);
+
+    expect(result).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('API key is invalid'),
+    );
+  });
+
   it('should warn and return null on 429 error', async () => {
     // Arrange
     const isbn = '6525916100';

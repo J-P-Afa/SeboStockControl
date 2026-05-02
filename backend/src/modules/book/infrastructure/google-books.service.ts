@@ -11,7 +11,9 @@ export class GoogleBooksService implements IExternalBookService {
   private readonly apiKey: string | undefined;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('GOOGLE_BOOKS_API_KEY');
+    this.apiKey = this.normalizeApiKey(
+      this.configService.get<string>('GOOGLE_BOOKS_API_KEY'),
+    );
   }
 
   async lookupByIsbn(isbn: string): Promise<ExternalBookLookupDto | null> {
@@ -22,7 +24,7 @@ export class GoogleBooksService implements IExternalBookService {
       const cleanIsbn = isbn.replace(/[^0-9X]/gi, '');
       let url = `${this.apiUrl}?q=isbn:${cleanIsbn}`;
       if (this.apiKey) {
-        url += `&key=${this.apiKey}`;
+        url += `&key=${encodeURIComponent(this.apiKey)}`;
       }
 
       const response = await fetch(url, {
@@ -40,6 +42,13 @@ export class GoogleBooksService implements IExternalBookService {
         } else if (response.status === 403) {
           this.logger.warn(
             `Google Books API Forbidden (403). Check if GOOGLE_BOOKS_API_KEY is valid and has "Books API" enabled in Google Cloud Console.`,
+          );
+        } else if (
+          response.status === 400 &&
+          (await this.isInvalidApiKeyResponse(response))
+        ) {
+          this.logger.warn(
+            'Google Books API key is invalid. Check GOOGLE_BOOKS_API_KEY or remove it to use unauthenticated lookup.',
           );
         } else {
           this.logger.error(
@@ -69,6 +78,31 @@ export class GoogleBooksService implements IExternalBookService {
       return null;
     } finally {
       clearTimeout(timeout);
+    }
+  }
+
+  private normalizeApiKey(value: string | undefined): string | undefined {
+    const key = value?.trim();
+    if (!key || key === 'your-google-books-api-key-here') {
+      return undefined;
+    }
+    return key;
+  }
+
+  private async isInvalidApiKeyResponse(response: Response): Promise<boolean> {
+    try {
+      const bodyResponse =
+        typeof response.clone === 'function' ? response.clone() : response;
+      const data = (await bodyResponse.json()) as GoogleBooksErrorResponse;
+      return (
+        data.error?.message?.includes('API key not valid') ||
+        data.error?.details?.some(
+          (detail) => detail.reason === 'API_KEY_INVALID',
+        ) ||
+        false
+      );
+    } catch {
+      return false;
     }
   }
 
@@ -163,4 +197,13 @@ interface GoogleBookItem {
 interface GoogleBooksResponse {
   items?: GoogleBookItem[];
   totalItems: number;
+}
+
+interface GoogleBooksErrorResponse {
+  error?: {
+    message?: string;
+    details?: Array<{
+      reason?: string;
+    }>;
+  };
 }
