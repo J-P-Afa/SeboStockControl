@@ -104,13 +104,14 @@ export function BookSearchAutocomplete({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && highlightedIndex < 0 && onSubmitSearch) {
         e.preventDefault();
+        setOpen(false);
         onSubmitSearch(inputValue);
         return;
       }
 
       handleKeyDown(e);
     },
-    [handleKeyDown, highlightedIndex, inputValue, onSubmitSearch]
+    [handleKeyDown, highlightedIndex, inputValue, onSubmitSearch, setOpen]
   );
 
   const showDropdown = open && inputValue.length >= 2;

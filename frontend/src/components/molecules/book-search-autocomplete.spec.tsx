@@ -152,6 +152,27 @@ describe('BookSearchAutocomplete', () => {
     expect(onSubmitSearch).toHaveBeenCalledWith('6555943785');
   });
 
+  it('closes suggestions after submitting the current term with Enter', async () => {
+    mockUseBooksResult([mockBook]);
+
+    const onSubmitSearch = vi.fn();
+    const user = userEvent.setup();
+    renderComponent({ onSubmitSearch });
+
+    const input = screen.getByRole('combobox');
+    await user.type(input, '658362723X');
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+
+    await user.keyboard('{enter}');
+
+    expect(onSubmitSearch).toHaveBeenCalledWith('658362723X');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('renders loading state and disables input while submitting', async () => {
     mockUseBooksLoading();
 
