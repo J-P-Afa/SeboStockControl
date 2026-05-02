@@ -5,7 +5,7 @@ import {
   useCallback,
   useEffect,
 } from 'react';
-import { Search, X, Plus } from 'lucide-react';
+import { Loader2, Search, X, Plus } from 'lucide-react';
 import { Input } from '@/components/atoms/input';
 import { Button } from '@/components/atoms/button';
 import { useBooks } from '@/hooks/use-books';
@@ -23,6 +23,8 @@ interface BookSearchAutocompleteProps {
   onSelect: (book: Book) => void;
   onClear: () => void;
   onAddNew?: () => void;
+  onSubmitSearch?: (term: string) => void;
+  isSubmitting?: boolean;
   placeholder?: string;
   className?: string;
 }
@@ -33,6 +35,8 @@ export function BookSearchAutocomplete({
   onSelect,
   onClear,
   onAddNew,
+  onSubmitSearch,
+  isSubmitting = false,
   placeholder = "Buscar por ISBN ou título...",
   className,
 }: BookSearchAutocompleteProps) {
@@ -96,6 +100,19 @@ export function BookSearchAutocomplete({
     onClear();
   }, [onClear, setOpen]);
 
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && highlightedIndex < 0 && onSubmitSearch) {
+        e.preventDefault();
+        onSubmitSearch(inputValue);
+        return;
+      }
+
+      handleKeyDown(e);
+    },
+    [handleKeyDown, highlightedIndex, inputValue, onSubmitSearch]
+  );
+
   const showDropdown = open && inputValue.length >= 2;
 
   return (
@@ -106,14 +123,17 @@ export function BookSearchAutocomplete({
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => inputValue.length >= 2 && setOpen(true)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
+          disabled={isSubmitting}
           className="pl-8 pr-8 h-10"
           role="combobox"
           aria-expanded={showDropdown}
           aria-autocomplete="list"
         />
-        {inputValue && (
+        {isSubmitting ? (
+          <Loader2 className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+        ) : inputValue && (
           <button
             type="button"
             onClick={handleClear}

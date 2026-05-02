@@ -27,8 +27,51 @@ vi.mock('@/lib/api', async () => {
 });
 
 vi.mock('@/components/molecules/book-form-dialog', () => ({
-  BookFormDialog: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="Cadastrar Livro" /> : null,
+  BookFormDialog: ({
+    open,
+    onSubmit,
+  }: {
+    open: boolean;
+    onSubmit: (data: {
+      title: string;
+      isbn10: string;
+      editionType: EditionType;
+      condition: Condition;
+      status: Status;
+      weight: number;
+      publisherId: string;
+      languageId: string;
+      genreId: string;
+      coverFile: File | null;
+      externalCoverUrl: string | null;
+      removeCover: boolean;
+    }) => Promise<void>;
+  }) =>
+    open ? (
+      <div role="dialog" aria-label="Cadastrar Livro">
+        <button
+          type="button"
+          onClick={() =>
+            void onSubmit({
+              title: 'Livro sem Capa',
+              isbn10: '1234567890',
+              editionType: EditionType.NORMAL,
+              condition: Condition.NOVO,
+              status: Status.COMPLETO,
+              weight: 300,
+              publisherId: '',
+              languageId: '',
+              genreId: '',
+              coverFile: null,
+              externalCoverUrl: null,
+              removeCover: false,
+            })
+          }
+        >
+          Salvar livro mock
+        </button>
+      </div>
+    ) : null,
 }));
 
 vi.mock('sonner', () => ({
@@ -90,11 +133,12 @@ describe('EntradasPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.type(screen.getByPlaceholderText('ISBN10 ou ISBN13'), '6555943785{enter}');
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '6555943785{enter}');
 
     await waitFor(() => {
       expect(screen.getByText('Livro Existente')).toBeInTheDocument();
     });
+    expect(screen.getByRole('spinbutton', { name: 'Quantidade' })).toHaveFocus();
     expect(screen.queryByRole('dialog', { name: 'Cadastrar Livro' })).not.toBeInTheDocument();
   });
 
@@ -111,7 +155,91 @@ describe('EntradasPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.type(screen.getByPlaceholderText('ISBN10 ou ISBN13'), '1234567890{enter}');
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '1234567890{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Cadastrar Livro' })).toBeInTheDocument();
+    });
+  });
+
+  it('does not send cover-only form fields when creating a book without cover', async () => {
+    server.use(
+      http.get(`${API_URL}/books/isbn/1234567890`, () =>
+        HttpResponse.json(null, { status: 404 }),
+      ),
+      http.get(`${API_URL}/books/external-lookup/1234567890`, () =>
+        HttpResponse.json(null),
+      ),
+    );
+
+    const api = await import('@/lib/api');
+    vi.mocked(api.createBook).mockResolvedValue({
+      id: 50,
+      title: 'Livro sem Capa',
+      isbn10: '1234567890',
+      isbn13: null,
+      condition: Condition.NOVO,
+      editionType: EditionType.NORMAL,
+      status: Status.COMPLETO,
+      listPrice: null,
+      weight: 300,
+      publisherId: null,
+      languageId: null,
+      genreId: null,
+      isActive: true,
+      createdAt: '2026-04-28T00:00:00.000Z',
+      updatedAt: '2026-04-28T00:00:00.000Z',
+    });
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '1234567890{enter}');
+    await user.click(await screen.findByRole('button', { name: 'Salvar livro mock' }));
+
+    await waitFor(() => {
+      expect(api.createBook).toHaveBeenCalled();
+    });
+    const payload = vi.mocked(api.createBook).mock.calls[0][0];
+    expect(payload).not.toHaveProperty('coverFile');
+    expect(payload).not.toHaveProperty('externalCoverUrl');
+    expect(payload).not.toHaveProperty('removeCover');
+  });
+
+  it('preserves ISBN-10 check digit X when opening the creation dialog', async () => {
+    server.use(
+      http.get(`${API_URL}/books/isbn/655594076X`, () =>
+        HttpResponse.json(null, { status: 404 }),
+      ),
+      http.get(`${API_URL}/books/external-lookup/655594076X`, () =>
+        HttpResponse.json(null),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '655594076X{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Cadastrar Livro' })).toBeInTheDocument();
+    });
+  });
+
+  it('normalizes lowercase ISBN-10 check digit X', async () => {
+    server.use(
+      http.get(`${API_URL}/books/isbn/655594076X`, () =>
+        HttpResponse.json(null, { status: 404 }),
+      ),
+      http.get(`${API_URL}/books/external-lookup/655594076X`, () =>
+        HttpResponse.json(null),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '655594076x{enter}');
 
     await waitFor(() => {
       expect(screen.getByRole('dialog', { name: 'Cadastrar Livro' })).toBeInTheDocument();
@@ -149,7 +277,7 @@ describe('EntradasPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.type(screen.getByPlaceholderText('ISBN10 ou ISBN13'), '1234567890{enter}');
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '1234567890{enter}');
 
     await waitFor(() => {
       expect(screen.getByText('Livro de Teste')).toBeInTheDocument();
@@ -171,14 +299,12 @@ describe('EntradasPage', () => {
     });
   });
 
-  it('switches to manual mode and clears inputs', async () => {
-    const user = userEvent.setup();
+  it('uses a single ISBN and title search field', async () => {
     renderPage();
 
-    await user.click(screen.getByRole('button', { name: /manual/i }));
-    
-    await waitFor(() => {
-      expect(screen.getByText('Pesquisa Inteligente')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Livro (ISBN ou título)')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('ISBN10, ISBN13 ou título')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /manual/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /leitor/i })).not.toBeInTheDocument();
   });
 });

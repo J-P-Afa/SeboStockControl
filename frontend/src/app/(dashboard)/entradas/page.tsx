@@ -1,17 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { 
   PackagePlus, 
   Trash2, 
   Edit2, 
   Plus, 
-  Search,
-  Barcode,
   Info,
   Save,
-  Eraser,
-  Loader2
+  Eraser
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -71,7 +68,6 @@ export default function EntradasPage() {
   const [observacaoGeral, setObservacaoGeral] = useState('');
 
   // Insertion State
-  const [insertionMode, setInsertionMode] = useState<'reader' | 'manual'>('reader');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [quantidade, setQuantidade] = useState(1);
   const [custoUnitario, setCustoUnitario] = useState(0);
@@ -87,6 +83,7 @@ export default function EntradasPage() {
   const [bookFormOpen, setBookFormOpen] = useState(false);
   const [externalBookData, setExternalBookData] = useState<ExternalBook | null>(null);
   const [isFetchingExternal, setIsFetchingExternal] = useState(false);
+  const quantidadeInputRef = useRef<HTMLInputElement>(null);
 
   // Calculated values
   const selectedTipoEntrada = useMemo(
@@ -113,19 +110,20 @@ export default function EntradasPage() {
 
   // Fetch book by ISBN for reader mode
   const handleIsbnSubmit = async (isbn: string) => {
-    if (isbn.length < 10) return;
+    const normalizedIsbn = isbn.toUpperCase().replace(/[^0-9X]/g, '');
+    if (normalizedIsbn.length < 10) return;
     
     try {
-      const { data } = await apiClient.get(`/books/isbn/${isbn}`);
+      const { data } = await apiClient.get(`/books/isbn/${normalizedIsbn}`);
       if (data) {
         handleBookSelect(data);
       } else {
         // Not found in local DB, try external
-        await handleExternalLookup(isbn);
+        await handleExternalLookup(normalizedIsbn);
       }
     } catch {
       // 404 or other error, try external
-      await handleExternalLookup(isbn);
+      await handleExternalLookup(normalizedIsbn);
     }
   };
 
@@ -182,6 +180,8 @@ export default function EntradasPage() {
       }
     } catch (err) {
       console.error('Failed to fetch book details', err);
+    } finally {
+      requestAnimationFrame(() => quantidadeInputRef.current?.focus());
     }
   };
 
@@ -231,7 +231,7 @@ export default function EntradasPage() {
     setQuantidade(item.quantidade);
     setCustoUnitario(item.custoUnitario);
     setCondition(item.condition);
-    setInsertionMode('manual');
+    requestAnimationFrame(() => quantidadeInputRef.current?.focus());
   };
 
   const handleDelete = (id: string) => {
@@ -290,18 +290,20 @@ export default function EntradasPage() {
 
   const handleNewBookSubmit = async (formData: BookFormData) => {
     try {
+      const { coverFile, externalCoverUrl, removeCover, ...bookData } = formData;
+      void removeCover;
       let book = await createBook({
-        ...formData,
+        ...bookData,
         publisherId: formData.publisherId ? Number(formData.publisherId) : undefined,
         languageId: formData.languageId ? Number(formData.languageId) : undefined,
         genreId: formData.genreId ? Number(formData.genreId) : undefined,
       } as CreateBookPayload);
 
       try {
-        if (formData.coverFile) {
-          book = await uploadBookCover(book.id, formData.coverFile);
-        } else if (formData.externalCoverUrl) {
-          book = await importBookCover(book.id, formData.externalCoverUrl);
+        if (coverFile) {
+          book = await uploadBookCover(book.id, coverFile);
+        } else if (externalCoverUrl) {
+          book = await importBookCover(book.id, externalCoverUrl);
         }
       } catch {
         toast.error('Livro cadastrado, mas não foi possível salvar a capa');
@@ -414,65 +416,21 @@ export default function EntradasPage() {
             <CardTitle className="text-lg">Inserir Itens</CardTitle>
             <CardDescription>Adicione livros à lista de recebimento</CardDescription>
           </div>
-          <div className="flex bg-muted p-1 rounded-lg">
-            <Button 
-              variant={insertionMode === 'reader' ? 'default' : 'ghost'} 
-              size="sm"
-              onClick={() => { setInsertionMode('reader'); clearInsertionGroup(); }}
-              className="h-8"
-            >
-              <Barcode className="mr-2 h-4 w-4" />
-              Leitor
-            </Button>
-            <Button 
-              variant={insertionMode === 'manual' ? 'default' : 'ghost'} 
-              size="sm"
-              onClick={() => { setInsertionMode('manual'); clearInsertionGroup(); }}
-              className="h-8"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Manual
-            </Button>
-          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            {insertionMode === 'reader' ? (
-              <div className="md:col-span-4 space-y-2">
-                <Label>Inserir via Leitor (ISBN)</Label>
-                <div className="relative">
-                  <Input 
-                    value={readerIsbn}
-                    onChange={(e) => setReaderIsbn(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleIsbnSubmit(readerIsbn);
-                      }
-                    }}
-                    autoFocus
-                    disabled={isFetchingExternal}
-                    placeholder="ISBN10 ou ISBN13"
-                    className="font-mono text-lg tracking-wider pr-10"
-                  />
-                  {isFetchingExternal && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="md:col-span-4 space-y-2">
-                <Label>Pesquisa Inteligente</Label>
-                <BookSearchAutocomplete 
-                  value={selectedBook?.title || ''}
-                  onSelect={handleBookSelect}
-                  onClear={clearInsertionGroup}
-                  onAddNew={() => setBookFormOpen(true)}
-                />
-              </div>
-            )}
+            <div className="md:col-span-4 space-y-2">
+              <Label>Livro (ISBN ou título)</Label>
+              <BookSearchAutocomplete
+                value={selectedBook?.title || readerIsbn}
+                onSelect={handleBookSelect}
+                onClear={clearInsertionGroup}
+                onAddNew={() => setBookFormOpen(true)}
+                onSubmitSearch={handleIsbnSubmit}
+                isSubmitting={isFetchingExternal}
+                placeholder="ISBN10, ISBN13 ou título"
+              />
+            </div>
 
             <div className="md:col-span-4 space-y-2">
               <Label>Livro Selecionado</Label>
@@ -503,6 +461,8 @@ export default function EntradasPage() {
             <div className="md:col-span-2 space-y-2">
               <Label>Quantidade</Label>
               <Input 
+                ref={quantidadeInputRef}
+                aria-label="Quantidade"
                 type="number" 
                 min={1} 
                 value={quantidade} 
