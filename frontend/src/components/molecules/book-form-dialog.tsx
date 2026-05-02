@@ -2,6 +2,7 @@
 
 import { ImageIcon, Loader2, Search, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
+import type { KeyboardEvent } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '@/components/atoms/button';
@@ -195,8 +196,8 @@ export function BookFormDialog({
       removeCover,
     });
 
-  const handleExternalLookup = async () => {
-    const isbn = getValues('isbn13') || getValues('isbn10');
+  const handleExternalLookup = async (isbnValue?: string | null) => {
+    const isbn = (isbnValue || getValues('isbn13') || getValues('isbn10') || '').trim();
     if (!isbn || isbn.length < 10) {
       toast.error('Informe um ISBN válido para buscar');
       return;
@@ -224,6 +225,13 @@ export function BookFormDialog({
     }
   };
 
+  const handleIsbnKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') return;
+
+    event.preventDefault();
+    void handleExternalLookup(event.currentTarget.value);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -245,13 +253,39 @@ export function BookFormDialog({
               <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="isbn13">ISBN-13</Label>
-                  <Input id="isbn13" {...register('isbn13', { pattern: { value: /^\d{13}$/, message: '13 dígitos' } })} />
+                  <div className="relative">
+                    <Input
+                      id="isbn13"
+                      className="font-mono pr-10"
+                      disabled={isFetching}
+                      {...register('isbn13', { pattern: { value: /^\d{13}$/, message: '13 dígitos' } })}
+                      onKeyDown={handleIsbnKeyDown}
+                    />
+                    {isFetching && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
                   {errors.isbn13 && <p className="text-xs text-destructive">{errors.isbn13.message}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="isbn10">ISBN-10</Label>
-                  <Input id="isbn10" {...register('isbn10', { pattern: { value: /^\d{9}[\dX]$/i, message: '10 dígitos (pode terminar em X)' } })} />
+                  <div className="relative">
+                    <Input
+                      id="isbn10"
+                      className="font-mono pr-10"
+                      disabled={isFetching}
+                      {...register('isbn10', { pattern: { value: /^\d{9}[\dX]$/i, message: '10 dígitos (pode terminar em X)' } })}
+                      onKeyDown={handleIsbnKeyDown}
+                    />
+                    {isFetching && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
                   {errors.isbn10 && <p className="text-xs text-destructive">{errors.isbn10.message}</p>}
                 </div>
               </div>
@@ -261,7 +295,7 @@ export function BookFormDialog({
                 variant="default"
                 size="lg"
                 className="mt-0 w-full md:mt-7 md:w-auto"
-                onClick={handleExternalLookup}
+                onClick={() => void handleExternalLookup()}
                 disabled={isFetching}
               >
                 {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
