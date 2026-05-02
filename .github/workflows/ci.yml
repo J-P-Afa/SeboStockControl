@@ -81,3 +81,39 @@ jobs:
         
       - name: Unit Tests
         run: npm run test:cov
+
+  deploy:
+    name: Deploy to EC2
+    needs: [frontend, backend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy project files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ".,!node_modules,!.git,!.github,!test-results"
+          target: "~/app"
+
+      - name: Execute deployment on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/app
+            
+            # Garantindo a criação dos arquivos .env
+            mkdir -p backend frontend
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > backend/.env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> backend/.env
+            echo "NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:3001" > frontend/.env
+            
+            # Build e inicialização dos contêineres
+            docker compose up -d --build

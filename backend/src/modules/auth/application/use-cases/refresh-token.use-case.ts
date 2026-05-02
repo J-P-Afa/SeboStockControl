@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Result } from '../../../../common';
 import { PrismaService } from '../../../database';
 import { TokenResponseDto } from '../dtos';
+import { getRefreshTokenSecret } from './jwt-secrets';
 
 @Injectable()
 export class RefreshTokenUseCase {
@@ -17,7 +18,7 @@ export class RefreshTokenUseCase {
 
     try {
       payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: getRefreshTokenSecret(),
       });
     } catch {
       return Result.fail(
@@ -80,7 +81,7 @@ export class RefreshTokenUseCase {
       this.jwtService.signAsync(
         { sub: user.id },
         {
-          secret: process.env.JWT_REFRESH_SECRET,
+          secret: getRefreshTokenSecret(),
           expiresIn: '7d',
         },
       ),

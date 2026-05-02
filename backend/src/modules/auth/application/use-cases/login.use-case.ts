@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Result } from '../../../../common';
 import { PrismaService } from '../../../database';
 import { TokenResponseDto } from '../dtos';
+import { getRefreshTokenSecret } from './jwt-secrets';
 
 interface JwtPayload {
   sub: string;
@@ -68,7 +69,7 @@ export class LoginUseCase {
       this.jwtService.signAsync(
         { sub: user.id },
         {
-          secret: process.env.JWT_REFRESH_SECRET,
+          secret: getRefreshTokenSecret(),
           expiresIn: '7d',
         },
       ),
