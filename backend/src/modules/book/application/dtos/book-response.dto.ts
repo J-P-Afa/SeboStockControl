@@ -31,6 +31,9 @@ export class BookResponseDto {
   stock: number | null | undefined;
   stockUnitCost: Prisma.Decimal | null | undefined;
   stockTotalCost: Prisma.Decimal | null | undefined;
+  publisher?: { id: number; description: string;} | null;
+  language?: { id: number; description: string;} | null;
+  genre?: { id: number; description: string;} | null;
 
   static fromEntity(entity: BookEntity): BookResponseDto {
     const dto = new BookResponseDto();
@@ -61,6 +64,9 @@ export class BookResponseDto {
     dto.stock = entity.stock;
     dto.stockUnitCost = entity.stockUnitCost;
     dto.stockTotalCost = entity.stockTotalCost;
+    dto.publisher = entity.publisher ? { id: entity.publisher.id, description: entity.publisher.description } : null;
+    dto.language = entity.language ? { id: entity.language.id, description: entity.language.description } : null;
+    dto.genre = entity.genre ? { id: entity.genre.id, description: entity.genre.description } : null;
     return dto;
   }
 }

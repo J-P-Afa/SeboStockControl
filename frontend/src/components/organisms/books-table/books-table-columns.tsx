@@ -26,6 +26,10 @@ export function getBooksTableColumns({
   return [
     {
       accessorKey: 'title',
+      meta: {
+        className: 'md:sticky md:left-0 md:z-10 md:bg-card',
+        headerClassName: 'md:sticky md:left-0 md:z-20 md:bg-card',
+      },
       header: ({ column }) => (
         <SortableHeader column={column}>Título</SortableHeader>
       ),
@@ -57,6 +61,13 @@ export function getBooksTableColumns({
       cell: ({ row }) => row.original.volume || '-',
     },
     {
+      accessorKey: 'isbn10',
+      header: ({ column }) => (
+        <SortableHeader column={column}>ISBN-10</SortableHeader>
+      ),
+      cell: ({ row }) => row.original.isbn10 || '-',
+    },
+    {
       accessorKey: 'isbn13',
       header: ({ column }) => (
         <SortableHeader column={column}>ISBN-13</SortableHeader>
@@ -82,6 +93,46 @@ export function getBooksTableColumns({
       cell: ({ row }) => row.original.listPrice ? formatCurrency(Number(row.original.listPrice)) : '-',
     },
     {
+      accessorKey: 'publisher',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Editora</SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <span className="text-xs capitalize">
+          {row.original.publisher?.description ?? '-'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'language',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Idioma</SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <span className="text-xs capitalize">
+          {row.original.language?.description ?? '-'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'genre',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Gênero</SortableHeader>
+      ),
+      cell: ({ row }) => (  
+        <span className="block text-xs capitalize truncate max-w-[200px]" title={row.original.genre?.description ?? '-'}>
+          {row.original.genre?.description ?? '-'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'weight',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Peso</SortableHeader>
+      ),
+      cell: ({ row }) => row.original.weight ? `${row.original.weight} g` : '-',
+    },
+    {
       accessorKey: 'status',
       header: ({ column }) => (
         <SortableHeader column={column}>Status</SortableHeader>
@@ -93,7 +144,22 @@ export function getBooksTableColumns({
       ),
     },
     {
+      accessorKey: 'editionType',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Tipo de Edição</SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <Badge variant={row.original.editionType === 'normal' ? 'default' : 'outline'}>
+          {row.original.editionType === 'normal' ? 'Normal' : 'Variante'}
+        </Badge>
+      ),
+    },
+    {
       id: 'actions',
+        meta: {
+          className: 'md:sticky md:right-0 md:z-10 md:bg-card',
+          headerClassName: 'md:sticky md:right-0 md:z-20 md:bg-card',
+        },
       header: () => 'Ações',
       cell: ({ row }) => (
         <DropdownMenu>

@@ -20,6 +20,7 @@ import { Separator } from '@/components/atoms/separator';
  * @ai-context Utiliza Glassmorphism e animações baseadas em framer-motion/tailwind-transitions.
  * @returns Um elemento <aside> fixo com navegação e controles de perfil.
  */
+
 export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const { user, logout } = useAuth();

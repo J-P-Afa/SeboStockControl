@@ -23,6 +23,15 @@ export interface Book {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  publisher?: {
+    id: number;
+    description: string;};
+  language?: {
+    id: number;
+    description: string;};
+  genre?: {
+    id: number;
+    description: string;};
   
   // Virtual field from relation if included in future
   stock?: number;

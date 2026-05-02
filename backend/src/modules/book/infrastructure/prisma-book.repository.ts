@@ -9,9 +9,17 @@ import {
 import { BookEntity, BookProps } from '../domain/book.entity';
 import { Book, Condition, Prisma } from '@prisma/client';
 
+type SimpleRelation = {
+  id: number;
+  description: string;
+};
+
 /** Tipo interno: resultado do Prisma com o join 1:1 de Estoque */
 type BookWithEstoque = Book & {
   estoque?: { quantidade: number; custoMedio: Prisma.Decimal } | null;
+  publisher?: SimpleRelation | null;
+  language?: SimpleRelation | null;
+  genre?: SimpleRelation | null;
 };
 
 type StockSortField = 'stock' | 'stockUnitCost' | 'stockTotalCost';
@@ -126,6 +134,15 @@ export class PrismaBookRepository implements IBookRepository {
       stockTotalCost: prisma.estoque
         ? prisma.estoque.custoMedio.mul(prisma.estoque.quantidade)
         : null,
+      publisher: prisma.publisher
+        ? { id: prisma.publisher.id, description: prisma.publisher.description }
+        : null,
+      language: prisma.language
+        ? { id: prisma.language.id, description: prisma.language.description }
+        : null,
+      genre: prisma.genre
+        ? { id: prisma.genre.id, description: prisma.genre.description }
+        : null,
     };
     return BookEntity.restore(props);
   }
@@ -208,13 +225,19 @@ export class PrismaBookRepository implements IBookRepository {
 
     const books = await this.prisma.book.findMany({
       where,
-      include: { estoque: { select: { quantidade: true, custoMedio: true } } },
+      include: { 
+        estoque: { select: { quantidade: true, custoMedio: true } },
+        publisher: {select: { id: true, description: true }},
+        language: {select: { id: true, description: true }},
+        genre: {select: { id: true, description: true }}
+      },
       orderBy: stockSortField
         ? { title: 'asc' }
         : this.buildBookOrderBy(filters?.sortBy, filters?.sortOrder),
       skip: stockSortField ? undefined : skip,
       take: stockSortField ? undefined : take,
     });
+    console.log('PRISMA:', books[0]); //debug agora
 
     const paginatedBooks = stockSortField
       ? this.sortByStockField(books, stockSortField, filters?.sortOrder).slice(

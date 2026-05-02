@@ -6,6 +6,11 @@ import { Prisma } from '@prisma/client';
  * Encapsula todos os campos do schema e as invariantes de negócio.
  */
 
+type SimpleRelation = {
+  id: number;
+  description: string;
+};
+
 export interface BookProps {
   id: number;
   title: string;
@@ -38,6 +43,9 @@ export interface BookProps {
   stock?: number | null;
   stockUnitCost?: Prisma.Decimal | null;
   stockTotalCost?: Prisma.Decimal | null;
+  publisher?: SimpleRelation | null;
+  language?: SimpleRelation | null;
+  genre?: SimpleRelation | null;
 }
 
 export class BookEntity {
@@ -184,6 +192,18 @@ export class BookEntity {
       return this.props.stockUnitCost.mul(this.props.stock);
     }
     return this.props.stockTotalCost;
+  }
+
+  get publisher(): SimpleRelation | null | undefined {
+  return this.props.publisher;
+  }
+
+  get language(): SimpleRelation | null | undefined {
+    return this.props.language;
+  }
+
+  get genre(): SimpleRelation | null | undefined {
+    return this.props.genre;
   }
 
   public update(
