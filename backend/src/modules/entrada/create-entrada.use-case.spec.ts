@@ -103,6 +103,16 @@ describe('CreateEntradaUseCase', () => {
     expect(createCall.data.valorTotal.toString()).toBe('0');
   });
 
+  it('should reject purchase input types with zero unit cost', async () => {
+    prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+
+    const result = await useCase.execute({ ...baseDto, custoUnitario: 0 });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('ENTRADA_CUSTO_REQUIRED');
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
   it('should reject if book is inactive (RULE LIV-03)', async () => {
     prismaMock.book.findUnique.mockResolvedValue(mockBookInisActive);
 
@@ -164,13 +174,25 @@ describe('CreateEntradaUseCase', () => {
 
   it('should NOT change custo_unitario_medio on donation (valorUnitario = 0)', async () => {
     prismaMock.book.findUnique.mockResolvedValue(mockBookAtivo);
+    prismaMock.tipoEntrada.findUnique.mockResolvedValue({
+      id: 2,
+      descricao: 'Doação Recebida',
+      isDoacao: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     const txMock = mockDeep<PrismaService>();
     txMock.estoque.findUnique.mockResolvedValue(mockEstoqueComSaldo);
     txMock.entrada.create.mockResolvedValue({ id: 3 } as Entrada);
 
     mockTransaction(txMock);
 
-    const result = await useCase.execute({ ...baseDto, custoUnitario: 0 });
+    const result = await useCase.execute({
+      ...baseDto,
+      tipoEntradaId: 2,
+      custoUnitario: 0,
+    });
 
     expect(result.success).toBe(true);
     // Doação: custo médio DEVE ser mantido em 20

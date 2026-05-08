@@ -50,6 +50,12 @@ import { formatCurrency } from '@/lib/formatters';
 import { Condition, type Book, type CreateBookPayload } from '@/types';
 import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api/client';
+import {
+  clearTransactionDraft,
+  loadTransactionDraft,
+  saveTransactionDraft,
+  transactionDraftKey,
+} from '@/lib/transaction-draft';
 
 interface SaidaItem {
   id: string; // Local ID for UI management
@@ -64,8 +70,54 @@ interface SaidaItem {
   tipoSaidaDesc: string;
 }
 
+interface SaidaDraft {
+  tipoSaidaId: number | null;
+  canalVendaId: number | null;
+  formaPagamentoId: number | null;
+  dataSaida: string;
+  observacaoGeral: string;
+  selectedBook: Book | null;
+  quantidade: number;
+  valorUnitario: number;
+  condition: Condition;
+  readerIsbn: string;
+  estoqueAtual: number | null;
+  items: SaidaItem[];
+  editingId: string | null;
+}
+
+const SAIDAS_DRAFT_KEY = transactionDraftKey('saidas');
+
+function createDefaultSaidaDraft(): SaidaDraft {
+  return {
+    tipoSaidaId: null,
+    canalVendaId: null,
+    formaPagamentoId: null,
+    dataSaida: new Date().toISOString().split('T')[0],
+    observacaoGeral: '',
+    selectedBook: null,
+    quantidade: 1,
+    valorUnitario: 0,
+    condition: Condition.NOVO,
+    readerIsbn: '',
+    estoqueAtual: null,
+    items: [],
+    editingId: null,
+  };
+}
+
 export default function RegistrarSaidaPage() {
   const { user } = useAuth();
+  const initialDraftRef = useRef<SaidaDraft | null>(null);
+
+  if (initialDraftRef.current === null) {
+    initialDraftRef.current = loadTransactionDraft(
+      SAIDAS_DRAFT_KEY,
+      createDefaultSaidaDraft(),
+    );
+  }
+
+  const initialDraft = initialDraftRef.current;
   
   // Data Fetching
   const { data: tiposSaida = [] } = useTiposSaida();
@@ -73,23 +125,25 @@ export default function RegistrarSaidaPage() {
   const { data: formasPagamento = [] } = useFormasPagamento();
 
   // Header State
-  const [tipoSaidaId, setTipoSaidaId] = useState<number | null>(null);
-  const [canalVendaId, setCanalVendaId] = useState<number | null>(null);
-  const [formaPagamentoId, setFormaPagamentoId] = useState<number | null>(null);
-  const [dataSaida, setDataSaida] = useState(new Date().toISOString().split('T')[0]);
-  const [observacaoGeral, setObservacaoGeral] = useState('');
+  const [tipoSaidaId, setTipoSaidaId] = useState<number | null>(initialDraft.tipoSaidaId);
+  const [canalVendaId, setCanalVendaId] = useState<number | null>(initialDraft.canalVendaId);
+  const [formaPagamentoId, setFormaPagamentoId] = useState<number | null>(
+    initialDraft.formaPagamentoId,
+  );
+  const [dataSaida, setDataSaida] = useState(initialDraft.dataSaida);
+  const [observacaoGeral, setObservacaoGeral] = useState(initialDraft.observacaoGeral);
 
   // Insertion State
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const [quantidade, setQuantidade] = useState(1);
-  const [valorUnitario, setValorUnitario] = useState(0);
-  const [condition, setCondition] = useState<Condition>(Condition.NOVO);
-  const [readerIsbn, setReaderIsbn] = useState('');
-  const [estoqueAtual, setEstoqueAtual] = useState<number | null>(null);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(initialDraft.selectedBook);
+  const [quantidade, setQuantidade] = useState(initialDraft.quantidade);
+  const [valorUnitario, setValorUnitario] = useState(initialDraft.valorUnitario);
+  const [condition, setCondition] = useState<Condition>(initialDraft.condition);
+  const [readerIsbn, setReaderIsbn] = useState(initialDraft.readerIsbn);
+  const [estoqueAtual, setEstoqueAtual] = useState<number | null>(initialDraft.estoqueAtual);
 
   // Table State
-  const [items, setItems] = useState<SaidaItem[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [items, setItems] = useState<SaidaItem[]>(initialDraft.items);
+  const [editingId, setEditingId] = useState<string | null>(initialDraft.editingId);
 
   // Dialog State
   const [bookFormOpen, setBookFormOpen] = useState(false);
@@ -123,6 +177,38 @@ export default function RegistrarSaidaPage() {
       });
     }
   }, [isVenda]);
+
+  useEffect(() => {
+    saveTransactionDraft<SaidaDraft>(SAIDAS_DRAFT_KEY, {
+      tipoSaidaId,
+      canalVendaId,
+      formaPagamentoId,
+      dataSaida,
+      observacaoGeral,
+      selectedBook,
+      quantidade,
+      valorUnitario,
+      condition,
+      readerIsbn,
+      estoqueAtual,
+      items,
+      editingId,
+    });
+  }, [
+    tipoSaidaId,
+    canalVendaId,
+    formaPagamentoId,
+    dataSaida,
+    observacaoGeral,
+    selectedBook,
+    quantidade,
+    valorUnitario,
+    condition,
+    readerIsbn,
+    estoqueAtual,
+    items,
+    editingId,
+  ]);
 
   // Fetch book by ISBN for reader mode
   const handleIsbnSubmit = async (isbn: string) => {
@@ -180,6 +266,11 @@ export default function RegistrarSaidaPage() {
 
     if (quantidade > (estoqueAtual ?? 0)) {
       toast.error(`Estoque insuficiente! Disponível: ${estoqueAtual}`);
+      return;
+    }
+
+    if (isVenda && valorUnitario <= 0) {
+      toast.error('Vendas exigem valor unitário maior que zero');
       return;
     }
 
@@ -250,6 +341,15 @@ export default function RegistrarSaidaPage() {
       return;
     }
 
+    const hasZeroValueSale = items.some((item) => {
+      const itemTipoSaida = tiposSaida.find((tipo) => tipo.id === item.tipoSaidaId);
+      return itemTipoSaida?.isVenda && item.valorUnitario <= 0;
+    });
+    if (hasZeroValueSale) {
+      toast.error('Vendas exigem valor unitário maior que zero');
+      return;
+    }
+
     try {
       await bulkCreateSaida({
         items: items.map(item => ({
@@ -273,6 +373,7 @@ export default function RegistrarSaidaPage() {
   };
 
   const resetForm = () => {
+    clearTransactionDraft(SAIDAS_DRAFT_KEY);
     setItems([]);
     setObservacaoGeral('');
     clearInsertionGroup();
@@ -430,6 +531,18 @@ export default function RegistrarSaidaPage() {
               />
             </div>
 
+            <div className="md:col-span-2 space-y-2 text-right">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="w-full h-10 border-primary/20 hover:bg-primary/5"
+                onClick={() => setBookFormOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo
+              </Button>
+            </div>
+
             <div className="md:col-span-4 space-y-2">
               <Label>Livro Selecionado</Label>
               <div className="h-10 px-3 flex items-center bg-muted/50 rounded-md border border-dashed text-sm truncate font-medium">
@@ -445,18 +558,6 @@ export default function RegistrarSaidaPage() {
               )}>
                 {estoqueAtual !== null ? estoqueAtual : '-'}
               </div>
-            </div>
-
-            <div className="md:col-span-2 space-y-2 text-right">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="w-full h-10 border-primary/20 hover:bg-primary/5"
-                onClick={() => setBookFormOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Novo
-              </Button>
             </div>
 
             <div className="md:col-span-2 space-y-2">

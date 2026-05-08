@@ -100,6 +100,7 @@ function renderPage() {
 describe('EntradasPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it('selects an existing local book scanned by ISBN without opening the creation dialog', async () => {
@@ -299,6 +300,53 @@ describe('EntradasPage', () => {
     });
   });
 
+  it('does not add purchase items with zero unit cost', async () => {
+    const book: Book = {
+      id: 1,
+      title: 'Livro de Teste',
+      isbn10: '1234567890',
+      isbn13: null,
+      condition: Condition.NOVO,
+      editionType: EditionType.NORMAL,
+      status: Status.COMPLETO,
+      listPrice: null,
+      weight: 300,
+      publisherId: null,
+      languageId: null,
+      genreId: null,
+      isActive: true,
+      createdAt: '2026-04-28T00:00:00.000Z',
+      updatedAt: '2026-04-28T00:00:00.000Z',
+    };
+
+    server.use(
+      http.get(`${API_URL}/tipos-entrada`, () =>
+        HttpResponse.json({ success: true, data: [{ id: 1, descricao: 'Compra', isDoacao: false }] }),
+      ),
+      http.get(`${API_URL}/books/isbn/1234567890`, () =>
+        HttpResponse.json({ success: true, data: book }),
+      ),
+    );
+
+    const api = await import('@/lib/api');
+    vi.mocked(api.getLastCost).mockResolvedValueOnce(0);
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '1234567890{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Livro de Teste')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /salvar/i }));
+
+    const { toast } = await import('sonner');
+    expect(toast.error).toHaveBeenCalledWith('Compras exigem custo unitário maior que zero');
+    expect(screen.queryByRole('cell', { name: 'Livro de Teste' })).not.toBeInTheDocument();
+  });
+
   it('uses a single ISBN and title search field', async () => {
     renderPage();
 
@@ -306,5 +354,51 @@ describe('EntradasPage', () => {
     expect(screen.getByPlaceholderText('ISBN10, ISBN13 ou título')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /manual/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /leitor/i })).not.toBeInTheDocument();
+  });
+
+  it('restores a draft transaction after returning from login', async () => {
+    localStorage.setItem(
+      'sebo:transaction-draft:entradas',
+      JSON.stringify({
+        tipoEntradaId: 1,
+        dataEntrada: '2026-05-08',
+        fornecedor: 'Fornecedor Draft',
+        numeroNotaFiscal: 'NF-123',
+        observacaoGeral: 'Observação preservada',
+        selectedBook: null,
+        quantidade: 1,
+        custoUnitario: 0,
+        condition: Condition.NOVO,
+        readerIsbn: '',
+        estoqueAtual: null,
+        editingId: null,
+        items: [
+          {
+            id: 'draft-item-1',
+            bookId: 10,
+            title: 'Livro Preservado',
+            isbn: '1234567890',
+            condition: Condition.NOVO,
+            quantidade: 2,
+            custoUnitario: 15,
+            custoTotal: 30,
+            tipoEntradaDesc: 'Compra',
+          },
+        ],
+      }),
+    );
+
+    server.use(
+      http.get(`${API_URL}/tipos-entrada`, () =>
+        HttpResponse.json({ success: true, data: [{ id: 1, descricao: 'Compra', isDoacao: false }] }),
+      ),
+    );
+
+    renderPage();
+
+    expect(screen.getByDisplayValue('Fornecedor Draft')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('NF-123')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Observação preservada')).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Livro Preservado' })).toBeInTheDocument();
   });
 });

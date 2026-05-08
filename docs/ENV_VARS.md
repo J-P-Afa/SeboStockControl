@@ -9,7 +9,7 @@ Este guia consolida todas as variáveis de ambiente necessárias para a execuç�
 | `DATABASE_URL` | URL de conexão com o PostgreSQL | `postgresql://admin:admin123@localhost:5432/sebo_db` |
 | `PORT` | Porta onde o servidor NestJS irá rodar | `3001` |
 | `JWT_SECRET` | Chave secreta para assinatura de tokens JWT | `mudar-para-algo-seguro-em-producao` |
-| `JWT_EXPIRES_IN` | Tempo de expiração do token | `1d` |
+| `JWT_EXPIRES_IN` | Tempo de expiração do token | `48h` |
 
 ## 💻 Frontend (`frontend/.env.local`)
 

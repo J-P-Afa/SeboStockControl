@@ -29,6 +29,7 @@ describe('LoginPage Organism', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    window.history.pushState({}, '', '/login');
     (useRouter as Mock).mockReturnValue({ push: mockPush });
     (useAuth as Mock).mockReturnValue({ login: mockLogin });
   });
@@ -73,6 +74,22 @@ describe('LoginPage Organism', () => {
         password: 'admin123',
       });
       expect(mockPush).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('should redirect to the original page after re-login', async () => {
+    const user = userEvent.setup();
+    mockLogin.mockResolvedValueOnce(undefined);
+    window.history.pushState({}, '', '/login?redirect=%2Fsaidas%2Fregistrar');
+
+    render(<LoginPage />);
+
+    await user.type(screen.getByLabelText(/Email/i), 'admin@admin.com');
+    await user.type(screen.getByLabelText(/Senha/i), 'admin123');
+    await user.click(screen.getByRole('button', { name: /Entrar/i }));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/saidas/registrar');
     });
   });
 

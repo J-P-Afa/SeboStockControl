@@ -21,6 +21,7 @@ import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
 import type { Book } from '@/types';
 import { useEstoqueHistory } from '@/hooks/use-estoques';
+import { createDelimitedText } from '@/lib/csv';
 
 interface EstoqueHistoryModalProps {
   open: boolean;
@@ -44,7 +45,7 @@ export function EstoqueHistoryModal({ open, onOpenChange, book }: EstoqueHistory
       item.observacao || ''
     ]);
 
-    const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
+    const csvContent = createDelimitedText({ headers, rows });
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

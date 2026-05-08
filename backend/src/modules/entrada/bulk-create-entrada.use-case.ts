@@ -28,6 +28,12 @@ export class BulkCreateEntradaUseCase {
             throw new Error(`TIPO_ENTRADA_NOT_FOUND:${item.tipoEntradaId}`);
           }
 
+          if (!tipoEntrada.isDoacao && item.custoUnitario <= 0) {
+            throw new Error(
+              'ENTRADA_CUSTO_REQUIRED:Compras exigem custo unitário positivo',
+            );
+          }
+
           const custoUnitario = tipoEntrada.isDoacao
             ? new Prisma.Decimal(0)
             : new Prisma.Decimal(item.custoUnitario ?? 0);

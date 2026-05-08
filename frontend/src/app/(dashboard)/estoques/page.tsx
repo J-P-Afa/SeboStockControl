@@ -15,6 +15,7 @@ import { BookFormDialog, type BookFormData } from '@/components/molecules/book-f
 import { useBooks, useUpdateBook } from '@/hooks/use-books';
 import { usePublishers } from '@/hooks/use-publishers';
 import { useLanguages } from '@/hooks/use-languages';
+import { createDelimitedText } from '@/lib/csv';
 import { Condition, EditionType, Status, type Book, type ListBooksFilters } from '@/types';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -229,7 +230,7 @@ export default function EstoquesPage() {
       b.stockUnitCost ?? 0,
       b.stockTotalCost ?? 0
     ]);
-    const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
+    const csvContent = createDelimitedText({ headers, rows });
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

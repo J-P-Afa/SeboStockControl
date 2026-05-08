@@ -45,7 +45,15 @@ export default function LoginPage() {
     const start = Date.now();
     try {
       await login(data);
-      router.push('/');
+      const redirect =
+        typeof window === 'undefined'
+          ? null
+          : new URLSearchParams(window.location.search).get('redirect');
+      const safeRedirect =
+        redirect && redirect.startsWith('/') && !redirect.startsWith('//')
+          ? redirect
+          : '/';
+      router.push(safeRedirect);
     } catch (err) {
       const message = getErrorMessage(err, 'Email ou senha inválidos');
       const elapsed = Date.now() - start;

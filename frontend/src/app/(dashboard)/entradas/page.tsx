@@ -42,6 +42,12 @@ import { importBookCover, lookupExternalBook, uploadBookCover } from '@/lib/api/
 import { formatCurrency } from '@/lib/formatters';
 import { Condition, type Book, type ExternalBook, type CreateBookPayload } from '@/types';
 import { apiClient } from '@/lib/api/client';
+import {
+  clearTransactionDraft,
+  loadTransactionDraft,
+  saveTransactionDraft,
+  transactionDraftKey,
+} from '@/lib/transaction-draft';
 
 interface EntradaItem {
   id: string; // Local ID for UI management
@@ -55,29 +61,75 @@ interface EntradaItem {
   tipoEntradaDesc: string;
 }
 
+interface EntradaDraft {
+  tipoEntradaId: number | null;
+  dataEntrada: string;
+  fornecedor: string;
+  numeroNotaFiscal: string;
+  observacaoGeral: string;
+  selectedBook: Book | null;
+  quantidade: number;
+  custoUnitario: number;
+  condition: Condition;
+  readerIsbn: string;
+  estoqueAtual: number | null;
+  items: EntradaItem[];
+  editingId: string | null;
+}
+
+const ENTRADAS_DRAFT_KEY = transactionDraftKey('entradas');
+
+function createDefaultEntradaDraft(): EntradaDraft {
+  return {
+    tipoEntradaId: null,
+    dataEntrada: new Date().toISOString().split('T')[0],
+    fornecedor: '',
+    numeroNotaFiscal: '',
+    observacaoGeral: '',
+    selectedBook: null,
+    quantidade: 1,
+    custoUnitario: 0,
+    condition: Condition.NOVO,
+    readerIsbn: '',
+    estoqueAtual: null,
+    items: [],
+    editingId: null,
+  };
+}
+
 export default function EntradasPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: tiposEntrada = [], isLoading: isLoadingTiposEntrada } = useTiposEntrada();
+  const initialDraftRef = useRef<EntradaDraft | null>(null);
+
+  if (initialDraftRef.current === null) {
+    initialDraftRef.current = loadTransactionDraft(
+      ENTRADAS_DRAFT_KEY,
+      createDefaultEntradaDraft(),
+    );
+  }
+
+  const initialDraft = initialDraftRef.current;
   
   // Header State
-  const [tipoEntradaId, setTipoEntradaId] = useState<number | null>(null);
-  const [dataEntrada, setDataEntrada] = useState(new Date().toISOString().split('T')[0]);
-  const [fornecedor, setFornecedor] = useState('');
-  const [numeroNotaFiscal, setNumeroNotaFiscal] = useState('');
-  const [observacaoGeral, setObservacaoGeral] = useState('');
+  const [tipoEntradaId, setTipoEntradaId] = useState<number | null>(initialDraft.tipoEntradaId);
+  const [dataEntrada, setDataEntrada] = useState(initialDraft.dataEntrada);
+  const [fornecedor, setFornecedor] = useState(initialDraft.fornecedor);
+  const [numeroNotaFiscal, setNumeroNotaFiscal] = useState(initialDraft.numeroNotaFiscal);
+  const [observacaoGeral, setObservacaoGeral] = useState(initialDraft.observacaoGeral);
 
   // Insertion State
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const [quantidade, setQuantidade] = useState(1);
-  const [custoUnitario, setCustoUnitario] = useState(0);
-  const [condition, setCondition] = useState<Condition>(Condition.NOVO);
-  const [readerIsbn, setReaderIsbn] = useState('');
-  const [estoqueAtual, setEstoqueAtual] = useState<number | null>(null);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(initialDraft.selectedBook);
+  const [quantidade, setQuantidade] = useState(initialDraft.quantidade);
+  const [custoUnitario, setCustoUnitario] = useState(initialDraft.custoUnitario);
+  const [condition, setCondition] = useState<Condition>(initialDraft.condition);
+  const [readerIsbn, setReaderIsbn] = useState(initialDraft.readerIsbn);
+  const [estoqueAtual, setEstoqueAtual] = useState<number | null>(initialDraft.estoqueAtual);
 
   // Table State
-  const [items, setItems] = useState<EntradaItem[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [items, setItems] = useState<EntradaItem[]>(initialDraft.items);
+  const [editingId, setEditingId] = useState<string | null>(initialDraft.editingId);
 
   // Dialog State
   const [bookFormOpen, setBookFormOpen] = useState(false);
@@ -107,6 +159,38 @@ export default function EntradasPage() {
       setCustoUnitario(0);
     }
   }, [isDoacao]);
+
+  useEffect(() => {
+    saveTransactionDraft<EntradaDraft>(ENTRADAS_DRAFT_KEY, {
+      tipoEntradaId,
+      dataEntrada,
+      fornecedor,
+      numeroNotaFiscal,
+      observacaoGeral,
+      selectedBook,
+      quantidade,
+      custoUnitario,
+      condition,
+      readerIsbn,
+      estoqueAtual,
+      items,
+      editingId,
+    });
+  }, [
+    tipoEntradaId,
+    dataEntrada,
+    fornecedor,
+    numeroNotaFiscal,
+    observacaoGeral,
+    selectedBook,
+    quantidade,
+    custoUnitario,
+    condition,
+    readerIsbn,
+    estoqueAtual,
+    items,
+    editingId,
+  ]);
 
   // Fetch book by ISBN for reader mode
   const handleIsbnSubmit = async (isbn: string) => {
@@ -191,6 +275,11 @@ export default function EntradasPage() {
       return;
     }
 
+    if (!isDoacao && custoUnitario <= 0) {
+      toast.error('Compras exigem custo unitário maior que zero');
+      return;
+    }
+
     const newItem: EntradaItem = {
       id: editingId || crypto.randomUUID(),
       bookId: selectedBook.id,
@@ -254,6 +343,11 @@ export default function EntradasPage() {
       return;
     }
 
+    if (!isDoacao && items.some((item) => item.custoUnitario <= 0)) {
+      toast.error('Compras exigem custo unitário maior que zero');
+      return;
+    }
+
     try {
       await bulkCreateEntrada({
         usuarioId: user.id,
@@ -281,6 +375,7 @@ export default function EntradasPage() {
   };
 
   const resetForm = () => {
+    clearTransactionDraft(ENTRADAS_DRAFT_KEY);
     setItems([]);
     setFornecedor('');
     setNumeroNotaFiscal('');
@@ -432,6 +527,18 @@ export default function EntradasPage() {
               />
             </div>
 
+            <div className="md:col-span-2 space-y-2 text-right">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="w-full h-10 border-primary/20 hover:bg-primary/5"
+                onClick={() => setBookFormOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo
+              </Button>
+            </div>
+
             <div className="md:col-span-4 space-y-2">
               <Label>Livro Selecionado</Label>
               <div className="h-10 px-3 flex items-center bg-muted/50 rounded-md border border-dashed text-sm truncate font-medium">
@@ -444,18 +551,6 @@ export default function EntradasPage() {
               <div className="h-10 px-3 flex items-center justify-center bg-muted/50 rounded-md border text-sm font-bold">
                 {estoqueAtual !== null ? estoqueAtual : '-'}
               </div>
-            </div>
-
-            <div className="md:col-span-2 space-y-2 text-right">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="w-full h-10 border-primary/20 hover:bg-primary/5"
-                onClick={() => setBookFormOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Novo
-              </Button>
             </div>
 
             <div className="md:col-span-2 space-y-2">

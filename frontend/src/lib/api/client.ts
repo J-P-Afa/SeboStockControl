@@ -28,6 +28,12 @@ function clearTokens(): void {
   localStorage.removeItem('refreshToken');
 }
 
+function redirectToLogin(): void {
+  const currentPath = `${window.location.pathname}${window.location.search}`;
+  const redirectParam = encodeURIComponent(currentPath);
+  window.location.href = `/login?redirect=${redirectParam}`;
+}
+
 apiClient.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
@@ -106,7 +112,7 @@ apiClient.interceptors.response.use(
 
     if (!refreshToken) {
       clearTokens();
-      window.location.href = '/login';
+      redirectToLogin();
       return Promise.reject(error);
     }
 
@@ -124,7 +130,7 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       clearTokens();
-      window.location.href = '/login';
+      redirectToLogin();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

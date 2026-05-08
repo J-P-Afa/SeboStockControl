@@ -34,6 +34,13 @@ export class CreateEntradaUseCase {
       );
     }
 
+    if (!tipoEntrada.isDoacao && dto.custoUnitario <= 0) {
+      return Result.fail(
+        'ENTRADA_CUSTO_REQUIRED',
+        'Compras exigem custo unitário positivo',
+      );
+    }
+
     const custoUnitario = tipoEntrada.isDoacao
       ? new Prisma.Decimal(0)
       : new Prisma.Decimal(dto.custoUnitario ?? 0);

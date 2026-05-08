@@ -9,6 +9,10 @@ import { Condition, EditionType, Status, type Book } from '@/types';
 
 const API_URL = 'http://localhost:3001/api';
 
+const hookState = vi.hoisted(() => ({
+  tiposSaida: [{ id: 1, descricao: 'Doação', isVenda: false, isActive: true }],
+}));
+
 vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => ({
     user: { id: 1, name: 'Admin' },
@@ -17,7 +21,7 @@ vi.mock('@/hooks/use-auth', () => ({
 
 vi.mock('@/hooks/use-tipos-saida', () => ({
   useTiposSaida: () => ({
-    data: [{ id: 1, descricao: 'Doação', isVenda: false, isActive: true }],
+    data: hookState.tiposSaida,
   }),
 }));
 
@@ -116,6 +120,8 @@ function renderPage() {
 describe('RegistrarSaidaPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
+    hookState.tiposSaida = [{ id: 1, descricao: 'Doação', isVenda: false, isActive: true }];
   });
 
   it('selects an existing local book scanned by ISBN without opening the creation dialog', async () => {
@@ -263,6 +269,49 @@ describe('RegistrarSaidaPage', () => {
     });
   });
 
+  it('does not add sale items with zero unit value', async () => {
+    hookState.tiposSaida = [{ id: 2, descricao: 'Venda', isVenda: true, isActive: true }];
+
+    const book: Book = {
+      id: 1,
+      title: 'Livro de Venda sem Preço',
+      isbn10: '1234567890',
+      isbn13: null,
+      condition: Condition.NOVO,
+      editionType: EditionType.NORMAL,
+      status: Status.COMPLETO,
+      listPrice: 0,
+      weight: 300,
+      publisherId: null,
+      languageId: null,
+      genreId: null,
+      isActive: true,
+      createdAt: '2026-04-28T00:00:00.000Z',
+      updatedAt: '2026-04-28T00:00:00.000Z',
+    };
+
+    server.use(
+      http.get(`${API_URL}/books/isbn/1234567890`, () =>
+        HttpResponse.json({ success: true, data: book }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByPlaceholderText('ISBN10, ISBN13 ou título'), '1234567890{enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Livro de Venda sem Preço')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /salvar/i }));
+
+    const { toast } = await import('sonner');
+    expect(toast.error).toHaveBeenCalledWith('Vendas exigem valor unitário maior que zero');
+    expect(screen.queryByRole('cell', { name: /Livro de Venda sem Preço/ })).not.toBeInTheDocument();
+  });
+
   it('uses a single ISBN and title search field', async () => {
     renderPage();
 
@@ -270,5 +319,44 @@ describe('RegistrarSaidaPage', () => {
     expect(screen.getByPlaceholderText('ISBN10, ISBN13 ou título')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /manual/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /leitor/i })).not.toBeInTheDocument();
+  });
+
+  it('restores a draft transaction after returning from login', () => {
+    localStorage.setItem(
+      'sebo:transaction-draft:saidas',
+      JSON.stringify({
+        tipoSaidaId: 1,
+        canalVendaId: null,
+        formaPagamentoId: null,
+        dataSaida: '2026-05-08',
+        observacaoGeral: 'Observação preservada',
+        selectedBook: null,
+        quantidade: 1,
+        valorUnitario: 0,
+        condition: Condition.NOVO,
+        readerIsbn: '',
+        estoqueAtual: null,
+        editingId: null,
+        items: [
+          {
+            id: 'draft-item-1',
+            bookId: 10,
+            title: 'Livro Preservado',
+            isbn: '1234567890',
+            condition: Condition.NOVO,
+            quantidade: 2,
+            valorUnitario: 20,
+            valorTotal: 40,
+            tipoSaidaId: 1,
+            tipoSaidaDesc: 'Doação',
+          },
+        ],
+      }),
+    );
+
+    renderPage();
+
+    expect(screen.getByDisplayValue('Observação preservada')).toBeInTheDocument();
+    expect(screen.getByText('Livro Preservado')).toBeInTheDocument();
   });
 });

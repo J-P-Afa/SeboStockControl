@@ -51,6 +51,15 @@ describe('RefreshTokenUseCase', () => {
       include: expect.any(Object),
     });
     expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
+    expect(jwtService.signAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sub: 'user-id',
+        email: 'test@example.com',
+        role: 'Admin',
+        permissions: ['CREATE_USER'],
+      }),
+      expect.objectContaining({ expiresIn: '48h' }),
+    );
   });
 
   it('should fail if refresh token is invalid', async () => {

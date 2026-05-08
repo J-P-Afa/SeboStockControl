@@ -6,6 +6,9 @@ import { PrismaService } from '../../../database';
 import { TokenResponseDto } from '../dtos';
 import { getRefreshTokenSecret } from './jwt-secrets';
 
+const ACCESS_TOKEN_EXPIRES_IN = '48h';
+const REFRESH_TOKEN_EXPIRES_IN = '7d';
+
 interface JwtPayload {
   sub: string;
   email: string;
@@ -64,13 +67,13 @@ export class LoginUseCase {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '15m',
+        expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       }),
       this.jwtService.signAsync(
         { sub: user.id },
         {
           secret: getRefreshTokenSecret(),
-          expiresIn: '7d',
+          expiresIn: REFRESH_TOKEN_EXPIRES_IN,
         },
       ),
     ]);
