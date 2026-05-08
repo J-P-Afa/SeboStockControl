@@ -47,6 +47,10 @@ ssh -o StrictHostKeyChecking=no -i "$PEM_FILE" ${EC2_USER}@${EC2_HOST} << EOF
     echo "📥 Carregando novas imagens Docker..."
     docker load -i app_images.tar.gz
 
+    echo "🖼️  Preservando capas enviadas..."
+    mkdir -p uploads
+    docker cp sebo-backend:/app/uploads/. ./uploads/ 2>/dev/null || true
+
     echo "🐳 Reiniciando contêineres..."
     docker compose up -d
 

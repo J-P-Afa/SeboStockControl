@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/atoms/table';
+import { cn } from '@/lib/utils';
 import { DataTableSkeleton } from './data-table-skeleton';
 import { DataTableEmpty } from './data-table-empty';
 import { DataTablePagination, type PaginationConfig } from './data-table-pagination';
@@ -38,6 +39,10 @@ export interface DataTableProps<T> {
    * @ai-context Suporta paginação server-side; `manualPagination` é sempre true.
    */
   pagination?: PaginationConfig;
+  /** Estratégia de layout CSS da tabela. Padrão: "auto". */
+  tableLayout?: 'fixed' | 'auto';
+  /** Classe Tailwind para largura mínima da tabela. Padrão: "min-w-max". */
+  minWidthClassName?: string;
 }
 
 /**
@@ -57,6 +62,8 @@ export function DataTable<T>({
   sorting,
   onSortingChange,
   pagination,
+  tableLayout = 'auto',
+  minWidthClassName = 'min-w-max',
 }: DataTableProps<T>) {
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -77,7 +84,12 @@ export function DataTable<T>({
     <div className="space-y-6">
       <div className="glass noise-bg rounded-2xl overflow-hidden">
         <div className="w-full overflow-x-auto">
-          <Table className="w-full min-w-[2500px] table-fixed">
+          <Table
+            className={cn(
+              'w-full',
+              minWidthClassName,
+              tableLayout === 'auto' ? 'table-auto' : 'table-fixed',
+            )}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

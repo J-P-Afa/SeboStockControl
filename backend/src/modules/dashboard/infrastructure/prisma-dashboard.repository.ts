@@ -41,6 +41,7 @@ interface RawTransactionRow {
   id: number;
   book_name: string;
   date: string;
+  quantidade: number;
   valor_total: number;
   profit: number;
 }
@@ -317,6 +318,7 @@ export class PrismaDashboardRepository implements DashboardRepository {
         s.id,
         l.title AS book_name,
         TO_CHAR(s.data_saida, 'YYYY-MM-DD') AS date,
+        s.quantidade,
         s.valor_total,
         s.lucro_venda AS profit
       FROM saida s
@@ -331,6 +333,7 @@ export class PrismaDashboardRepository implements DashboardRepository {
       id: Number(row.id),
       bookName: String(row.book_name),
       date: String(row.date),
+      quantity: Number(row.quantidade) || 0,
       totalValue: Number(row.valor_total) || 0,
       profit: Number(row.profit) || 0,
     }));

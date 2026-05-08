@@ -23,6 +23,7 @@ export interface RecentTransactionData {
   id: number;
   bookName: string;
   date: string;
+  quantity: number;
   totalValue: number;
   profit: number;
 }

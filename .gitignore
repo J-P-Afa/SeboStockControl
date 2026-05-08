@@ -8,5 +8,6 @@ dist/
 *.db-journal
 coverage/
 .turbo/
+uploads/
 *.tsbuildinfo
 .DS_Store

@@ -16,6 +16,7 @@ interface RecentTransaction {
   id: number
   bookName: string
   date: string
+  quantity: number
   totalValue: number
   profit: number
 }
@@ -43,6 +44,7 @@ export function RecentTransactionsTable({
               <TableRow className="border-border hover:bg-transparent">
                 <TableHead className="font-semibold text-muted-foreground w-[40%]">Livro</TableHead>
                 <TableHead className="font-semibold text-muted-foreground">Data</TableHead>
+                <TableHead className="font-semibold text-muted-foreground text-right">Qtd.</TableHead>
                 <TableHead className="font-semibold text-muted-foreground text-right">Valor Total</TableHead>
                 <TableHead className="font-semibold text-muted-foreground text-right">Lucro</TableHead>
               </TableRow>
@@ -50,7 +52,7 @@ export function RecentTransactionsTable({
             <TableBody>
               {transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                     Nenhuma transação encontrada.
                   </TableCell>
                 </TableRow>
@@ -61,6 +63,7 @@ export function RecentTransactionsTable({
                     <TableCell className="text-muted-foreground">
                       {new Date(tx.date).toLocaleDateString("pt-BR")}
                     </TableCell>
+                    <TableCell className="text-right font-mono">{tx.quantity}</TableCell>
                     <TableCell className="text-right font-mono">
                       {formatCurrency(tx.totalValue)}
                     </TableCell>

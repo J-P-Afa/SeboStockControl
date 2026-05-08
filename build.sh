@@ -30,6 +30,37 @@ ok()   { echo -e "${GREEN}  ✔ $1${NC}"; }
 warn() { echo -e "${YELLOW}  ⚠ $1${NC}"; }
 fail() { echo -e "${RED}  ✖ $1${NC}"; exit 1; }
 
+kill_port() {
+  local port="$1"
+  local pids=""
+
+  if command -v lsof >/dev/null 2>&1; then
+    pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
+    if [ -n "$pids" ]; then
+      echo "$pids" | xargs -r kill -9 2>/dev/null || true
+    fi
+  fi
+
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k "${port}/tcp" 2>/dev/null || true
+  fi
+}
+
+port_in_use() {
+  local port="$1"
+
+  if command -v lsof >/dev/null 2>&1 && lsof -Pi :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltn "sport = :$port" | awk 'NR > 1 { found = 1 } END { exit found ? 0 : 1 }'
+    return $?
+  fi
+
+  return 1
+}
+
 # ---- Impedir execução em shells incompatíveis (sh/dash) ----
 if [ -z "$BASH_VERSION" ]; then
   echo "\033[0;31m  ✖ ERRO CRÍTICO: Este script DEVE ser executado em Bash.\033[0m"
@@ -79,8 +110,8 @@ docker compose down 2>/dev/null && ok "Containers parados" || ok "Nenhum contain
 
 step "Limpando processos do frontend e backend..."
 # Tenta matar processos pelo número da porta (mais comum)
-fuser -k 3000/tcp 2>/dev/null || true
-fuser -k 3001/tcp 2>/dev/null || true
+kill_port 3000
+kill_port 3001
 
 # Tenta matar todos os processos de 'node' ou 'nest' que estejam rodando nesta pasta
 # Excluímos o próprio PID do script ($$) para não nos matarmos
@@ -90,13 +121,17 @@ pgrep -f "nest.*$ROOT_DIR" | grep -v "$$" | xargs kill -9 2>/dev/null || true
 # Pequeno delay para o SO liberar os sockets e limpar processos
 sleep 1
 
-if lsof -Pi :3001 -sTCP:LISTEN -t >/dev/null ; then
-  fail "Porta 3001 ainda em uso. Tente rodar: lsof -i :3001 para ver quem está usando."
+if port_in_use 3000; then
+  fail "Porta 3000 ainda em uso. Tente rodar: ss -ltnp 'sport = :3000' para ver quem está usando."
+fi
+
+if port_in_use 3001; then
+  fail "Porta 3001 ainda em uso. Tente rodar: ss -ltnp 'sport = :3001' para ver quem está usando."
 fi
 ok "Processos antigos limpos e portas liberadas"
 
 step "Subindo banco de dados PostgreSQL..."
-docker compose up -d
+docker compose up -d postgres
 ok "PostgreSQL rodando na porta 5432"
 
 # Aguarda o PostgreSQL ficar pronto

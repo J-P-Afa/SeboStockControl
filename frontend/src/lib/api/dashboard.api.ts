@@ -51,6 +51,7 @@ export interface RecentTransaction {
   id: number
   bookName: string
   date: string
+  quantity: number
   totalValue: number
   profit: number
 }
