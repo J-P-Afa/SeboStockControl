@@ -9,6 +9,9 @@ const meta: Meta<typeof PermissionBadge> = {
     action: {
       control: 'text',
     },
+    label: {
+      control: 'text',
+    },
   },
 };
 
@@ -18,17 +21,20 @@ type Story = StoryObj<typeof PermissionBadge>;
 export const Default: Story = {
   args: {
     action: 'users:read',
+    label: 'Visualizar usuários',
   },
 };
 
 export const WritePermission: Story = {
   args: {
     action: 'books:write',
+    label: 'Gerenciar livros',
   },
 };
 
 export const AdminPermission: Story = {
   args: {
     action: 'system:admin',
+    label: 'Administrar sistema',
   },
 };

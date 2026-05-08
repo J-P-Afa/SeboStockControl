@@ -62,7 +62,7 @@ export function getRolesTableColumns({
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-1.5 max-w-[400px]">
           {row.original.permissions.map((p) => (
-            <PermissionBadge key={p.id} action={p.action} />
+            <PermissionBadge key={p.id} action={p.action} label={p.description} />
           ))}
         </div>
       ),

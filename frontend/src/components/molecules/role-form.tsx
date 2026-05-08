@@ -132,9 +132,9 @@ function PermissionItem({
                 className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
             <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium">{permission.action}</span>
+                <span className="text-sm font-medium">{permission.description || permission.action}</span>
                 {permission.description && (
-                    <span className="text-[10px] opacity-70">{permission.description}</span>
+                    <span className="text-[10px] opacity-70">{permission.action}</span>
                 )}
             </div>
         </label>

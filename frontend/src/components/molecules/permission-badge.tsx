@@ -3,19 +3,21 @@ import { cn } from '@/lib/utils';
 
 interface PermissionBadgeProps {
     action: string;
+    label?: string | null;
     className?: string;
 }
 
-export function PermissionBadge({ action, className }: PermissionBadgeProps) {
+export function PermissionBadge({ action, label, className }: PermissionBadgeProps) {
     return (
         <Badge
             variant="outline"
+            title={action}
             className={cn(
-                "bg-foreground/5 backdrop-blur-md border-foreground/10 text-muted-foreground font-mono text-[10px] uppercase tracking-wider py-0.5 px-2 hover:bg-foreground/10 transition-colors",
+                "bg-foreground/5 backdrop-blur-md border-foreground/10 text-muted-foreground text-[10px] py-0.5 px-2 hover:bg-foreground/10 transition-colors",
                 className
             )}
         >
-            {action}
+            {label || action}
         </Badge>
     );
 }
